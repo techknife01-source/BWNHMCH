@@ -1,0 +1,20 @@
+export const FACULTY_CONSTANTS = {
+  MODULE_NAME: 'Faculty Management',
+  DEFAULT_PAGE_SIZE: 10,
+  ROLES: ['ROLE_FACULTY', 'ROLE_PRINCIPAL', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'],
+  NAV_ITEMS: [
+    { label: 'Dashboard', path: '/faculty/dashboard', icon: 'LayoutDashboard' },
+    { label: 'My Profile', path: '/faculty/profile', icon: 'User' },
+    { label: 'My Classes', path: '/faculty/classes', icon: 'BookOpen' },
+    { label: 'Attendance', path: '/faculty/attendance', icon: 'CheckSquare' },
+    { label: 'Assignments', path: '/faculty/assignments', icon: 'FileText' },
+    { label: 'Study Materials', path: '/faculty/study-material', icon: 'FolderOpen' },
+    { label: 'Examinations', path: '/faculty/examinations', icon: 'GraduationCap' },
+    { label: 'Results', path: '/faculty/results', icon: 'Award' },
+    { label: 'Research', path: '/faculty/research', icon: 'FlaskConical' },
+    { label: 'Library', path: '/faculty/library', icon: 'Library' },
+    { label: 'Hospital Posting', path: '/faculty/hospital', icon: 'Stethoscope' },
+    { label: 'Department', path: '/faculty/department', icon: 'Building2' },
+    { label: 'Settings', path: '/faculty/settings', icon: 'Settings' },
+  ],
+};

@@ -1,0 +1,9 @@
+# Production Environment Configuration
+logging:
+  level:
+    root: WARN
+    com.homeopathy.college: INFO
+
+springdoc:
+  swagger-ui:
+    enabled: true

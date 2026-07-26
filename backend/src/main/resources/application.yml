@@ -1,0 +1,61 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api/v1
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  application:
+    name: smart-homeopathic-college-backend
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://admin:password@cluster0.mongodb.net/homeopathy_erp?retryWrites=true&w=majority}
+      auto-index-creation: true
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:noreply@bwnhmch.com}
+    password: ${SMTP_PASSWORD:secret_password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# JWT Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:9a4f2c8d1e6b3a7f0e9c8b7a6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c}
+    expiration-ms: 86400000 # 24 Hours
+    refresh-expiration-ms: 604800000 # 7 Days
+
+# Cloudinary Storage
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:bhmch-cloud}
+  api-key: ${CLOUDINARY_API_KEY:1234567890}
+  api-secret: ${CLOUDINARY_API_SECRET:secret_key}
+
+# OpenAPI Swagger Config
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+    com.homeopathy.college: DEBUG
+    org.springframework.data.mongodb: INFO
+    org.springframework.security: INFO

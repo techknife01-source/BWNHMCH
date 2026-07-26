@@ -1,0 +1,10 @@
+# Development Environment Configuration
+logging:
+  level:
+    root: INFO
+    com.homeopathy.college: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: true

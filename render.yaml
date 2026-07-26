@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: smart-homeopathic-college-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    region: singapore
+    plan: free
+    healthCheckPath: /api/v1/actuator/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
