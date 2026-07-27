@@ -1,5 +1,6 @@
 import { apiClient } from './apiClient';
 import { ApiResponse, LoginResponse, User } from '../../types/index';
+import { tokenManager } from '../../utils/tokenManager';
 
 const MOCK_ACCOUNTS_MAP: Record<string, Partial<LoginResponse>> = {
   'viceprincipal@bwnhmch.com': {
@@ -224,10 +225,11 @@ export const authApi = {
       const response = await apiClient.get<ApiResponse<User>>('/auth/me');
       return response.data;
     } catch {
+      const storedUser = tokenManager.getUser();
       return {
         success: true,
         message: 'User profile retrieved',
-        data: {
+        data: storedUser || {
           id: 'usr-vp-001',
           username: 'viceprincipal',
           email: 'viceprincipal@bwnhmch.com',
