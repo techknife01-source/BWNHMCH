@@ -88,11 +88,78 @@ const MOCK_ACCOUNTS_MAP: Record<string, Partial<LoginResponse>> = {
 
 export const authApi = {
   login: async (credentials: Record<string, any>): Promise<ApiResponse<LoginResponse>> => {
+    const usernameOrEmail = credentials.usernameOrEmail || credentials.email || credentials.username || '';
+    const password = credentials.password || '';
+
+    const payload = {
+      usernameOrEmail,
+      password,
+    };
+
     try {
-      const response = await apiClient.post<ApiResponse<LoginResponse>>('/auth/login', credentials);
-      return response.data;
-    } catch {
-      const identifier = (credentials.usernameOrEmail || credentials.email || credentials.username || '').toLowerCase();
+      const response = await apiClient.post<any>('/auth/login', payload);
+      const rawData = response.data;
+      const resData = rawData?.data || rawData;
+
+      const accessToken =
+        resData?.accessToken ||
+        resData?.tokens?.accessToken ||
+        resData?.token ||
+        rawData?.accessToken ||
+        rawData?.token ||
+        '';
+
+      const refreshToken =
+        resData?.refreshToken ||
+        resData?.tokens?.refreshToken ||
+        rawData?.refreshToken ||
+        '';
+
+      const userInfo = resData?.user || resData;
+      const userId = userInfo?.id || userInfo?.userId || 'usr-001';
+      const username = userInfo?.username || usernameOrEmail;
+      const email =
+        userInfo?.email ||
+        (usernameOrEmail.includes('@') ? usernameOrEmail : `${usernameOrEmail}@bwnhmch.com`);
+      const fullName = userInfo?.fullName || userInfo?.name || username;
+      const roles = userInfo?.roles || (resData?.roles ? resData.roles : ['ROLE_STUDENT']);
+      const department = userInfo?.department || resData?.department || '';
+      const avatar = userInfo?.avatar || userInfo?.avatarUrl || resData?.avatar;
+
+      const parsedLoginResponse: LoginResponse = {
+        accessToken,
+        refreshToken,
+        tokenType: resData?.tokenType || 'Bearer',
+        userId,
+        username,
+        email,
+        fullName,
+        roles,
+        department,
+        avatar,
+      };
+
+      if (accessToken) {
+        tokenManager.setAccessToken(accessToken);
+      }
+      if (refreshToken) {
+        tokenManager.setRefreshToken(refreshToken);
+      }
+
+      return {
+        success: rawData?.success ?? true,
+        message: rawData?.message || 'Authentication successful',
+        data: parsedLoginResponse,
+        timestamp: rawData?.timestamp || new Date().toISOString(),
+      };
+    } catch (err: any) {
+      if (err?.response?.status) {
+        // Real HTTP response error from backend (e.g. 401 Unauthorized, 400 Bad Request)
+        throw err;
+      }
+
+      // Network unreachable fallback for offline / local demo testing
+      const identifier = usernameOrEmail.toLowerCase();
       const matched = MOCK_ACCOUNTS_MAP[identifier] || Object.values(MOCK_ACCOUNTS_MAP).find(
         acc => acc.username === identifier || acc.email?.toLowerCase() === identifier
       );
@@ -124,6 +191,9 @@ export const authApi = {
         department: matched?.department || 'Burdwan Homoeopathic Medical College',
         avatar: matched?.avatar || 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       };
+
+      tokenManager.setAccessToken(fallbackData.accessToken);
+      tokenManager.setRefreshToken(fallbackData.refreshToken);
 
       return {
         success: true,

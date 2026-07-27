@@ -14,7 +14,10 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = tokenManager.getAccessToken();
-    if (token && config.headers) {
+    if (token) {
+      if (!config.headers) {
+        config.headers = {} as any;
+      }
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -41,6 +44,14 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // Do not attempt token refresh for authentication requests like login or refresh itself
+    if (
+      originalRequest?.url?.includes('/auth/login') ||
+      originalRequest?.url?.includes('/auth/refresh')
+    ) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -73,12 +84,24 @@ apiClient.interceptors.response.use(
           refreshToken,
         });
 
-        const { accessToken, refreshToken: newRefreshToken } = res.data.data;
-        tokenManager.setAccessToken(accessToken);
-        if (newRefreshToken) tokenManager.setRefreshToken(newRefreshToken);
+        const resData = res.data?.data || res.data;
+        const accessToken =
+          resData?.accessToken ||
+          resData?.tokens?.accessToken ||
+          resData?.token;
+        const newRefreshToken =
+          resData?.refreshToken ||
+          resData?.tokens?.refreshToken;
+
+        if (accessToken) {
+          tokenManager.setAccessToken(accessToken);
+        }
+        if (newRefreshToken) {
+          tokenManager.setRefreshToken(newRefreshToken);
+        }
 
         processQueue(null, accessToken);
-        if (originalRequest.headers) {
+        if (originalRequest.headers && accessToken) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         }
         return apiClient(originalRequest);

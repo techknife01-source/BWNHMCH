@@ -54,30 +54,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (credentials: any) => {
-    const res = await authApi.login(credentials);
-    const { accessToken, refreshToken, userId, username, email, fullName, roles, department, avatar } = res.data;
+    const usernameOrEmail = credentials.usernameOrEmail || credentials.email || credentials.username || '';
+    const password = credentials.password || '';
+
+    const payload = {
+      usernameOrEmail,
+      password,
+    };
+
+    const res = await authApi.login(payload);
+    const loginData = res?.data;
+
+    if (!loginData || !loginData.accessToken) {
+      throw new Error(res?.message || 'Login failed: Access token missing in response');
+    }
+
+    const { accessToken, refreshToken, userId, username, email, fullName, roles, department, avatar } = loginData;
 
     const userObj: User = {
-      id: userId,
-      username,
-      email,
-      fullName,
-      roles: roles as any,
-      department,
-      designation: (res.data as any).designation,
+      id: userId || 'usr-current',
+      username: username || usernameOrEmail,
+      email: email || usernameOrEmail,
+      fullName: fullName || username || 'User',
+      roles: (roles || ['ROLE_STUDENT']) as any,
+      department: department || '',
+      designation: (loginData as any).designation,
       avatar,
       avatarUrl: avatar,
       enabled: true,
     };
 
-    tokenManager.setAccessToken(accessToken);
-    tokenManager.setRefreshToken(refreshToken);
+    if (accessToken) tokenManager.setAccessToken(accessToken);
+    if (refreshToken) tokenManager.setRefreshToken(refreshToken);
     tokenManager.setUser(userObj);
 
     setState({
       user: userObj,
       token: accessToken,
-      refreshToken,
+      refreshToken: refreshToken || null,
       isAuthenticated: true,
       isLoading: false,
     });

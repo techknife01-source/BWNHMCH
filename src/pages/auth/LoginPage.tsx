@@ -27,7 +27,7 @@ export const LoginPage: React.FC = () => {
       notification.success('Signed in successfully');
       navigate('/portal/dashboard');
     } catch (err: any) {
-      notification.error(err.response?.data?.message || 'Invalid authentication credentials');
+      notification.error(err.response?.data?.message || err.message || 'Invalid authentication credentials');
     } finally {
       setIsLoading(false);
     }

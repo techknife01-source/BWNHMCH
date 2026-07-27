@@ -58,20 +58,47 @@ export const authService = {
    */
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponseData>> {
     try {
-      const response = await apiClient.post<ApiResponse<LoginResponseData>>('/auth/login', credentials);
-      if (response.data?.data) {
-        const { tokens, user } = response.data.data;
-        if (tokens?.accessToken) {
-          tokenManager.setAccessToken(tokens.accessToken);
-        }
-        if (tokens?.refreshToken) {
-          tokenManager.setRefreshToken(tokens.refreshToken);
-        }
-        if (user) {
-          tokenManager.setUser(user);
-        }
+      const usernameOrEmail =
+        credentials.usernameOrEmail ||
+        (credentials as any).email ||
+        (credentials as any).username ||
+        '';
+      const password = credentials.password || '';
+
+      const payload = {
+        usernameOrEmail,
+        password,
+      };
+
+      const response = await apiClient.post<any>('/auth/login', payload);
+      const rawData = response.data;
+      const resData = rawData?.data || rawData;
+
+      const accessToken =
+        resData?.accessToken ||
+        resData?.tokens?.accessToken ||
+        resData?.token ||
+        rawData?.accessToken ||
+        rawData?.token ||
+        '';
+
+      const refreshToken =
+        resData?.refreshToken ||
+        resData?.tokens?.refreshToken ||
+        rawData?.refreshToken ||
+        '';
+
+      if (accessToken) {
+        tokenManager.setAccessToken(accessToken);
       }
-      return response.data;
+      if (refreshToken) {
+        tokenManager.setRefreshToken(refreshToken);
+      }
+      if (resData?.user || rawData?.user) {
+        tokenManager.setUser(resData?.user || rawData?.user);
+      }
+
+      return rawData;
     } catch (err) {
       throw normalizeAuthError(err);
     }
