@@ -46,9 +46,9 @@ public class DatabaseSeeder implements CommandLineRunner {
             seedUser("student1", "student1@bwnhmch.com", "Student@123", "Student One", Role.ROLE_STUDENT);
 
             log.info("Database seeding completed successfully.");
-        } catch (Exception e) {
-            log.error("Database seeding failed or skipped due to MongoDB connection/authentication error: {}", e.getMessage());
-            log.warn("Application startup will continue gracefully without crashing.");
+        } catch (Throwable e) {
+            log.error("Database seeding skipped or failed due to MongoDB connection/authentication error: {}", e.getMessage());
+            log.warn("Application startup continues gracefully without crashing.");
         }
     }
 
@@ -72,7 +72,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             userRepository.save(user);
             log.info("Seeded default user: {} ({}) with role {}", username, email, role);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Failed to seed user '{}' ({}): {}", username, email, e.getMessage());
         }
     }

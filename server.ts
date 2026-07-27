@@ -10,10 +10,23 @@ import { createServer as createViteServer } from 'vite';
 
 dotenv.config();
 
+const sanitizeMongoUri = (rawUri: string): string => {
+  if (!rawUri) return '';
+  let uri = rawUri.trim();
+  while ((uri.startsWith('"') && uri.endsWith('"')) || (uri.startsWith("'") && uri.endsWith("'"))) {
+    uri = uri.substring(1, uri.length - 1).trim();
+  }
+  uri = uri.replace(/[\r\n]/g, '').trim();
+  
+  if (uri.startsWith('mongodb+srv://') && !uri.toLowerCase().includes('authsource=')) {
+    uri = uri.includes('?') ? `${uri}&authSource=admin` : `${uri}?authSource=admin`;
+  }
+  return uri;
+};
+
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const rawMongoUri = (process.env.MONGODB_URI || '').trim();
-const MONGODB_URI = rawMongoUri.replace(/^["']|["']$/g, '');
+const MONGODB_URI = sanitizeMongoUri(process.env.MONGODB_URI || '');
 const CLIENT_URL = process.env.CLIENT_URL || '';
 
 const app = express();
@@ -74,7 +87,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // MongoDB Connection Logic with Retry Strategy
 let isConnecting = false;
-const connectMongoDB = async (retries = 5, delayMs = 3000) => {
+
+const connectMongoDB = async (retries = 3, delayMs = 2000) => {
   const isValidScheme =
     typeof MONGODB_URI === 'string' &&
     (MONGODB_URI.startsWith('mongodb://') || MONGODB_URI.startsWith('mongodb+srv://'));
@@ -98,12 +112,27 @@ const connectMongoDB = async (retries = 5, delayMs = 3000) => {
       isConnecting = false;
       return;
     } catch (err) {
-      console.error(`[MongoDB] Connection attempt ${attempt}/${retries} failed:`, (err as Error).message);
+      const errMsg = (err as Error).message || '';
+      console.error(`[MongoDB] Connection attempt ${attempt}/${retries} failed:`, errMsg);
+      
+      const isAuthError =
+        errMsg.toLowerCase().includes('bad auth') ||
+        errMsg.toLowerCase().includes('authentication failed') ||
+        errMsg.toLowerCase().includes('auth failed');
+
+      if (isAuthError) {
+        console.warn(
+          '[MongoDB] Authentication failed ("bad auth"). Please verify database credentials in MONGODB_URI. Operating in decoupled mode.'
+        );
+        isConnecting = false;
+        break;
+      }
+
       if (attempt < retries) {
         console.log(`[MongoDB] Retrying in ${delayMs / 1000} seconds...`);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       } else {
-        console.error('[MongoDB] Max connection retries reached.');
+        console.error('[MongoDB] Max connection retries reached. Operating in decoupled mode.');
         isConnecting = false;
       }
     }
