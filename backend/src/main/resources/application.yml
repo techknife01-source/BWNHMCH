@@ -11,8 +11,8 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://admin:password@cluster0.mongodb.net/homeopathy_erp?retryWrites=true&w=majority}
-      auto-index-creation: true
+      uri: ${MONGODB_URI:mongodb+srv://admin:password@cluster0.mongodb.net/homeopathy_erp?authSource=admin&retryWrites=true&w=majority}
+      auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:false}
 
   mail:
     host: ${SMTP_HOST:smtp.gmail.com}
