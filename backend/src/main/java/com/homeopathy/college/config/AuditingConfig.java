@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 @Configuration
-@EnableMongoAuditing
+@EnableMongoAuditing(auditorAwareRef = "auditorProvider")
 public class AuditingConfig {
 
     @Bean
