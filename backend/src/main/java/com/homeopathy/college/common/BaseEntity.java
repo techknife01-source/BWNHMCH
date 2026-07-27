@@ -1,6 +1,7 @@
 package com.homeopathy.college.common;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -35,6 +36,7 @@ public abstract class BaseEntity implements Serializable {
     @LastModifiedBy
     private String updatedBy;
 
+    @Builder.Default
     private boolean deleted = false;
 
     @Version

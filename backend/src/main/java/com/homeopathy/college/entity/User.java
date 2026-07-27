@@ -2,6 +2,7 @@ package com.homeopathy.college.entity;
 
 import com.homeopathy.college.common.BaseEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -39,13 +40,16 @@ public class User extends BaseEntity {
 
     private String registrationNo;
 
-    @SuperBuilder.Default
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @Builder.Default
     private boolean enabled = true;
 
+    @Builder.Default
     private boolean accountNonLocked = true;
 
+    @Builder.Default
     private int failedAttempt = 0;
 
     private LocalDateTime lockTime;
