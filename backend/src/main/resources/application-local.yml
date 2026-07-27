@@ -1,9 +1,4 @@
 # Local Environment Configuration
-spring:
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/homeopathy_erp_local
-
 logging:
   level:
     root: INFO
