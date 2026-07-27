@@ -8,16 +8,24 @@ services:
     healthCheckPath: /api/v1/actuator/health
     envVars:
       - key: PORT
-        value: 8080
+        value: 10000
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
+      - key: JWT_EXPIRATION
+        value: 86400000
+      - key: CLIENT_URL
+        value: https://bwnhmch-qu7p.vercel.app
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
         sync: false
       - key: SMTP_HOST
         value: smtp.gmail.com

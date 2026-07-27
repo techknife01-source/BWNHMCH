@@ -12,7 +12,8 @@ dotenv.config();
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const rawMongoUri = (process.env.MONGODB_URI || '').trim();
+const MONGODB_URI = rawMongoUri.replace(/^["']|["']$/g, '');
 const CLIENT_URL = process.env.CLIENT_URL || '';
 
 const app = express();
