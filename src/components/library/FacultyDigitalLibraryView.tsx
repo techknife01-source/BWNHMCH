@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Upload,
   BookOpen,
@@ -24,10 +24,15 @@ import {
   X,
   Lock,
   Unlock,
+  FileSpreadsheet,
+  Presentation,
+  Image as ImageIcon,
+  Archive,
+  RefreshCw,
 } from 'lucide-react';
 import { LibraryBook, DigitalResourceType, DigitalFileFormat } from '../../types/index';
 import { libraryApi } from '../../services/api/library.api';
-import { EmbeddedPdfViewer } from './EmbeddedPdfViewer';
+import { UniversalDocumentViewer } from './UniversalDocumentViewer';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserDisplayDesignation } from '../../utils/permissionHelper';
 
@@ -77,6 +82,14 @@ export const FacultyDigitalLibraryView: React.FC = () => {
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
   const [editingBook, setEditingBook] = useState<LibraryBook | null>(null);
 
+  // File Upload State
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileDataUrl, setFileDataUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
+
   // Form Fields
   const [formData, setFormData] = useState({
     title: '',
@@ -117,7 +130,98 @@ export const FacultyDigitalLibraryView: React.FC = () => {
     setTimeout(() => setNotification(null), 3500);
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  const detectFormatFromFilename = (name: string): DigitalFileFormat => {
+    const ext = name.split('.').pop()?.toUpperCase();
+    if (ext === 'DOC' || ext === 'DOCX') return 'DOCX' as DigitalFileFormat;
+    if (ext === 'PPT' || ext === 'PPTX') return 'PPTX' as DigitalFileFormat;
+    if (ext === 'XLS' || ext === 'XLSX') return 'DOCX' as DigitalFileFormat;
+    if (ext === 'TXT') return 'DOCX' as DigitalFileFormat;
+    return 'PDF' as DigitalFileFormat;
+  };
+
+  const processSelectedFile = (file: File) => {
+    // 50MB Max Check
+    if (file.size > 50 * 1024 * 1024) {
+      showToast('File size exceeds the 50MB maximum limit', 'error');
+      return;
+    }
+
+    setSelectedFile(file);
+    setIsUploading(true);
+    setUploadProgress(10);
+
+    const detectedFmt = detectFormatFromFilename(file.name);
+    setFormData((prev) => ({
+      ...prev,
+      fileFormat: detectedFmt,
+      title: prev.title || file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '),
+    }));
+
+    // Simulate progress
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          return 100;
+        }
+        return prev + 25;
+      });
+    }, 150);
+
+    // Read Data URL for preview/download
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFileDataUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFileDataUrl(null);
+    setUploadProgress(0);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleOpenUpload = (bookToEdit?: LibraryBook) => {
+    setSelectedFile(null);
+    setFileDataUrl(null);
+    setUploadProgress(0);
+    setIsUploading(false);
+
     if (bookToEdit) {
       setEditingBook(bookToEdit);
       setFormData({
@@ -179,6 +283,9 @@ export const FacultyDigitalLibraryView: React.FC = () => {
           fileFormat: formData.fileFormat,
           allowDownload: formData.allowDownload,
           description: formData.description,
+          fileName: selectedFile?.name || editingBook.fileName,
+          fileSize: selectedFile ? formatFileSize(selectedFile.size) : editingBook.fileSize,
+          fileDataUrl: fileDataUrl || editingBook.fileDataUrl,
         });
         if (res.data) {
           setBooks((prev) => prev.map((b) => (b.id === editingBook.id ? res.data : b)));
@@ -202,6 +309,9 @@ export const FacultyDigitalLibraryView: React.FC = () => {
           uploadedByRole: getUserDisplayDesignation(user),
           uploadedAt: new Date().toISOString().split('T')[0],
           description: formData.description,
+          fileName: selectedFile?.name || `${formData.title.replace(/\s+/g, '_')}.${formData.fileFormat.toLowerCase()}`,
+          fileSize: selectedFile ? formatFileSize(selectedFile.size) : '4.5 MB',
+          fileDataUrl: fileDataUrl || undefined,
           coverUrl:
             formData.fileFormat === 'PPTX'
               ? 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=400&q=80'
@@ -554,9 +664,9 @@ export const FacultyDigitalLibraryView: React.FC = () => {
         )}
       </div>
 
-      {/* EMBEDDED PDF READER MODAL */}
+      {/* UNIVERSAL DOCUMENT READER MODAL */}
       {activeReadingBook && (
-        <EmbeddedPdfViewer
+        <UniversalDocumentViewer
           book={activeReadingBook}
           onClose={() => setActiveReadingBook(null)}
           canDownload={true}
@@ -738,6 +848,117 @@ export const FacultyDigitalLibraryView: React.FC = () => {
                     placeholder="Provide a brief summary of the lecture notes or textbook..."
                     className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:border-[#002147] dark:text-white"
                   />
+                </div>
+
+                {/* DIGITAL LIBRARY FILE UPLOAD SYSTEM */}
+                <div className="sm:col-span-2 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3">
+                  <label className="block text-2xs font-extrabold uppercase text-slate-500 mb-1">
+                    Upload Resource Document (PDF, DOC/X, PPT/X, XLS/X, TXT, Image, ZIP)
+                  </label>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.webp,.zip"
+                    className="hidden"
+                  />
+
+                  {!selectedFile ? (
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 ${
+                        isDragOver
+                          ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20'
+                          : 'border-slate-300 dark:border-slate-700 hover:border-[#002147] dark:hover:border-emerald-400 bg-slate-50/50 dark:bg-slate-800/50'
+                      }`}
+                    >
+                      <div className="p-3 bg-[#002147]/10 dark:bg-emerald-950/50 text-[#002147] dark:text-emerald-400 rounded-full">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                          Click to Choose File or Drag & Drop here
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                          Supports PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, Images, ZIP up to 50MB
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fileInputRef.current?.click();
+                        }}
+                        className="mt-1 px-3.5 py-1.5 bg-[#002147] hover:bg-[#001833] text-white text-xs font-bold rounded-xl transition"
+                      >
+                        Choose File
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="p-2.5 bg-[#002147] text-white rounded-xl shrink-0 font-black text-2xs uppercase">
+                            {selectedFile.name.split('.').pop()?.toUpperCase() || 'FILE'}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white truncate">
+                              {selectedFile.name}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 font-mono">
+                              {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Document'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-2 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 rounded-xl text-xs font-bold hover:bg-blue-100 transition cursor-pointer flex items-center gap-1"
+                            title="Replace File"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Replace</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleRemoveFile}
+                            className="p-2 bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300 rounded-xl text-xs font-bold hover:bg-rose-100 transition cursor-pointer flex items-center gap-1"
+                            title="Remove File"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Remove</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* UPLOAD PROGRESS BAR */}
+                      {isUploading || uploadProgress < 100 ? (
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-center text-[10px] font-mono font-bold text-slate-500">
+                            <span>Processing File Upload...</span>
+                            <span>{uploadProgress}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-emerald-500 transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold text-[11px]">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>File Ready for Publishing</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

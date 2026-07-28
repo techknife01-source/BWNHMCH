@@ -341,6 +341,8 @@ export interface LibraryBook {
   allowDownload?: boolean;
   description?: string;
   fileSize?: string;
+  fileName?: string;
+  fileDataUrl?: string;
   pageCount?: number;
   sampleContent?: string[];
 }

@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00A651] text-white font-extrabold text-sm shadow-md">
-                BH
+                BW
               </div>
               <div>
                 <span className="font-extrabold text-white text-sm block leading-tight">{APP_CONSTANTS.INSTITUTION_NAME}</span>

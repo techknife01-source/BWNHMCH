@@ -158,20 +158,20 @@ export const Sidebar: React.FC = () => {
       <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
         {!isCollapsed && (
           <Link to="/" className="flex items-center space-x-3 overflow-hidden">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002147] text-white font-extrabold text-sm shadow-md">
-              BH
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002147] text-white font-extrabold text-xs shadow-md">
+              BW
             </div>
             <div className="min-w-0">
               <span className="font-extrabold text-xs text-[#002147] dark:text-white block truncate leading-tight uppercase tracking-tight">
-                Burdwan Homoeo
+                BWNHMCH
               </span>
-              <span className="text-[10px] text-[#00A651] font-bold block truncate">ERP Campus Portal</span>
+              <span className="text-[10px] text-[#00A651] font-bold block truncate">Digital ERP Portal</span>
             </div>
           </Link>
         )}
         {isCollapsed && (
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#002147] text-white font-black text-sm">
-            BH
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#002147] text-white font-black text-xs">
+            BW
           </div>
         )}
 

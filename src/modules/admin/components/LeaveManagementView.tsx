@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { adminHrService } from '../../../services/adminHrService';
 import { LeaveApplication, LeaveType } from '../../../types/adminHr';
 import { Modal } from '../../../components/common/Modal';
+import { useAuth } from '../../../contexts/AuthContext';
+import { canApproveLeave } from '../../../utils/permissionHelper';
 import { CalendarCheck, Plus, CheckCircle, XCircle, Clock, FileText, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const LeaveManagementView: React.FC = () => {
+  const { user } = useAuth();
   const [leaves, setLeaves] = useState<LeaveApplication[]>(adminHrService.getLeaveApplications());
   const employees = adminHrService.getEmployees();
 
@@ -164,12 +167,18 @@ export const LeaveManagementView: React.FC = () => {
 
               <div className="shrink-0 flex items-center gap-2">
                 {l.status === 'PENDING' ? (
-                  <button
-                    onClick={() => handleOpenReview(l)}
-                    className="px-4 py-2 bg-[#002147] hover:bg-blue-900 text-white font-bold rounded-xl shadow-xs transition cursor-pointer"
-                  >
-                    Review Application
-                  </button>
+                  canApproveLeave(user) ? (
+                    <button
+                      onClick={() => handleOpenReview(l)}
+                      className="px-4 py-2 bg-[#002147] hover:bg-blue-900 text-white font-bold rounded-xl shadow-xs transition cursor-pointer"
+                    >
+                      Review Application
+                    </button>
+                  ) : (
+                    <span className="text-amber-600 font-bold text-[11px] bg-amber-50 dark:bg-amber-950 px-3 py-1.5 rounded-xl">
+                      Pending Approval
+                    </span>
+                  )
                 ) : (
                   <span className="text-slate-400 font-bold text-[11px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl">
                     Processed

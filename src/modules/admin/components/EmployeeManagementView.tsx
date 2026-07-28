@@ -3,6 +3,8 @@ import { adminHrService } from '../../../services/adminHrService';
 import { Employee, EmployeeType, EmployeeStatus } from '../../../types/adminHr';
 import { StaffProfileModal } from './StaffProfileModal';
 import { Modal } from '../../../components/common/Modal';
+import { useAuth } from '../../../contexts/AuthContext';
+import { canAddUser, canEditUser, canDeleteUser, canAssignRoles } from '../../../utils/permissionHelper';
 import {
   Users,
   Search,
@@ -30,6 +32,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
   isAddModalOpenInitially = false,
   onCloseAddModalInitially,
 }) => {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>(adminHrService.getEmployees());
   const departments = adminHrService.getDepartments();
   const designations = adminHrService.getDesignations();
@@ -263,13 +266,15 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-[#002147] hover:bg-blue-900 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Staff Member</span>
-        </button>
+        {canAddUser(user) && (
+          <button
+            onClick={handleOpenAdd}
+            className="px-4 py-2.5 bg-[#002147] hover:bg-blue-900 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Staff Member</span>
+          </button>
+        )}
       </div>
 
       {/* Search & Filter Bar */}
@@ -414,20 +419,24 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          onClick={() => handleOpenEdit(emp)}
-                          title="Edit Employee"
-                          className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition cursor-pointer"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(emp)}
-                          title="Delete Record"
-                          className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950 dark:text-rose-300 transition cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {canEditUser(user) && (
+                          <button
+                            onClick={() => handleOpenEdit(emp)}
+                            title="Edit Employee"
+                            className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        {canDeleteUser(user) && (
+                          <button
+                            onClick={() => handleDelete(emp)}
+                            title="Delete Record"
+                            className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950 dark:text-rose-300 transition cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

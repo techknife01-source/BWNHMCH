@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { LibraryBook } from '../../types/index';
 import { libraryApi } from '../../services/api/library.api';
-import { EmbeddedPdfViewer } from './EmbeddedPdfViewer';
+import { UniversalDocumentViewer } from './UniversalDocumentViewer';
 
 const DEPARTMENTS = [
   'Organon of Medicine & Homoeopathic Philosophy',
@@ -338,9 +338,9 @@ export const StudentDigitalLibraryView: React.FC = () => {
         </div>
       )}
 
-      {/* EMBEDDED PDF READER MODAL */}
+      {/* UNIVERSAL DOCUMENT READER MODAL */}
       {activeReadingBook && (
-        <EmbeddedPdfViewer
+        <UniversalDocumentViewer
           book={activeReadingBook}
           onClose={() => setActiveReadingBook(null)}
           canDownload={activeReadingBook.allowDownload ?? false}

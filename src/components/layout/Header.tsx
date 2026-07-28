@@ -62,8 +62,8 @@ export const Header: React.FC = () => {
       {/* Main Brand Bar */}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6">
         <Link to="/" className="flex items-center space-x-3 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#002147] text-white font-black text-lg shadow-md group-hover:bg-[#003366] transition">
-            BH
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#002147] text-white font-black text-sm shadow-md group-hover:bg-[#003366] transition">
+            BW
           </div>
           <div>
             <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-[#002147] dark:text-white leading-tight">

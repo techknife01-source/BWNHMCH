@@ -1,6 +1,6 @@
 export const APP_CONSTANTS = {
-  INSTITUTION_NAME: "Burdwan Homoeopathic Medical College & Hospital",
-  SHORT_NAME: "BHMC&H",
+  INSTITUTION_NAME: "Burdwan National Homeopathic Medical College & Hospital",
+  SHORT_NAME: "BWNHMCH",
   ESTD_YEAR: "1978",
   AFFILIATION: "Affiliated to West Bengal University of Health Sciences (WBUHS) & Recognized by National Commission for Homoeopathy (NCH)",
   CONTACT_PHONE: "+91 342 263 4567",

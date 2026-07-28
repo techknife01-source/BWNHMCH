@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserDisplayDesignation, isFacultyUser } from '../../utils/permissionHelper';
+import { ProfilePictureCropperModal } from '../../components/common/ProfilePictureCropperModal';
 import { 
   User, 
   Mail, 
@@ -23,8 +24,9 @@ import {
 import { motion } from 'framer-motion';
 
 export const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'academic' | 'security' | 'activity'>('profile');
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
 
   // Form states
   const [isEditing, setIsEditing] = useState(false);
@@ -39,6 +41,16 @@ export const ProfilePage: React.FC = () => {
     qualification: 'M.D. (Hom.), Ph.D.',
     experienceYears: '28 Years'
   });
+
+  const handleSaveAvatar = (newAvatarDataUrl: string) => {
+    if (user) {
+      setUser({
+        ...user,
+        avatarUrl: newAvatarDataUrl,
+        avatar: newAvatarDataUrl,
+      });
+    }
+  };
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -81,7 +93,11 @@ export const ProfilePage: React.FC = () => {
                 <span className="text-white">{formData.fullName.charAt(0)}</span>
               )}
             </div>
-            <button className="absolute bottom-1 right-1 p-2 rounded-lg bg-[#00A651] hover:bg-emerald-600 text-white shadow-md transition">
+            <button 
+              onClick={() => setIsCropperOpen(true)}
+              title="Change Profile Picture"
+              className="absolute bottom-1 right-1 p-2 rounded-lg bg-[#00A651] hover:bg-emerald-600 text-white shadow-md transition cursor-pointer"
+            >
               <Camera className="w-4 h-4" />
             </button>
           </div>
@@ -389,6 +405,13 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ProfilePictureCropperModal
+        isOpen={isCropperOpen}
+        onClose={() => setIsCropperOpen(false)}
+        currentAvatarUrl={user?.avatarUrl}
+        onSaveAvatar={handleSaveAvatar}
+      />
     </div>
   );
 };

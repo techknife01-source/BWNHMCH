@@ -21,6 +21,10 @@ const queryClient = new QueryClient({
 });
 
 export const App: React.FC = () => {
+  React.useEffect(() => {
+    document.title = "Burdwan National Homeopathic Medical College & Hospital";
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

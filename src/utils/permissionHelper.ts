@@ -5,6 +5,16 @@ import {
   getUserRoleCodes as coreGetUserRoleCodes,
 } from '../modules/core/utils/rbac.utils';
 
+export const CORE_ROLES = {
+  SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  PRINCIPAL: 'ROLE_PRINCIPAL',
+  VICE_PRINCIPAL: 'ROLE_VICE_PRINCIPAL',
+  ADMIN: 'ROLE_ADMIN',
+  FACULTY: 'ROLE_FACULTY',
+  HOD: 'ROLE_HOD',
+  STUDENT: 'ROLE_STUDENT',
+} as const;
+
 export const FACULTY_DESIGNATIONS = [
   'Principal',
   'Vice Principal',
@@ -35,10 +45,59 @@ export const FACULTY_ROLE_CODES = [
   'FACULTY',
 ];
 
+export const isSuperAdmin = (user: any): boolean => {
+  if (!user) return false;
+  const roles = coreGetUserRoleCodes(user);
+  return roles.includes('ROLE_SUPER_ADMIN') || roles.includes('ROLE_SUPERADMIN') || roles.includes('SUPER_ADMIN');
+};
+
+export const isPrincipal = (user: any): boolean => {
+  if (!user) return false;
+  const roles = coreGetUserRoleCodes(user);
+  const identifier = (user.email || user.username || '').toLowerCase();
+  const des = (user.designation || '').toLowerCase();
+  return (
+    roles.includes('ROLE_PRINCIPAL') ||
+    (des.includes('principal') && !des.includes('vice')) ||
+    (identifier.includes('principal') && !identifier.includes('vice'))
+  );
+};
+
+export const isVicePrincipal = (user: any): boolean => {
+  if (!user) return false;
+  const roles = coreGetUserRoleCodes(user);
+  const identifier = (user.email || user.username || '').toLowerCase();
+  const des = (user.designation || '').toLowerCase();
+  return (
+    roles.includes('ROLE_VICE_PRINCIPAL') ||
+    des.includes('vice principal') ||
+    identifier.includes('vice')
+  );
+};
+
+export const isAdmin = (user: any): boolean => {
+  if (!user) return false;
+  const roles = coreGetUserRoleCodes(user);
+  return roles.includes('ROLE_ADMIN') || roles.includes('ADMIN');
+};
+
+export const isHOD = (user: any): boolean => {
+  if (!user) return false;
+  const roles = coreGetUserRoleCodes(user);
+  const identifier = (user.email || user.username || '').toLowerCase();
+  const des = (user.designation || '').toLowerCase();
+  return (
+    roles.includes('ROLE_HOD') ||
+    des.includes('hod') ||
+    des.includes('head of department') ||
+    identifier.includes('hod')
+  );
+};
+
 export const isFacultyUser = (user: any): boolean => {
   if (!user) return false;
 
-  // 1. Check designation string
+  // Check designation string
   if (user.designation && typeof user.designation === 'string') {
     const des = user.designation.toLowerCase();
     if (FACULTY_DESIGNATIONS.some((d) => des.includes(d.toLowerCase()))) {
@@ -46,13 +105,13 @@ export const isFacultyUser = (user: any): boolean => {
     }
   }
 
-  // 2. Check roles array
+  // Check roles array
   const roles = coreGetUserRoleCodes(user);
   if (roles.some((r) => FACULTY_ROLE_CODES.includes(r))) {
     return true;
   }
 
-  // 3. Fallback check on email or username
+  // Fallback check on email or username
   const identifier = (user.email || user.username || '').toLowerCase();
   if (
     identifier.includes('vice') ||
@@ -72,7 +131,7 @@ export const isFacultyUser = (user: any): boolean => {
 
 export const isStudentUser = (user: any): boolean => {
   if (!user) return false;
-  if (isFacultyUser(user)) return false;
+  if (isFacultyUser(user) || isSuperAdmin(user) || isAdmin(user)) return false;
 
   const roles = coreGetUserRoleCodes(user);
   return roles.includes('ROLE_STUDENT') || roles.includes('STUDENT');
@@ -88,25 +147,108 @@ export const getUserDisplayDesignation = (user: any): string => {
   const roles = coreGetUserRoleCodes(user);
   const identifier = (user.email || user.username || '').toLowerCase();
 
-  if (roles.includes('ROLE_SUPER_ADMIN') || roles.includes('ROLE_SUPERADMIN')) return 'Super Administrator';
-  if (roles.includes('ROLE_ADMIN')) return 'Administrator';
-  if (roles.includes('ROLE_VICE_PRINCIPAL') || identifier.includes('vice')) return 'Vice Principal';
-  if (roles.includes('ROLE_PRINCIPAL') || (identifier.includes('principal') && !identifier.includes('vice'))) return 'Principal';
-  if (roles.includes('ROLE_HOD') || identifier.includes('hod')) return 'Head of Department (HOD)';
+  if (isSuperAdmin(user)) return 'Super Administrator';
+  if (isVicePrincipal(user)) return 'Vice Principal';
+  if (isPrincipal(user)) return 'Principal';
+  if (isHOD(user)) return 'Head of Department (HOD)';
+  if (isAdmin(user)) return 'Administrator';
   if (roles.includes('ROLE_PROFESSOR') || identifier.includes('prof')) return 'Professor';
   if (roles.includes('ROLE_ASSOCIATE_PROFESSOR')) return 'Associate Professor';
   if (roles.includes('ROLE_ASSISTANT_PROFESSOR')) return 'Assistant Professor';
   if (roles.includes('ROLE_LECTURER') || identifier.includes('lecturer')) return 'Lecturer';
   if (roles.includes('ROLE_CLINICAL_TUTOR') || identifier.includes('tutor')) return 'Clinical Tutor';
   if (roles.includes('ROLE_DEMONSTRATOR') || identifier.includes('demo')) return 'Demonstrator';
-  if (roles.includes('ROLE_FACULTY') || isFacultyUser(user)) return 'Faculty Member';
+  if (isFacultyUser(user)) return 'Faculty Member';
   if (roles.includes('ROLE_LIBRARIAN') || identifier.includes('lib')) return 'Head Librarian';
   if (roles.includes('ROLE_HOSPITAL_DOCTOR') || roles.includes('ROLE_DOCTOR') || identifier.includes('doc')) return 'Medical Officer';
   if (roles.includes('ROLE_RECEPTIONIST') || identifier.includes('reception')) return 'Hospital Receptionist';
   if (roles.includes('ROLE_ACCOUNTANT') || identifier.includes('account')) return 'Accounts Officer';
-  if (roles.includes('ROLE_STUDENT') || identifier.includes('student')) return 'BHMS Student Scholar';
+  if (isStudentUser(user)) return 'BHMS Student Scholar';
 
   return 'Authorized User';
+};
+
+// ==========================================================
+// ENTERPRISE RBAC PERMISSION GUARDS (ISSUE 3 REQUIREMENT MATRIX)
+// ==========================================================
+
+// ONLY Super Admin can add/create users
+export const canAddUser = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can edit users
+export const canEditUser = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can delete users
+export const canDeleteUser = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can assign roles
+export const canAssignRoles = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can access Database Control
+export const canManageDatabase = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can manage System Settings
+export const canManageSystemSettings = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can manage departments
+export const canManageDepartments = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// ONLY Super Admin can view system audit logs
+export const canViewAuditLogs = (user: any): boolean => {
+  return isSuperAdmin(user);
+};
+
+// Leave Approval: Super Admin, Principal, Vice Principal, Admin, HOD
+export const canApproveLeave = (user: any): boolean => {
+  if (!user) return false;
+  if (isStudentUser(user)) return false; // Students must NEVER see approve leave button
+  return isSuperAdmin(user) || isPrincipal(user) || isVicePrincipal(user) || isAdmin(user) || isHOD(user);
+};
+
+// Fee Management: Super Admin, Principal, Admin, Accountant
+export const canManageFees = (user: any): boolean => {
+  if (!user) return false;
+  if (isFacultyUser(user) && !isPrincipal(user) && !isAdmin(user) && !isSuperAdmin(user)) return false; // Faculty can't manage fees
+  if (isStudentUser(user)) return false; // Students can't manage fees
+  const roles = coreGetUserRoleCodes(user);
+  return isSuperAdmin(user) || isPrincipal(user) || isAdmin(user) || roles.includes('ROLE_ACCOUNTANT');
+};
+
+// Publish Notices: Super Admin, Principal, Vice Principal, Admin
+export const canPublishNotices = (user: any): boolean => {
+  if (!user) return false;
+  return isSuperAdmin(user) || isPrincipal(user) || isVicePrincipal(user) || isAdmin(user);
+};
+
+// Digital Library Upload: Super Admin, Principal, Vice Principal, Admin, Faculty, HOD
+export const canUploadDigitalLibrary = (user: any): boolean => {
+  if (!user) return false;
+  if (isStudentUser(user)) return false; // Students cannot upload
+  return true; // All staff / faculty / admins can upload
+};
+
+// Digital Library Access: All roles
+export const canAccessDigitalLibrary = (user: any): boolean => {
+  return !!user;
+};
+
+// Document Approval: Super Admin, Principal, Vice Principal
+export const canApproveDocuments = (user: any): boolean => {
+  return isSuperAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
 };
 
 export const hasRole = (userOrRoles: any = [], requiredRoles: string[] = []): boolean => {
@@ -119,4 +261,5 @@ export const hasRole = (userOrRoles: any = [], requiredRoles: string[] = []): bo
 };
 
 export { coreHasRole, coreHasAnyRole, coreGetUserRoleCodes };
+
 
