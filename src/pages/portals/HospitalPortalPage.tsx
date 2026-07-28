@@ -18,7 +18,7 @@ export const HospitalPortalPage: React.FC = () => {
           <span className="text-slate-300">Smart Homeopathic Medical College Hospital Portal</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar w-full sm:w-auto pb-1">
           <button
             onClick={() => setActivePortalTab('clinical')}
             className={`px-3 py-1.5 rounded-lg font-extrabold transition cursor-pointer flex items-center gap-1.5 ${

@@ -111,7 +111,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
               <Phone className="w-3.5 h-3.5 text-[#00A651]" /> +91 342 262 5585
             </span>
             <span className="flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#00A651]" /> bwnhmch@gmail.com
+              <Mail className="w-3.5 h-3.5 text-[#00A651]" /> bhmch@gmail.com
             </span>
             <span className="bg-[#00A651] text-white font-black px-2.5 py-0.5 rounded uppercase tracking-widest text-[9px] border border-[#ffffff10]">
               WBUHS Affiliated
@@ -883,7 +883,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   <Mail className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-slate-700 dark:text-slate-300 block">Staff Email</span>
-                    <span className="text-slate-500 dark:text-slate-400">bwnhmch@gmail.com, info@bwnhmch.com</span>
+                    <span className="text-slate-500 dark:text-slate-400">bhmch@gmail.com, info@bhmch.com</span>
                   </div>
                 </div>
               </div>

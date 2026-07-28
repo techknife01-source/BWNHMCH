@@ -32,7 +32,7 @@ export const ProfilePage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     fullName: user?.fullName || 'Dr. Susmita Chatterjee',
-    email: user?.email || 'principal@bwnhmch.ac.in',
+    email: user?.email || 'principal@bhmch.ac.in',
     phone: user?.phoneNumber || '+91 98321 45678',
     department: user?.department || 'Organon of Medicine & Homoeopathic Philosophy',
     designation: getUserDisplayDesignation(user),
@@ -129,7 +129,7 @@ export const ProfilePage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto gap-2 text-sm font-medium">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto custom-scrollbar pb-1 gap-2 text-sm font-medium">
         {[
           { id: 'profile', label: 'Personal Details', icon: User },
           { id: 'academic', label: 'Academic & Experience', icon: Award },

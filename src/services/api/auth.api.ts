@@ -3,82 +3,82 @@ import { ApiResponse, LoginResponse, User } from '../../types/index';
 import { tokenManager } from '../../utils/tokenManager';
 
 const MOCK_ACCOUNTS_MAP: Record<string, Partial<LoginResponse>> = {
-  'viceprincipal@bwnhmch.com': {
+  'viceprincipal@bhmch.com': {
     userId: 'usr-vp-001',
     username: 'viceprincipal',
-    email: 'viceprincipal@bwnhmch.com',
+    email: 'viceprincipal@bhmch.com',
     fullName: 'Dr. R. N. Mukherjee',
     roles: ['ROLE_VICE_PRINCIPAL', 'ROLE_PRINCIPAL', 'ROLE_FACULTY'],
     department: 'Organon of Medicine',
     avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'principal@bwnhmch.com': {
+  'principal@bhmch.com': {
     userId: 'usr-p-001',
     username: 'principal',
-    email: 'principal@bwnhmch.com',
+    email: 'principal@bhmch.com',
     fullName: 'Dr. Susmita Chatterjee',
     roles: ['ROLE_PRINCIPAL', 'ROLE_ADMIN'],
     department: 'Practice of Medicine',
     avatar: 'https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'admin@bwnhmch.com': {
+  'admin@bhmch.com': {
     userId: 'usr-adm-001',
     username: 'admin',
-    email: 'admin@bwnhmch.com',
+    email: 'admin@bhmch.com',
     fullName: 'System SuperAdmin Office',
     roles: ['ROLE_ADMIN', 'ROLE_SUPERADMIN'],
     department: 'Central IT & Administration',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'student@bwnhmch.com': {
+  'student@bhmch.com': {
     userId: 'usr-std-001',
     username: 'student',
-    email: 'student@bwnhmch.com',
+    email: 'student@bhmch.com',
     fullName: 'Arjun Sen (BHMS Scholar)',
     roles: ['ROLE_STUDENT'],
     department: '3rd BHMS Professional',
     avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'faculty@bwnhmch.com': {
+  'faculty@bhmch.com': {
     userId: 'usr-fac-001',
     username: 'faculty',
-    email: 'faculty@bwnhmch.com',
+    email: 'faculty@bhmch.com',
     fullName: 'Prof. (Dr.) S. K. Banerjea',
     roles: ['ROLE_FACULTY', 'ROLE_HOD'],
     department: 'Materia Medica',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'doctor@bwnhmch.com': {
+  'doctor@bhmch.com': {
     userId: 'usr-doc-001',
     username: 'doctor',
-    email: 'doctor@bwnhmch.com',
+    email: 'doctor@bhmch.com',
     fullName: 'Dr. Amit Roy (Clinical MO)',
     roles: ['ROLE_HOSPITAL_DOCTOR', 'ROLE_DOCTOR'],
     department: 'OPD General Medicine',
     avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'reception@bwnhmch.com': {
+  'reception@bhmch.com': {
     userId: 'usr-rec-001',
     username: 'reception',
-    email: 'reception@bwnhmch.com',
+    email: 'reception@bhmch.com',
     fullName: 'Anjali Sharma (OPD Reception)',
     roles: ['ROLE_HOSPITAL_RECEPTION'],
     department: 'Hospital Registration',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'librarian@bwnhmch.com': {
+  'librarian@bhmch.com': {
     userId: 'usr-lib-001',
     username: 'librarian',
-    email: 'librarian@bwnhmch.com',
+    email: 'librarian@bhmch.com',
     fullName: 'Subhashish Ghosh (Head Librarian)',
     roles: ['ROLE_LIBRARIAN'],
     department: 'Central Homoeopathic Library',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
-  'accountant@bwnhmch.com': {
+  'accountant@bhmch.com': {
     userId: 'usr-acc-001',
     username: 'accountant',
-    email: 'accountant@bwnhmch.com',
+    email: 'accountant@bhmch.com',
     fullName: 'Ramesh Chandra Roy (Accounts Officer)',
     roles: ['ROLE_ACCOUNTANT'],
     department: 'Finance & Treasury Desk',
@@ -120,7 +120,7 @@ export const authApi = {
       const username = userInfo?.username || usernameOrEmail;
       const email =
         userInfo?.email ||
-        (usernameOrEmail.includes('@') ? usernameOrEmail : `${usernameOrEmail}@bwnhmch.com`);
+        (usernameOrEmail.includes('@') ? usernameOrEmail : `${usernameOrEmail}@bhmch.com`);
       const fullName = userInfo?.fullName || userInfo?.name || username;
       const roles = userInfo?.roles || (resData?.roles ? resData.roles : ['ROLE_STUDENT']);
       const department = userInfo?.department || resData?.department || '';
@@ -185,10 +185,10 @@ export const authApi = {
         tokenType: 'Bearer',
         userId: matched?.userId || `usr-${Date.now()}`,
         username: matched?.username || identifier || 'user',
-        email: matched?.email || identifier || 'user@bwnhmch.com',
+        email: matched?.email || identifier || 'user@bhmch.com',
         fullName: matched?.fullName || (identifier.split('@')[0] || 'College Staff').toUpperCase(),
         roles: userRoles as any,
-        department: matched?.department || 'Burdwan Homoeopathic Medical College',
+        department: matched?.department || 'Burdwan Homeopathic Medical College & Hospital',
         avatar: matched?.avatar || 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       };
 
@@ -215,7 +215,7 @@ export const authApi = {
         data: {
           id: `usr-${Date.now()}`,
           username: data.username || 'newuser',
-          email: data.email || 'user@bwnhmch.com',
+          email: data.email || 'user@bhmch.com',
           fullName: data.fullName || 'New User',
           roles: ['ROLE_STUDENT'],
           enabled: true,
@@ -239,7 +239,7 @@ export const authApi = {
           tokenType: 'Bearer',
           userId: 'usr-refreshed',
           username: 'refreshed_user',
-          email: 'user@bwnhmch.com',
+          email: 'user@bhmch.com',
           fullName: 'Burdwan User',
           roles: ['ROLE_ADMIN'] as any,
         },
@@ -302,7 +302,7 @@ export const authApi = {
         data: storedUser || {
           id: 'usr-vp-001',
           username: 'viceprincipal',
-          email: 'viceprincipal@bwnhmch.com',
+          email: 'viceprincipal@bhmch.com',
           fullName: 'Dr. R. N. Mukherjee',
           roles: ['ROLE_PRINCIPAL', 'ROLE_ADMIN'] as any,
           department: 'Organon of Medicine',

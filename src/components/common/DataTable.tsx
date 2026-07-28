@@ -24,7 +24,7 @@ export function DataTable<T extends { id?: string | number }>({
   className,
 }: DataTableProps<T>) {
   return (
-    <div className={cn('w-full overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800', className)}>
+    <div className={cn('w-full overflow-x-auto custom-scrollbar rounded-2xl border border-slate-200 dark:border-slate-800', className)}>
       <table className="w-full text-left text-sm text-slate-700 dark:text-slate-200">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:bg-slate-800/80 dark:text-slate-400">
           <tr>

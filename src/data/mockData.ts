@@ -29,15 +29,15 @@ export const DEFAULT_PRINCIPAL_PROFILE: PrincipalProfile = {
   image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600',
   messageText: 'Welcome to Burdwan Homoeopathic Medical College & Hospital. Established in 1958, our institution stands as a premier seat of homeopathic learning in Eastern India. We strive to merge Hahnemannian classical philosophy with modern medical diagnostics and research.',
   tenure: '2021 - Present',
-  email: 'principal@bwnhmch.com',
+  email: 'principal@bhmch.com',
   phone: '+91 342 2656331'
 };
 
 export const DEFAULT_CMS_DATA: CMSData = {
-  collegeName: 'Burdwan Homoeopathic Medical College & Hospital',
+  collegeName: 'Burdwan Homeopathic Medical College & Hospital',
   address: '1, Ramkrishna Road, Burdwan, West Bengal - 713101, India',
   phone: '+91 (0342) 2656331 / 2568442',
-  email: 'principal@bwnhmch.com',
+  email: 'principal@bhmch.com',
   aboutText: 'Burdwan Homoeopathic Medical College & Hospital is a premier AYUSH educational institution in West Bengal, dedicated to classical homeopathic education, research, and patient care.',
   historyText: 'Founded in 1958 by visionaries in Burdwan district, the college was established to deliver affordable homeopathic healthcare and quality medical training.',
   missionText: 'To nurture highly competent, empathetic homeopathic physicians equipped with deep classical knowledge and modern clinical diagnostic skills.',
@@ -337,7 +337,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Materia Medica',
     qualification: 'MD (Hom), PhD',
     experience: '28 Years',
-    email: 'skbanerjea@bwnhmch.com',
+    email: 'skbanerjea@bhmch.com',
     publications: 24
   },
   {
@@ -347,7 +347,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Organon of Medicine & Philosophy',
     qualification: 'MD (Hom)',
     experience: '24 Years',
-    email: 'gslamba@bwnhmch.com',
+    email: 'gslamba@bhmch.com',
     publications: 15
   },
   {
@@ -357,7 +357,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Homoeopathic Repertory',
     qualification: 'MD (Hom)',
     experience: '19 Years',
-    email: 'vgupta@bwnhmch.com',
+    email: 'vgupta@bhmch.com',
     publications: 12
   },
   {
@@ -367,7 +367,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Practice of Medicine',
     qualification: 'BHMS, MD (Hom)',
     experience: '22 Years',
-    email: 'principal@bwnhmch.com',
+    email: 'principal@bhmch.com',
     publications: 18
   },
   {
@@ -377,7 +377,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Gynecology & Obstetrics',
     qualification: 'MD (Hom)',
     experience: '14 Years',
-    email: 'ssharma@bwnhmch.com',
+    email: 'ssharma@bhmch.com',
     publications: 8
   },
   {
@@ -387,7 +387,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Homoeopathic Pharmacy',
     qualification: 'MD (Hom)',
     experience: '20 Years',
-    email: 'rcmohanty@bwnhmch.com',
+    email: 'rcmohanty@bhmch.com',
     publications: 9
   },
   {
@@ -397,7 +397,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Materia Medica',
     qualification: 'MD (Hom)',
     experience: '6 Years',
-    email: 'atrivedi@bwnhmch.com',
+    email: 'atrivedi@bhmch.com',
     publications: 3
   },
   {
@@ -407,7 +407,7 @@ export const FACULTY: FacultyMember[] = [
     department: 'Homoeopathic Repertory',
     qualification: 'MD (Hom)',
     experience: '11 Years',
-    email: 'mnair@bwnhmch.com',
+    email: 'mnair@bhmch.com',
     publications: 7
   }
 ];
@@ -425,7 +425,7 @@ export const STUDENTS: StudentRecord[] = [
     feesTotal: 150000,
     scholarship: 'State Merit Scholarship',
     clinicalPosting: 'Practice of Medicine OPD-3',
-    email: 'arjun.sen@bwnhmch.com',
+    email: 'arjun.sen@bhmch.com',
     phone: '+91 98765 43210'
   },
   {
@@ -440,7 +440,7 @@ export const STUDENTS: StudentRecord[] = [
     feesTotal: 150000,
     scholarship: 'NHA Meritorious Scholarship',
     clinicalPosting: 'Gynecology & Obstetrics Ward B',
-    email: 'priyanka.das@bwnhmch.com',
+    email: 'priyanka.das@bhmch.com',
     phone: '+91 91234 56789'
   },
   {
@@ -455,7 +455,7 @@ export const STUDENTS: StudentRecord[] = [
     feesTotal: 150000,
     scholarship: 'None',
     clinicalPosting: 'Homeopathic Pharmacy Potentization Lab',
-    email: 'kabir.mal@bwnhmch.com',
+    email: 'kabir.mal@bhmch.com',
     phone: '+91 88877 66554'
   },
   {
@@ -470,7 +470,7 @@ export const STUDENTS: StudentRecord[] = [
     feesTotal: 120000,
     scholarship: 'OBC Merit-Cum-Means',
     clinicalPosting: 'IPD Ward 4 (Acute Care)',
-    email: 'sneha.kul@bwnhmch.com',
+    email: 'sneha.kul@bhmch.com',
     phone: '+91 77766 55443'
   },
   {
@@ -485,7 +485,7 @@ export const STUDENTS: StudentRecord[] = [
     feesTotal: 150000,
     scholarship: 'None',
     clinicalPosting: 'Anatomy Dissection Hall',
-    email: 'rohan.m@bwnhmch.com',
+    email: 'rohan.m@bhmch.com',
     phone: '+91 99988 87776'
   }
 ];

@@ -312,7 +312,7 @@ export const StudentErpDashboardPage: React.FC = () => {
       </div>
 
       {/* Module Navigation Tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center gap-1 overflow-x-auto pb-2 custom-scrollbar border-b border-slate-200 dark:border-slate-800">
         {[
           { id: 'dashboard', label: 'Dashboard', icon: GraduationCap },
           { id: 'profile', label: 'Profile', icon: User },

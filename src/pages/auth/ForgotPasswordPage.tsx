@@ -65,7 +65,7 @@ export const ForgotPasswordPage: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="user@bwnhmch.ac.in"
+            placeholder="user@bhmch.ac.in"
             leftIcon={<Mail className="h-4 w-4" />}
           />
           <Button variant="primary" type="submit" isLoading={isLoading} className="w-full">

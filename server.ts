@@ -188,7 +188,7 @@ app.get('/api/v1/actuator/health', (req: Request, res: Response) => {
 app.use('/api/v1', (req: Request, res: Response, next: NextFunction) => {
   if (req.path === '/health' || req.path === '/actuator/health') return next();
   res.status(200).json({
-    message: 'BWNHMCH API Service operational',
+    message: 'BHMCH API Service operational',
     path: req.path,
     timestamp: new Date().toISOString(),
   });

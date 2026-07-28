@@ -21,7 +21,7 @@ export const DigitalLibraryContainer: React.FC = () => {
     <div className="space-y-6">
       {/* FACULTY TOP NAVIGATION TABS */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-2.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar w-full sm:w-auto pb-1">
           <button
             onClick={() => setActiveFacultyTab('digital_library')}
             className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2 ${

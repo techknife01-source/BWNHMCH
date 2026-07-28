@@ -256,7 +256,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
             {/* Watermark */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 overflow-hidden">
               <span className="text-4xl font-black text-slate-900 -rotate-45 uppercase tracking-widest whitespace-nowrap">
-                BURDWAN NATIONAL HOMEOPATHIC MEDICAL COLLEGE
+                BURDWAN HOMEOPATHIC MEDICAL COLLEGE
               </span>
             </div>
 
@@ -265,7 +265,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
               <div className="flex justify-between items-center border-b border-slate-200 pb-3 mb-6">
                 <div>
                   <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-700 block">
-                    {book.department || 'BWNHMCH Academic Repository'}
+                    {book.department || 'BHMCH Academic Repository'}
                   </span>
                   <h2 className="text-base font-extrabold text-[#002147] mt-0.5">{book.title}</h2>
                 </div>
@@ -303,7 +303,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
                     </div>
 
                     <div className="pt-4 border-t border-slate-800 text-[10px] text-slate-400 font-mono flex justify-between">
-                      <span>BWNHMCH Presentation Hub</span>
+                      <span>BHMCH Presentation Hub</span>
                       <span>Slide {currentPage}</span>
                     </div>
                   </div>
@@ -368,7 +368,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
                 /* Standard PDF / DOCX Document View */
                 <div className="space-y-4 text-xs sm:text-sm text-slate-800 font-serif leading-relaxed my-4">
                   <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-[#002147] first-letter:mr-1">
-                    Page {currentPage}: {book.description || `Comprehensive academic resource for ${book.subject || 'Homeopathy Studies'}. Published for Burdwan National Homeopathic Medical College & Hospital students and faculty.`}
+                    Page {currentPage}: {book.description || `Comprehensive academic resource for ${book.subject || 'Homeopathy Studies'}. Published for Burdwan Homeopathic Medical College & Hospital students and faculty.`}
                   </p>
                   <p className="text-slate-600">
                     Detailed analysis of classical homeopathic literature, clinical posology rules, and case taking methodology. Approved for academic archival under NCH syllabus guidelines.
@@ -383,7 +383,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
             {/* FOOTER METADATA */}
             <div className="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] font-mono text-slate-400">
               <span>Uploaded By: {book.author || 'Faculty Member'}</span>
-              <span>BWNHMCH E-Library • {book.year || '2026'}</span>
+              <span>BHMCH E-Library • {book.year || '2026'}</span>
             </div>
           </div>
         </div>

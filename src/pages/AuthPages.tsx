@@ -31,77 +31,77 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
     super_admin: {
       role: 'super_admin',
       name: 'System SuperAdmin Office',
-      email: 'admin@bwnhmch.com',
+      email: 'admin@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     principal: {
       role: 'principal',
       name: 'Dr. Susmita Chatterjee',
-      email: 'principal@bwnhmch.com',
+      email: 'principal@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       department: 'Practice of Medicine'
     },
     vice_principal: {
       role: 'vice_principal',
       name: 'Dr. R. N. Mukherjee',
-      email: 'viceprincipal@bwnhmch.com',
+      email: 'viceprincipal@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       department: 'Organon of Medicine'
     },
     office_admin: {
       role: 'office_admin',
       name: 'Sanjeev Kumar',
-      email: 'office.admin@bwnhmch.com',
+      email: 'office.admin@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     faculty: {
       role: 'faculty',
       name: 'Dr. S. K. Banerjea',
-      email: 'skbanerjea@bwnhmch.com',
+      email: 'skbanerjea@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       department: 'Materia Medica'
     },
     hod: {
       role: 'hod',
       name: 'Dr. Vandana Gupta (HOD)',
-      email: 'hod.repertory@bwnhmch.com',
+      email: 'hod.repertory@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       department: 'Repertory'
     },
     hospital_superintendent: {
       role: 'hospital_superintendent',
       name: 'Dr. Partha Sarathi Chakraborty',
-      email: 'superintendent@bwnhmch.com',
+      email: 'superintendent@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     librarian: {
       role: 'librarian',
       name: 'Subhashish Ghosh',
-      email: 'library@bwnhmch.com',
+      email: 'library@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     accountant: {
       role: 'accountant',
       name: 'Ramesh Chandra Roy',
-      email: 'accounts@bwnhmch.com',
+      email: 'accounts@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     reception: {
       role: 'reception',
       name: 'Anjali Sharma',
-      email: 'reception@bwnhmch.com',
+      email: 'reception@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     admission_cell: {
       role: 'admission_cell',
       name: 'Admission Cell Desk',
-      email: 'admission@bwnhmch.com',
+      email: 'admission@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     student: {
       role: 'student',
       name: 'Arjun Sen',
-      email: 'arjun.sen@bwnhmch.com',
+      email: 'arjun.sen@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       regNo: 'BHMS/2023/045'
     },
@@ -120,7 +120,7 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
     opd_staff: {
       role: 'opd_staff',
       name: 'Dr. Amit Roy',
-      email: 'opd@bwnhmch.com',
+      email: 'opd@bhmch.com',
       avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       department: 'OPD General Medicine'
     }
@@ -359,7 +359,7 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
                       required
                       value={emailInput}
                       onChange={e => setEmailInput(e.target.value)}
-                      placeholder="e.g. principal@bwnhmch.com"
+                      placeholder="e.g. principal@bhmch.com"
                       className="w-full text-xs bg-transparent focus:outline-none"
                     />
                   </div>
