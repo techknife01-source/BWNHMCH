@@ -23,6 +23,7 @@ import {
   SystemActivityLog,
   SystemAuditLog,
 } from '../types/adminHr';
+import { FACULTY } from '../data/mockData';
 
 class AdminHrService {
   private employees: Employee[] = [
@@ -1036,12 +1037,63 @@ class AdminHrService {
     return this.employees[idx];
   }
 
-  deleteEmployee(id: string): boolean {
+  deleteEmployee(
+    id: string,
+    performer?: { name?: string; email?: string; role?: string }
+  ): { success: boolean; message: string } {
     const emp = this.getEmployeeById(id);
-    if (!emp) return false;
-    this.employees = this.employees.filter((e) => e.id !== id);
-    this.addActivityLog('EMPLOYEE_DELETED', 'Employee Management', 'Admin', `Deleted employee record for ${emp.fullName}`);
-    return true;
+    if (!emp) {
+      return { success: false, message: 'Staff member record not found.' };
+    }
+
+    // Remove staff from employees array
+    this.employees = this.employees.filter((e) => e.id !== emp.id && e.empId !== emp.empId);
+
+    // Clean up related documents and attendance logs
+    this.employeeDocuments = this.employeeDocuments.filter(
+      (d) => d.empId !== emp.empId && d.empId !== emp.id
+    );
+    this.attendances = this.attendances.filter(
+      (a) => a.empId !== emp.empId && a.empId !== emp.id
+    );
+
+    // Sync removal with public FACULTY list
+    const facIdx = FACULTY.findIndex(
+      (f) =>
+        (f.email && emp.email && f.email.toLowerCase() === emp.email.toLowerCase()) ||
+        (f.name && emp.fullName && f.name.toLowerCase().includes(emp.fullName.toLowerCase()))
+    );
+    if (facIdx !== -1) {
+      FACULTY.splice(facIdx, 1);
+    }
+
+    const performedBy = performer?.name || 'Administrator';
+    const userRole = performer?.role || 'ROLE_ADMIN';
+    const userEmail = performer?.email || 'admin@bhmch.com';
+
+    // Log in System Activity Logs
+    this.addActivityLog(
+      'EMPLOYEE_DELETED',
+      'Employee Management',
+      performedBy,
+      `Permanently deleted staff record for ${emp.fullName} (${emp.empId} - ${emp.departmentName})`
+    );
+
+    // Log in Security Audit Trail
+    this.addAuditLog({
+      action: 'EMPLOYEE_DELETED',
+      module: 'HR_EMPLOYEE',
+      performedBy,
+      userRole,
+      userEmail,
+      details: `Deleted staff member record: ${emp.fullName} (Emp ID: ${emp.empId}, Dept: ${emp.departmentName}, Position: ${emp.designationName}).`,
+      status: 'SUCCESS',
+    });
+
+    return {
+      success: true,
+      message: `Staff record for ${emp.fullName} (${emp.empId}) has been deleted successfully.`,
+    };
   }
 
   // ================= DEPARTMENTS =================
@@ -1441,6 +1493,33 @@ class AdminHrService {
       details,
       ipAddress: '192.168.1.10',
     });
+  }
+
+  addAuditLog(entry: {
+    action: string;
+    module: string;
+    performedBy: string;
+    userRole?: string;
+    userEmail?: string;
+    details: string;
+    status?: string;
+  }): void {
+    const newAudit: SystemAuditLog = {
+      id: `AUD-${String(this.auditLogs.length + 1).padStart(3, '0')}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      userName: entry.performedBy,
+      performedBy: entry.performedBy,
+      userRole: entry.userRole || 'ROLE_ADMIN',
+      userEmail: entry.userEmail || 'admin@bhmch.com',
+      module: entry.module,
+      action: entry.action,
+      actionType: entry.action,
+      resource: 'Staff Management',
+      status: entry.status || 'SUCCESS',
+      details: entry.details,
+      ipAddress: '192.168.1.10',
+    };
+    this.auditLogs.unshift(newAudit);
   }
 
   // ================= DASHBOARD STATISTICS =================

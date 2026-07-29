@@ -1,20 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
-import { Stethoscope, BedDouble, HeartPulse, Clock, Calendar, Phone, ShieldAlert, FlaskConical, Pill, Activity, UserCheck, CheckCircle2, Search, X, ChevronRight } from 'lucide-react';
+import { Stethoscope, BedDouble, HeartPulse, Clock, Calendar, Phone, ShieldAlert, FlaskConical, Pill, Activity, UserCheck, CheckCircle2, Search, X, ChevronRight, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { hospitalApi } from '../../services/api/hospital.api';
+import { OpdTicketModal } from '../../components/opd/OpdTicketModal';
+import { OpdTicketData } from '../../services/opdTicketService';
 
 export const HospitalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'opd' | 'ipd' | 'facilities' | 'packages'>('opd');
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [patientName, setPatientName] = useState('');
   const [patientPhone, setPatientPhone] = useState('');
+  const [patientEmail, setPatientEmail] = useState('');
+  const [patientAge, setPatientAge] = useState('32');
+  const [patientGender, setPatientGender] = useState('Male');
   const [preferredDept, setPreferredDept] = useState('General Medicine OPD');
-  const [preferredDate, setPreferredDate] = useState('2026-07-24');
-  const [bookedSuccess, setBookedSuccess] = useState(false);
+  const [preferredDate, setPreferredDate] = useState('2026-07-30');
+
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [generatedTicket, setGeneratedTicket] = useState<OpdTicketData | null>(null);
 
   const opdList = [
     { name: 'General Medicine OPD', doctor: 'Dr. S. K. Banerjea & Team', counter: 'Counter 1', timing: 'Mon - Sat (9:00 AM - 2:00 PM)', fee: '₹20 (Reg + Medicines)' },
@@ -35,7 +42,34 @@ export const HospitalPage: React.FC = () => {
   const handleBook = (e: React.FormEvent) => {
     e.preventDefault();
     if (!patientName || !patientPhone) return;
-    setBookedSuccess(true);
+
+    const randomApptId = `OPD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const randomUhid = `BHMC-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const tokenNum = Math.floor(1 + Math.random() * 25);
+    const selectedOpd = opdList.find((o) => o.name === preferredDept);
+
+    const ticketData: OpdTicketData = {
+      appointmentId: randomApptId,
+      uhid: randomUhid,
+      patientName,
+      age: patientAge || '30',
+      gender: patientGender || 'Male',
+      phone: patientPhone,
+      email: patientEmail || 'algorithmpankajsir@gmail.com',
+      doctorName: selectedOpd ? selectedOpd.doctor : 'Dr. S. K. Banerjea',
+      department: preferredDept,
+      appointmentDate: preferredDate,
+      timeSlot: '09:30 AM',
+      tokenNumber: tokenNum,
+      status: 'CONFIRMED',
+      roomNo: selectedOpd ? selectedOpd.counter : 'Counter 1',
+      symptoms: 'General OPD Clinical Consultation',
+      issuedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setGeneratedTicket(ticketData);
+    setAppointmentModalOpen(false);
+    setTicketModalOpen(true);
   };
 
   return (
@@ -59,7 +93,7 @@ export const HospitalPage: React.FC = () => {
 
           <div className="flex flex-col gap-3 shrink-0">
             <button
-              onClick={() => { setAppointmentModalOpen(true); setBookedSuccess(false); }}
+              onClick={() => { setAppointmentModalOpen(true); }}
               className="px-6 py-3.5 bg-[#00A651] hover:bg-emerald-600 text-white font-bold text-xs rounded-2xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <Calendar className="w-4 h-4" />
@@ -150,7 +184,7 @@ export const HospitalPage: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => { setPreferredDept(opd.name); setAppointmentModalOpen(true); setBookedSuccess(false); }}
+                  onClick={() => { setPreferredDept(opd.name); setAppointmentModalOpen(true); }}
                   className="w-full py-2 bg-[#002147] hover:bg-[#001530] text-white text-xs font-bold rounded-xl transition cursor-pointer"
                 >
                   Book OPD Ticket
@@ -224,24 +258,11 @@ export const HospitalPage: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
 
-            {bookedSuccess ? (
-              <div className="py-8 text-center space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">OPD Ticket Reserved!</h3>
-                <p className="text-xs text-slate-500">
-                  Ticket Token ID: <span className="font-mono font-bold text-[#002147] dark:text-[#00A651]">#OPD-2026-8812</span>
-                </p>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
-                  Please present your Token ID at OPD Reception Counter 1 on <strong className="text-slate-900 dark:text-white">{preferredDate}</strong> at 9:00 AM.
-                </p>
-                <Button onClick={() => setAppointmentModalOpen(false)} variant="primary" className="w-full mt-2">Done</Button>
+            <form onSubmit={handleBook} className="space-y-4">
+              <div className="space-y-1">
+                <span className="text-2xs font-black uppercase text-emerald-600">Online OPD Ticket Slot</span>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white">Book OPD Consultation</h3>
               </div>
-            ) : (
-              <form onSubmit={handleBook} className="space-y-4">
-                <div className="space-y-1">
-                  <span className="text-2xs font-black uppercase text-emerald-600">Online OPD Ticket Slot</span>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white">Book OPD Consultation</h3>
-                </div>
 
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Patient Full Name *</label>
@@ -255,16 +276,56 @@ export const HospitalPage: React.FC = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Mobile Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={patientPhone}
-                    onChange={(e) => setPatientPhone(e.target.value)}
-                    placeholder="+91 98321 00000"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#002147] dark:focus:ring-[#00A651]"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Age (Years) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={patientAge}
+                      onChange={(e) => setPatientAge(e.target.value)}
+                      placeholder="e.g. 32"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#002147]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Gender *</label>
+                    <select
+                      value={patientGender}
+                      onChange={(e) => setPatientGender(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none"
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Mobile Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={patientPhone}
+                      onChange={(e) => setPatientPhone(e.target.value)}
+                      placeholder="+91 98321 00000"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#002147] dark:focus:ring-[#00A651]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Patient Email (For PDF Ticket)</label>
+                    <input
+                      type="email"
+                      value={patientEmail}
+                      onChange={(e) => setPatientEmail(e.target.value)}
+                      placeholder="patient@example.com"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#002147]"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -296,13 +357,20 @@ export const HospitalPage: React.FC = () => {
                   type="submit"
                   className="w-full py-3 bg-[#002147] hover:bg-[#001530] text-white font-bold text-xs rounded-xl shadow-md transition cursor-pointer"
                 >
-                  Generate Free OPD Token Ticket
+                  Generate PDF Ticket & Book OPD Slot
                 </button>
               </form>
-            )}
           </div>
         </div>
       )}
+
+      {/* Official OPD Ticket Modal & Preview */}
+      <OpdTicketModal
+        isOpen={ticketModalOpen}
+        onClose={() => setTicketModalOpen(false)}
+        ticketData={generatedTicket}
+        onRegenerate={(updated) => setGeneratedTicket({ ...updated })}
+      />
     </div>
   );
 };

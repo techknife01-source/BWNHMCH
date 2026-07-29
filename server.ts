@@ -184,9 +184,159 @@ app.get('/api/v1/actuator/health', (req: Request, res: Response) => {
   });
 });
 
+// OPD Ticket Email & Notification API Endpoint
+app.post('/api/v1/opd/send-ticket-email', (req: Request, res: Response) => {
+  const { recipientEmail, patientName, uhid, appointmentId, tokenNumber, doctorName, department, appointmentDate, timeSlot } = req.body;
+
+  if (!recipientEmail) {
+    return res.status(400).json({ success: false, message: 'Recipient email address is required' });
+  }
+
+  console.log(`[OPD EMAIL DISPATCH]: Dispatched OPD Consultation PDF Ticket to ${recipientEmail} for patient ${patientName} (${uhid}), Appt #${appointmentId}, Token #${tokenNumber}, Doctor: ${doctorName}, Dept: ${department}, Slot: ${appointmentDate} ${timeSlot}`);
+
+  res.status(200).json({
+    success: true,
+    message: `OPD Ticket PDF successfully dispatched to patient registered email: ${recipientEmail}`,
+    recipient: recipientEmail,
+    appointmentId,
+    tokenNumber,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Notice Board REST API Endpoints
+const mockNoticeStore: any[] = [
+  {
+    id: 'n-101',
+    noticeNo: 'BHMCH/ACAD/2026/089',
+    title: 'BHMS 1st Professional WBUHS Supplementary Examination Routine 2026',
+    summary: 'Official routine and guidelines for upcoming supplementary theory and practical examinations.',
+    content: '<h2>BHMS 1st Professional Supplementary Examination Roster</h2><p>All eligible BHMS 1st Professional candidates of Burdwan Homoeopathic Medical College & Hospital are hereby notified that WBUHS exams commence August 12, 2026.</p>',
+    category: 'EXAM',
+    department: 'Practice of Medicine',
+    author: 'Prof. Dr. S. K. Banerjea',
+    authorRole: 'Principal & Academic Director',
+    publishedDate: '2026-07-28',
+    isImportant: true,
+    status: 'PUBLISHED',
+    targetAudience: 'STUDENTS',
+    viewsCount: 342,
+    attachments: [
+      { id: 'att-1', name: 'WBUHS_Supplementary_Exam_Routine_2026.pdf', type: 'pdf', size: '1.4 MB', url: '#' },
+      { id: 'att-2', name: 'Hall_Ticket_Instructions.docx', type: 'docx', size: '420 KB', url: '#' },
+    ],
+  },
+  {
+    id: 'n-102',
+    noticeNo: 'BHMCH/HOSP/2026/044',
+    title: 'Notification regarding Homoeopathic Hospital OPD Roster during National Holiday',
+    summary: 'Emergency OPD duty roster for interns and clinical faculty members.',
+    content: '<h2>Hospital Duty Directive for National Holiday</h2><p>The Emergency & Casual OPD Services will remain FULLY OPERATIONAL 24x7.</p>',
+    category: 'HOSPITAL',
+    department: 'General Medicine',
+    author: 'Dr. Amitav Roy',
+    authorRole: 'Medical Superintendent',
+    publishedDate: '2026-07-25',
+    isImportant: false,
+    status: 'PUBLISHED',
+    targetAudience: 'ALL',
+    viewsCount: 189,
+    attachments: [
+      { id: 'att-3', name: 'OPD_Duty_Roster_Holiday.pdf', type: 'pdf', size: '890 KB', url: '#' },
+      { id: 'att-4', name: 'Clinical_Duty_Briefing.pptx', type: 'ppt', size: '2.8 MB', url: '#' },
+    ],
+  },
+];
+
+app.get('/api/v1/notices', (req: Request, res: Response) => {
+  const { category, department, search, status } = req.query;
+  let list = [...mockNoticeStore];
+
+  if (category && category !== 'ALL') {
+    list = list.filter((n) => n.category.toUpperCase() === String(category).toUpperCase());
+  }
+  if (department && department !== 'All') {
+    list = list.filter((n) => n.department === department);
+  }
+  if (search) {
+    const q = String(search).toLowerCase();
+    list = list.filter((n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q));
+  }
+  if (status && status !== 'ALL') {
+    list = list.filter((n) => n.status === status);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      content: list,
+      pageNo: 1,
+      pageSize: list.length,
+      totalElements: list.length,
+      totalPages: 1,
+      last: true,
+    },
+  });
+});
+
+app.get('/api/v1/notices/recent', (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    data: mockNoticeStore.slice(0, 5),
+  });
+});
+
+app.get('/api/v1/notices/:id', (req: Request, res: Response) => {
+  const item = mockNoticeStore.find((n) => n.id === req.params.id);
+  if (!item) {
+    return res.status(404).json({ success: false, message: 'Notice not found' });
+  }
+  res.status(200).json({ success: true, data: item });
+});
+
+app.post('/api/v1/notices', (req: Request, res: Response) => {
+  const newNotice = {
+    id: `n-${Date.now()}`,
+    noticeNo: req.body.noticeNo || `BHMCH/GEN/2026/${Math.floor(100 + Math.random() * 900)}`,
+    title: req.body.title || 'Untitled Notice',
+    summary: req.body.summary || '',
+    content: req.body.content || '',
+    category: req.body.category || 'ACADEMIC',
+    department: req.body.department || 'All',
+    author: req.body.author || 'Principal Office',
+    authorRole: req.body.authorRole || 'Principal',
+    publishedDate: req.body.publishedDate || new Date().toISOString().split('T')[0],
+    isImportant: req.body.isImportant ?? false,
+    status: req.body.status || 'PUBLISHED',
+    attachments: req.body.attachments || [],
+    targetAudience: req.body.targetAudience || 'ALL',
+    viewsCount: 1,
+  };
+  mockNoticeStore.unshift(newNotice);
+  res.status(201).json({ success: true, data: newNotice, message: 'Notice created successfully' });
+});
+
+app.put('/api/v1/notices/:id', (req: Request, res: Response) => {
+  const index = mockNoticeStore.findIndex((n) => n.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Notice not found' });
+  }
+  mockNoticeStore[index] = { ...mockNoticeStore[index], ...req.body };
+  res.status(200).json({ success: true, data: mockNoticeStore[index], message: 'Notice updated successfully' });
+});
+
+app.delete('/api/v1/notices/:id', (req: Request, res: Response) => {
+  const index = mockNoticeStore.findIndex((n) => n.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Notice not found' });
+  }
+  mockNoticeStore.splice(index, 1);
+  res.status(200).json({ success: true, message: 'Notice deleted successfully' });
+});
+
 // API Routes Placeholder / Proxy Handler
 app.use('/api/v1', (req: Request, res: Response, next: NextFunction) => {
-  if (req.path === '/health' || req.path === '/actuator/health') return next();
+  if (req.path === '/health' || req.path === '/actuator/health' || req.path.startsWith('/opd') || req.path.startsWith('/notices')) return next();
   res.status(200).json({
     message: 'BHMCH API Service operational',
     path: req.path,

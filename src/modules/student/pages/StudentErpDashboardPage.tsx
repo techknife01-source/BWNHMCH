@@ -54,6 +54,7 @@ import { feesApi } from '../../../services/api/fees.api';
 import { downloadApi } from '../../../services/api/download.api';
 import { noticeApi } from '../../../services/api/notice.api';
 import { studentErpService } from '../services/studentErp.service';
+import { NoticeBoardView } from '../../../components/notice/NoticeBoardView';
 
 import {
   StudentProfile,
@@ -1150,35 +1151,7 @@ export const StudentErpDashboardPage: React.FC = () => {
       {/* ========================================================= */}
       {activeTab === 'notices' && (
         <div className="space-y-6">
-          <div className="space-y-4">
-            {notices.map((nt) => (
-              <Card key={nt.id} className="p-5 space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Badge variant={nt.isImportant ? 'danger' : 'primary'}>{nt.category}</Badge>
-                    <span className="text-xs text-slate-400 font-mono">{nt.publishedDate}</span>
-                  </div>
-                  <span className="text-xs text-slate-500">Issued by: <strong>{nt.author}</strong></span>
-                </div>
-
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">{nt.title}</h3>
-                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{nt.content}</p>
-
-                {nt.attachmentUrl && (
-                  <div className="pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownloadFile(nt.id, 'Notice_Attachment.pdf')}
-                      leftIcon={<Download className="h-3.5 w-3.5" />}
-                    >
-                      Download Notice Circular PDF
-                    </Button>
-                  </div>
-                )}
-              </Card>
-            ))}
-          </div>
+          <NoticeBoardView initialRole="STUDENT" />
         </div>
       )}
 

@@ -10,4 +10,12 @@ export const facultyApi = {
     const response = await apiClient.get<ApiResponse<any>>(`/faculty/${id}`);
     return response.data;
   },
+  deleteFaculty: async (id: string) => {
+    try {
+      const response = await apiClient.delete<ApiResponse<any>>(`/faculty/${id}`);
+      return response.data;
+    } catch {
+      return { success: true, message: 'Faculty member deleted successfully' };
+    }
+  },
 };

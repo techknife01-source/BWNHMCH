@@ -7,6 +7,8 @@ import { Modal } from '../../../components/common/Modal';
 import { Input } from '../../../components/common/Input';
 import { hospitalCoreService } from '../../../services/hospitalCoreService';
 import { OpdToken, Patient, DoctorSchedule } from '../../../types/hospital';
+import { OpdTicketModal } from '../../../components/opd/OpdTicketModal';
+import { OpdTicketData } from '../../../services/opdTicketService';
 import {
   Ticket,
   Clock,
@@ -21,6 +23,7 @@ import {
   Plus,
   Volume2,
   Building2,
+  FileText,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -54,12 +57,41 @@ export const OpdTokenQueue: React.FC<OpdTokenQueueProps> = ({ initialPatient, on
   });
 
   // Ticket Preview Modal State
-  const [printedTicket, setPrintedTicket] = useState<OpdToken | null>(null);
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [activeTicket, setActiveTicket] = useState<OpdTicketData | null>(null);
 
   const tokens = hospitalCoreService.getTokens(selectedDepartment, selectedStatus, selectedDoctorId);
 
   // Filter available doctors when department changes
   const availableDocsForDept = doctors.filter((d) => d.department === issueData.department);
+
+  const openTicketForToken = (tok: OpdToken) => {
+    const patient = hospitalCoreService.getPatientByUhid(tok.uhid);
+    const ticketData: OpdTicketData = {
+      appointmentId: tok.tokenCode,
+      uhid: tok.uhid,
+      patientName: tok.patientName,
+      age: tok.age,
+      gender: tok.gender,
+      phone: tok.phone,
+      email: patient?.email || 'patient@example.com',
+      doctorName: tok.doctorName,
+      department: tok.department,
+      appointmentDate: new Date().toISOString().split('T')[0],
+      timeSlot: tok.issuedAt || '10:00 AM',
+      tokenNumber: tok.tokenNumber,
+      status: tok.status,
+      roomNo: tok.roomNo,
+      vitalSigns: tok.vitalSigns,
+      symptoms: tok.symptoms,
+      fee: tok.fee,
+      paymentStatus: tok.paymentStatus,
+      issuedAt: tok.issuedAt,
+    };
+
+    setActiveTicket(ticketData);
+    setTicketModalOpen(true);
+  };
 
   const handlePatientLookup = (query: string) => {
     setPatientLookupQuery(query);
@@ -102,9 +134,11 @@ export const OpdTokenQueue: React.FC<OpdTokenQueueProps> = ({ initialPatient, on
     });
 
     toast.success(`OPD Token Issued! Ticket #${issuedToken.tokenCode}`);
-    setPrintedTicket(issuedToken);
     setIsIssueModalOpen(false);
     if (onClearInitialPatient) onClearInitialPatient();
+
+    // Automatically open PDF ticket preview!
+    openTicketForToken(issuedToken);
   };
 
   const handleStatusChange = (tokenId: string, status: OpdToken['status']) => {
@@ -312,10 +346,10 @@ export const OpdTokenQueue: React.FC<OpdTokenQueueProps> = ({ initialPatient, on
                       )}
 
                       <button
-                        onClick={() => setPrintedTicket(tok)}
-                        className="px-2 py-1 text-[10px] font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 transition"
+                        onClick={() => openTicketForToken(tok)}
+                        className="px-2 py-1 text-[10px] font-bold text-white bg-[#002147] hover:bg-slate-800 rounded-md transition flex items-center gap-1 cursor-pointer"
                       >
-                        <Printer className="w-3 h-3 inline" /> Slip
+                        <FileText className="w-3 h-3 text-[#00A651]" /> PDF Ticket
                       </button>
                     </td>
                   </tr>
@@ -449,62 +483,13 @@ export const OpdTokenQueue: React.FC<OpdTokenQueueProps> = ({ initialPatient, on
         </form>
       </Modal>
 
-      {/* Printable OPD Ticket Slip Modal */}
-      {printedTicket && (
-        <Modal
-          isOpen={!!printedTicket}
-          onClose={() => setPrintedTicket(null)}
-          title="Official OPD Registration Slip"
-          className="max-w-md"
-        >
-          <div className="p-4 bg-white text-slate-900 border-2 border-slate-900 rounded-xl space-y-4 font-mono text-xs">
-            <div className="text-center border-b border-slate-300 pb-2 space-y-0.5">
-              <h3 className="font-extrabold text-sm uppercase">BURDWAN HOMOEO MEDICAL COLLEGE</h3>
-              <p className="text-[10px]">101 M.G. Road, Burdwan, W.B. - 713101</p>
-              <p className="text-[10px] font-bold">OPD REGISTRATION SLIP</p>
-            </div>
-
-            <div className="text-center my-2 p-2 bg-slate-100 rounded-lg">
-              <p className="text-2xl font-black tracking-widest text-[#002147]">{printedTicket.tokenCode}</p>
-              <p className="text-xs font-bold text-emerald-700">TOKEN NUMBER #{printedTicket.tokenNumber}</p>
-            </div>
-
-            <div className="space-y-1 text-[11px]">
-              <p><span className="font-bold">Patient Name:</span> {printedTicket.patientName}</p>
-              <p><span className="font-bold">UHID:</span> {printedTicket.uhid}</p>
-              <p><span className="font-bold">Age / Gender:</span> {printedTicket.age} Yrs / {printedTicket.gender}</p>
-              <p><span className="font-bold">Department:</span> {printedTicket.department}</p>
-              <p><span className="font-bold">Doctor:</span> {printedTicket.doctorName}</p>
-              <p><span className="font-bold">OPD Room:</span> {printedTicket.roomNo}</p>
-              <p><span className="font-bold">Registration Fee:</span> ₹{printedTicket.fee} ({printedTicket.paymentStatus})</p>
-              <p><span className="font-bold">Issued At:</span> {printedTicket.issuedAt}</p>
-            </div>
-
-            {printedTicket.vitalSigns && (
-              <div className="p-2 bg-slate-50 border border-slate-200 rounded text-[10px] grid grid-cols-2 gap-1">
-                <p>BP: {printedTicket.vitalSigns.bp}</p>
-                <p>Pulse: {printedTicket.vitalSigns.pulse}</p>
-                <p>Temp: {printedTicket.vitalSigns.temp}</p>
-                <p>Weight: {printedTicket.vitalSigns.weightKg} kg</p>
-              </div>
-            )}
-
-            <div className="text-center pt-2 border-t border-slate-300 text-[9px] text-slate-500">
-              <p>Please wait in the OPD waiting lobby until your Token Number is called.</p>
-              <p>Valid for today's OPD consultation only.</p>
-            </div>
-
-            <div className="flex justify-end space-x-2 pt-2">
-              <Button variant="primary" onClick={() => {
-                toast.success('Printing Token Ticket...');
-                setPrintedTicket(null);
-              }}>
-                <Printer className="w-4 h-4 mr-1" /> Print Slip
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      {/* Official OPD Ticket Modal & Preview */}
+      <OpdTicketModal
+        isOpen={ticketModalOpen}
+        onClose={() => setTicketModalOpen(false)}
+        ticketData={activeTicket}
+        onRegenerate={(updated) => setActiveTicket({ ...updated })}
+      />
     </div>
   );
 };

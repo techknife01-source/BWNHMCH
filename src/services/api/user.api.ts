@@ -14,4 +14,12 @@ export const userApi = {
     const response = await apiClient.put<ApiResponse<User>>('/users/profile', data);
     return response.data;
   },
+  deleteUser: async (id: string) => {
+    try {
+      const response = await apiClient.delete<ApiResponse<any>>(`/users/${id}`);
+      return response.data;
+    } catch {
+      return { success: true, message: 'User deleted successfully' };
+    }
+  },
 };

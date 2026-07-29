@@ -7,6 +7,8 @@ import { Modal } from '../../../components/common/Modal';
 import { Button } from '../../../components/common/Button';
 import { hospitalCoreService } from '../../../services/hospitalCoreService';
 import { AppointmentRecord, Patient } from '../../../types/hospital';
+import { OpdTicketModal } from '../../../components/opd/OpdTicketModal';
+import { OpdTicketData } from '../../../services/opdTicketService';
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -17,6 +19,8 @@ import {
   XCircle,
   Phone,
   Filter,
+  FileText,
+  Printer,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -28,6 +32,10 @@ export const AppointmentCalendarDesk: React.FC = () => {
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [patientLookup, setPatientLookup] = useState('');
   const [matchedPatient, setMatchedPatient] = useState<Patient | null>(null);
+
+  // Ticket Preview Modal State
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [activeTicket, setActiveTicket] = useState<OpdTicketData | null>(null);
 
   const doctors = hospitalCoreService.getDoctors();
 
@@ -46,6 +54,32 @@ export const AppointmentCalendarDesk: React.FC = () => {
     if (!query) return;
     const found = hospitalCoreService.getPatientByUhid(query);
     setMatchedPatient(found || null);
+  };
+
+  const openTicketForAppt = (app: AppointmentRecord, patient?: Patient | null) => {
+    const p = patient || hospitalCoreService.getPatientByUhid(app.uhid);
+    const tokenNum = Math.floor(1 + Math.random() * 20);
+
+    const ticketData: OpdTicketData = {
+      appointmentId: app.appointmentNo,
+      uhid: app.uhid,
+      patientName: app.patientName,
+      age: p?.age || 35,
+      gender: p?.gender || 'Male',
+      phone: app.phone || p?.phone || '',
+      email: p?.email || 'patient@example.com',
+      doctorName: app.doctorName,
+      department: app.department,
+      appointmentDate: app.appointmentDate,
+      timeSlot: app.timeSlot,
+      tokenNumber: tokenNum,
+      status: app.status || 'SCHEDULED',
+      symptoms: app.symptoms,
+      issuedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setActiveTicket(ticketData);
+    setTicketModalOpen(true);
   };
 
   const handleBookSubmit = (e: React.FormEvent) => {
@@ -69,6 +103,9 @@ export const AppointmentCalendarDesk: React.FC = () => {
     toast.success(`Appointment Booked! #${created.appointmentNo}`);
     setIsBookModalOpen(false);
     setSelectedDate(bookingData.appointmentDate);
+
+    // Automatically open ticket preview after booking!
+    openTicketForAppt(created, matchedPatient);
   };
 
   const handleStatusUpdate = (id: string, status: AppointmentRecord['status']) => {
@@ -191,6 +228,13 @@ export const AppointmentCalendarDesk: React.FC = () => {
 
                 {/* Status Action Buttons */}
                 <div className="flex items-center justify-end space-x-1 pt-1">
+                  <button
+                    onClick={() => openTicketForAppt(app)}
+                    className="px-2 py-1 bg-[#002147] hover:bg-slate-800 text-white rounded text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
+                  >
+                    <FileText className="w-3 h-3 text-[#00A651]" />
+                    <span>Ticket PDF</span>
+                  </button>
                   {app.status === 'SCHEDULED' && (
                     <button
                       onClick={() => handleStatusUpdate(app.id, 'CHECKED_IN')}
@@ -302,6 +346,14 @@ export const AppointmentCalendarDesk: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Official OPD Ticket Modal & Preview */}
+      <OpdTicketModal
+        isOpen={ticketModalOpen}
+        onClose={() => setTicketModalOpen(false)}
+        ticketData={activeTicket}
+        onRegenerate={(updated) => setActiveTicket({ ...updated })}
+      />
     </div>
   );
 };

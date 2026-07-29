@@ -172,19 +172,25 @@ export const getUserDisplayDesignation = (user: any): string => {
 // ENTERPRISE RBAC PERMISSION GUARDS (ISSUE 3 REQUIREMENT MATRIX)
 // ==========================================================
 
-// ONLY Super Admin can add/create users
+// ONLY Super Admin and Admin can add/create users
 export const canAddUser = (user: any): boolean => {
-  return isSuperAdmin(user);
+  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user);
 };
 
-// ONLY Super Admin can edit users
+// ONLY Super Admin and Admin can edit users
 export const canEditUser = (user: any): boolean => {
-  return isSuperAdmin(user);
+  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user);
 };
 
-// ONLY Super Admin can delete users
+// ONLY Super Admin and Admin can delete users
 export const canDeleteUser = (user: any): boolean => {
-  return isSuperAdmin(user);
+  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user);
+};
+
+// Guard specifically for deleting staff members (ROLE_ADMIN or Super Admin)
+export const canDeleteStaff = (user: any): boolean => {
+  if (!user) return false;
+  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user) || coreHasAnyRole(user, ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ADMIN', 'SUPER_ADMIN', 'ROLE_PRINCIPAL']);
 };
 
 // ONLY Super Admin can assign roles

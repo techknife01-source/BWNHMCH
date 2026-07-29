@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Modal } from '../../../components/common/Modal';
 import { Employee } from '../../../types/adminHr';
 import { adminHrService } from '../../../services/adminHrService';
+import { useAuth } from '../../../contexts/AuthContext';
+import { canDeleteStaff } from '../../../utils/permissionHelper';
 import {
   User,
   Briefcase,
@@ -17,19 +19,23 @@ import {
   XCircle,
   Printer,
   QrCode,
+  Trash2,
 } from 'lucide-react';
 
 interface StaffProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   employee: Employee | null;
+  onDeleteRequest?: (employee: Employee) => void;
 }
 
 export const StaffProfileModal: React.FC<StaffProfileModalProps> = ({
   isOpen,
   onClose,
   employee,
+  onDeleteRequest,
 }) => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'info' | 'employment' | 'documents' | 'payroll' | 'idcard'>('info');
 
   if (!employee) return null;
@@ -70,6 +76,17 @@ export const StaffProfileModal: React.FC<StaffProfileModalProps> = ({
               <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-slate-400" /> {employee.phone}</span>
             </div>
           </div>
+
+          {canDeleteStaff(user) && onDeleteRequest && (
+            <button
+              onClick={() => onDeleteRequest(employee)}
+              className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900 text-rose-600 dark:text-rose-300 font-bold text-xs rounded-xl border border-rose-200 dark:border-rose-800/80 transition flex items-center gap-1.5 cursor-pointer shrink-0 shadow-xs"
+              title="Delete Staff Member Record"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Staff</span>
+            </button>
+          )}
         </div>
 
         {/* Tab Selection */}
