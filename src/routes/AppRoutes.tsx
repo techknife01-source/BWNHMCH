@@ -22,6 +22,7 @@ import { NewsPage } from '../pages/public/NewsPage';
 import { EventsPage } from '../pages/public/EventsPage';
 import { DownloadsPage } from '../pages/public/DownloadsPage';
 import { LibraryPage } from '../pages/public/LibraryPage';
+import { AcademicActivityPage } from '../pages/public/AcademicActivityPage';
 
 // Auth Pages
 import { LoginPage } from '../pages/auth/LoginPage';
@@ -84,7 +85,11 @@ export const AppRoutes: React.FC = () => {
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/admission" element={<AdmissionPage />} />
         <Route path="/hospital" element={<HospitalPage />} />
+        <Route path="/investigation" element={<HospitalPage defaultTab="investigations" />} />
+        <Route path="/investigations" element={<HospitalPage defaultTab="investigations" />} />
         <Route path="/doctors" element={<DoctorsPage />} />
+        <Route path="/staff" element={<HospitalPage defaultTab="staff" />} />
+        <Route path="/hospital-staff" element={<HospitalPage defaultTab="staff" />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/notice" element={<NoticePage />} />
@@ -92,6 +97,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/events" element={<EventsPage />} />
         <Route path="/downloads" element={<DownloadsPage />} />
         <Route path="/library" element={<LibraryPage />} />
+        <Route path="/academic-activity" element={<AcademicActivityPage />} />
+        <Route path="/academic-activities" element={<AcademicActivityPage />} />
       </Route>
 
       {/* Auth Pages (Guest Only) */}

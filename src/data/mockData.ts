@@ -256,76 +256,121 @@ export const DEFAULT_LAB_TESTS: LabTestRecord[] = [
 
 export const DEPARTMENTS: Department[] = [
   {
-    id: 'mat_medica',
-    name: 'Materia Medica',
-    code: 'MMED',
-    hod: 'Dr. S. K. Banerjea, MD (Hom)',
-    facultyCount: 8,
-    description: 'Detailed study of homeopathic medicines, their drug provings, therapeutic applications, and pathogenetic effects.',
-    labs: ['Drug Museum', 'Study Laboratory']
+    id: 'organon',
+    name: 'Organon of Medicine & Homoeopathic Philosophy and Fundamentals of Psychology',
+    code: 'DEPT-ORG',
+    hod: 'Prof. (Dr.) A. K. Roy, M.D. (Hom.)',
+    facultyCount: 6,
+    description: 'Imparts rigorous classical training in the philosophy of Dr. Samuel Hahnemann, holistic disease evaluation, miasmatic analysis, and psychological principles integral to clinical case handling.',
+    labs: ['Organon Philosophy Seminar Room', 'Computerized Logic & Case Analysis Lab']
   },
   {
-    id: 'organon',
-    name: 'Organon of Medicine & Philosophy',
-    code: 'OMED',
-    hod: 'Dr. G. S. Lamba, MD (Hom)',
-    facultyCount: 6,
-    description: 'Deep study of the principles of Homeopathy, Hahnemannian principles, chronic miasms, and homeopathic psychology.',
-    labs: ['Hahnemann Archives', 'Historical Philosophy Gallery']
+    id: 'mat_medica',
+    name: 'Homoeopathic Materia Medica',
+    code: 'DEPT-MM',
+    hod: 'Prof. (Dr.) S. N. Bhattacharya, M.D. (Hom.)',
+    facultyCount: 8,
+    description: 'Detailed study of Homoeopathic Materia Medica spanning BHMS 1st to 4th year, detailing drug proving principles, pathogenetic action, comparative drug pictures, and clinical verification.',
+    labs: ['Drug Proving Laboratory', 'Botanical & Mineral Specimen Display Museum']
   },
   {
     id: 'repertory',
-    name: 'Homoeopathic Repertory',
-    code: 'HREP',
-    hod: 'Dr. Vandana Gupta, MD (Hom)',
-    facultyCount: 7,
-    description: 'Practical training on case-taking, symptom evaluation, repertorization using manual and state-of-the-art computer-aided software (RADAR, MacRepertory).',
-    labs: ['Repertory Computer Lab', 'Case Study Room']
+    name: 'Case Taking & Repertory',
+    code: 'DEPT-REP',
+    hod: 'Dr. M. Ghosh, M.D. (Hom.)',
+    facultyCount: 5,
+    description: 'Training in systematic clinical case taking, symptom evaluation, rubric selection, and repertorization using Kent, Boger, Boenninghausen, and computer software (RADAR Opus, Hompath, MacRepertory).',
+    labs: ['Computer-Assisted Repertorization Lab (20 Workstations)', 'Case Record Archive']
+  },
+  {
+    id: 'yoga',
+    name: 'Department of Yoga',
+    code: 'DEPT-YOGA',
+    hod: 'Dr. P. K. Samanta, M.D. (Hom.), Dip. Yoga',
+    facultyCount: 4,
+    description: 'Integration of classical yogic science with clinical homoeopathic healthcare, emphasizing therapeutic yoga, meditation, pranayama, and lifestyle counselling.',
+    labs: ['Yoga & Meditation Practice Hall', 'Therapeutic Yoga Studio']
   },
   {
     id: 'pharmacy',
     name: 'Homoeopathic Pharmacy',
-    code: 'HPHA',
-    hod: 'Dr. R. C. Mohanty, MD (Hom)',
+    code: 'DEPT-PHARM',
+    hod: 'Dr. R. Bannerjee, M.D. (Hom.)',
+    facultyCount: 4,
+    description: 'The science of preparing, compounding, standardizing, and dispensing homeopathic potentized remedies from natural sources under HPI compliance.',
+    labs: ['HPLC & Spectrophotometry Lab', 'Vehicle Preparation & Trituration Hall', 'Pharmacognosy Herbarium']
+  },
+  {
+    id: 'anatomy',
+    name: 'Anatomy',
+    code: 'DEPT-ANAT',
+    hod: 'Dr. P. Das, M.S. (Anatomy)',
+    facultyCount: 4,
+    description: 'Provides comprehensive gross anatomy cadaveric dissection, microscopic histology, embryology, and neuroanatomy education.',
+    labs: ['Human Cadaveric Dissection Hall', 'Histology Microscopy Lab', 'Anatomy Embryology Museum']
+  },
+  {
+    id: 'physiology',
+    name: 'Physiology & Biochemistry',
+    code: 'DEPT-PHYS',
+    hod: 'Dr. S. Chatterjee, M.D. (Physiology)',
+    facultyCount: 4,
+    description: 'Study of normal human bodily functions, hematology, cardiovascular dynamics, spirometry, and metabolic biochemistry.',
+    labs: ['Hematology Practical Lab', 'Clinical Biochemistry Analysis Room']
+  },
+  {
+    id: 'pathology',
+    name: 'Pathology & Microbiology',
+    code: 'DEPT-PATH',
+    hod: 'Dr. D. Sen, M.D. (Pathology)',
     facultyCount: 5,
-    description: 'The science of preparing, compounding, standardizing, and dispensing homeopathic potentized remedies from natural sources.',
-    labs: ['Pharmacy Preparation Lab', 'Botanical Garden', 'Quality Control Lab']
-  },
-  {
-    id: 'prac_med',
-    name: 'Practice of Medicine',
-    code: 'PMED',
-    hod: 'Dr. Susmita Chatterjee, BHMS, MD (Hom)',
-    facultyCount: 11,
-    description: 'Comprehensive study of internal medicine conditions paired with their clinical homoeopathic therapeutics.',
-    labs: ['OPD Clinical Ward', 'Medical ECG Seminar Room']
-  },
-  {
-    id: 'gynae_obs',
-    name: 'Gynecology & Obstetrics',
-    code: 'GYOB',
-    hod: 'Dr. Sunita Sharma, MD (Hom)',
-    facultyCount: 9,
-    description: 'Diagnosis and clinical homeopathic management of obstetric and gynecological conditions.',
-    labs: ['Antenatal Care Unit', 'Labor Room Simulator', 'Gynae OPD Ward']
-  },
-  {
-    id: 'surgery',
-    name: 'Surgery & Homeopathic Therapeutics',
-    code: 'SURG',
-    hod: 'Dr. Rajesh Patel, MS, MD (Hom)',
-    facultyCount: 8,
-    description: 'Surgical diagnostic methods combined with homoeopathic post-surgical care and preventive therapeutics.',
-    labs: ['Minor OT', 'Surgical Pathology Museum', 'Dressing Room']
+    description: 'Covers general pathology, clinical microbiology, parasitology, bacterial cultures, hematology, and histopathology.',
+    labs: ['Microbiology Culture Lab', 'Clinical Diagnostic Hematology Lab']
   },
   {
     id: 'forensic_med',
     name: 'Forensic Medicine & Toxicology',
-    code: 'FMTO',
-    hod: 'Dr. Anil Khanna, MD (Hom)',
+    code: 'DEPT-FMT',
+    hod: 'Dr. K. Nandi, M.D. (FMT)',
+    facultyCount: 3,
+    description: 'Medical jurisprudence, legal obligations of medical practitioners, toxicology identification, and court trial simulations.',
+    labs: ['Toxicology Specimen & Weapon Museum', 'Courtroom Trial Simulation Setup']
+  },
+  {
+    id: 'prac_med',
+    name: 'Practice of Medicine',
+    code: 'DEPT-MED',
+    hod: 'Dr. T. K. Maiti, M.D. (Hom.)',
+    facultyCount: 6,
+    description: 'Comprehensive study of internal medicine conditions paired with their clinical homoeopathic therapeutics and OPD/IPD ward care.',
+    labs: ['Clinical OPD Examination Bays', 'IPD Ward Demonstration Rounds']
+  },
+  {
+    id: 'surgery',
+    name: 'Surgery & Homoeopathic Therapeutics',
+    code: 'DEPT-SURG',
+    hod: 'Dr. S. K. Mitra, M.S. (Surgery)',
     facultyCount: 4,
-    description: 'Legal aspects of medicine, post-mortem, medical ethics, and toxicology identification.',
-    labs: ['Toxicology Museum', 'Mock Courtroom']
+    description: 'General surgical principles, wound care, minor operative techniques, and pre/post-operative homoeopathic management.',
+    labs: ['Minor OT & Suture Practice Bay', 'Surgical Instrument Gallery']
+  },
+  {
+    id: 'gynae_obs',
+    name: 'Obstetrics & Gynaecology',
+    code: 'DEPT-GYN',
+    hod: 'Dr. N. Mukhopadhyay, M.D. (O&G)',
+    facultyCount: 5,
+    description: 'Antenatal care, labor monitoring, gynaecological disorders, and Homoeopathic therapeutics in female healthcare.',
+    labs: ['Labor Room & Antenatal Care Bay', 'Pelvic Model Demonstration Hall']
+  },
+  {
+    id: 'community_med',
+    name: 'Community Medicine',
+    code: 'DEPT-CM',
+    hod: 'Dr. B. Biswas, M.D. (Community Medicine)',
+    facultyCount: 3,
+    description: 'Epidemiology, public health administration, preventive medicine, maternal & child health, and rural health camp management.',
+    labs: ['Public Health & Hygiene Museum', 'Mobile Rural Health Camp Unit']
   }
 ];
 
@@ -753,8 +798,8 @@ export const FEEDBACK_LIST: FeedbackSubmission[] = [
 export const GENERAL_STATS = {
   totalStudents: 315,
   totalFaculty: 42,
-  totalBeds: 25,
-  dailyOpdCount: 150,
+  totalBeds: 20,
+  dailyOpdCount: 250,
   researchProjects: 18,
   ayushRating: 'Grade A (Govt. Aided)',
   successRate: '95.6%'

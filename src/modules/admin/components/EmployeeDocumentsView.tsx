@@ -39,7 +39,7 @@ export const EmployeeDocumentsView: React.FC = () => {
       empName: emp.fullName,
       title: uploadFormData.title,
       docType: uploadFormData.docType,
-      fileUrl: '/docs/sample_document.pdf',
+      fileUrl: '/documents/official_staff_credential.pdf',
       fileName: uploadFormData.fileName,
       fileSize: uploadFormData.fileSize,
       verifiedBy: 'Mr. Somnath Ganguly (AO)',

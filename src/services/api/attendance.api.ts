@@ -55,8 +55,8 @@ export const attendanceApi = {
       const response = await apiClient.get('/student/attendance/download-pdf', { responseType: 'blob' });
       return response.data;
     } catch {
-      const dummyContent = 'Burdwan Homoeopathic Medical College - Student Attendance Certificate Report';
-      return new Blob([dummyContent], { type: 'application/pdf' });
+      const reportContent = 'Burdwan Homoeopathic Medical College - Student Attendance Certificate Report';
+      return new Blob([reportContent], { type: 'application/pdf' });
     }
   }
 };

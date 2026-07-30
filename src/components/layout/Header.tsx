@@ -16,6 +16,7 @@ export const Header: React.FC = () => {
     { label: 'About College', href: '/about' },
     { label: 'Principal Desk', href: '/principal-desk' },
     { label: 'Departments', href: '/departments' },
+    { label: 'Academic Activity', href: '/academic-activity' },
     { label: 'Courses', href: '/courses' },
     { label: 'Admission 2026', href: '/admission', highlight: true },
     { label: 'Hospital & OPD', href: '/hospital' },

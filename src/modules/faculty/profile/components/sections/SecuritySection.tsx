@@ -310,8 +310,9 @@ export const SecuritySection: React.FC<SecuritySectionProps> = ({
             </h3>
 
             <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl inline-block border border-slate-200 dark:border-slate-700">
-              <div className="w-36 h-36 bg-slate-900 text-white font-mono text-2xs flex items-center justify-center rounded-xl">
-                [QR CODE PLACEHOLDER]
+              <div className="w-36 h-36 bg-white dark:bg-slate-950 p-2 flex flex-col items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 shadow-inner">
+                <QrCode className="w-24 h-24 text-slate-900 dark:text-emerald-400" />
+                <span className="text-[9px] font-mono font-black text-slate-500 uppercase tracking-widest mt-1">BHMCH-2FA-SEC</span>
               </div>
             </div>
 
