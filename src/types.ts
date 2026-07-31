@@ -267,7 +267,7 @@ export interface PatientRecord {
   type: 'OPD' | 'IPD';
   department: string;
   complaint: string;
-  homeopathicRemedy?: string;
+  homoeopathicRemedy?: string;
   potency?: string;
   status: 'Recovered' | 'Under Treatment' | 'Referred' | 'Discharged';
   doctor: string;

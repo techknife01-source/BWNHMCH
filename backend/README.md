@@ -1,6 +1,6 @@
-# Smart Homeopathic Medical College Backend Microservice
+# BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Backend Microservice
 
-Clean-architecture Spring Boot 3.4.x / Java 21 REST API foundation for **Smart Homeopathic Medical College Digital Ecosystem**.
+Clean-architecture Spring Boot 3.4.x / Java 21 REST API foundation for **BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Digital Ecosystem**.
 
 ## 🚀 Key Modules Built
 

@@ -18,7 +18,7 @@ export const DownloadsPage: React.FC = () => {
 
   const files: DownloadableItem[] = [
     { id: 'd1', title: 'BHMS 1st to 4th Professional WBUHS Detailed Syllabus & Marks Scheme', category: 'Syllabus', fileType: 'PDF', fileSize: '4.8 MB', updatedAt: '2026-06-10' },
-    { id: 'd2', title: 'M.D. (Hom.) Postgraduate Degree Curriculum & Thesis Submission Guidelines', category: 'Syllabus', fileType: 'PDF', fileSize: '2.1 MB', updatedAt: '2026-05-18' },
+    { id: 'd2', title: 'BHMS Clinical Training Logbook & Academic Guidelines', category: 'Syllabus', fileType: 'PDF', fileSize: '2.1 MB', updatedAt: '2026-05-18' },
     { id: 'd3', title: 'NEET AYUSH Counseling Document Verification & Domicile Proforma (a1/a2/b)', category: 'Forms & Applications', fileType: 'PDF', fileSize: '1.4 MB', updatedAt: '2026-07-01' },
     { id: 'd4', title: 'Student Hostel Admission Application & Parent Declaration Form', category: 'Forms & Applications', fileType: 'PDF', fileSize: '680 KB', updatedAt: '2026-06-25' },
     { id: 'd5', title: 'Compulsory Rotatory Internship Logbook & Clinical Duty Assessment Sheet', category: 'Hospital & Internship', fileType: 'PDF', fileSize: '3.2 MB', updatedAt: '2026-04-12' },

@@ -208,7 +208,7 @@ export const FacultyLayout: React.FC<FacultyLayoutProps> = ({ children, pageTitl
           <footer className="mt-12 pt-6 border-t border-slate-200/80 dark:border-slate-800 text-2xs text-slate-500 flex flex-wrap items-center justify-between gap-4 max-w-7xl w-full mx-auto">
             <div>
               <p className="font-semibold">
-                © {new Date().getFullYear()} Burdwan Homoeopathic Medical College & Hospital. All rights reserved.
+                © {new Date().getFullYear()} BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. All rights reserved.
               </p>
               <p className="text-[10px] text-slate-400">
                 Affiliated to WBUHS | Approved by NCH, Ministry of AYUSH, Govt. of India

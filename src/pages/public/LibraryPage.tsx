@@ -55,7 +55,7 @@ export const LibraryPage: React.FC = () => {
         <Card className="p-6 space-y-2 border border-slate-200/80 dark:border-slate-800">
           <BookOpen className="h-8 w-8 text-blue-600" />
           <h3 className="font-bold text-sm text-slate-900 dark:text-white">12,500+ Volumes</h3>
-          <p className="text-xs text-slate-500">Comprehensive collection of classic homeopathic treatises, rare journals, and medical textbooks.</p>
+          <p className="text-xs text-slate-500">Comprehensive collection of classic homoeopathic treatises, rare journals, and medical textbooks.</p>
         </Card>
         <Card className="p-6 space-y-2 border border-slate-200/80 dark:border-slate-800">
           <Laptop className="h-8 w-8 text-emerald-600" />

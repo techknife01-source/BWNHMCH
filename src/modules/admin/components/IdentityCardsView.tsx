@@ -88,7 +88,7 @@ export const IdentityCardsView: React.FC = () => {
                   <ShieldCheck className="w-4 h-4" />
                   <span className="font-mono text-[11px] font-black tracking-widest uppercase">BHMC HOSPITAL & COLLEGE</span>
                 </div>
-                <h3 className="font-extrabold text-xs text-slate-100">Smart Homeopathic Medical College, WB</h3>
+                <h3 className="font-extrabold text-xs text-slate-100">BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL, WB</h3>
                 <p className="text-[9px] text-blue-200">Recognized by National Commission for Homoeopathy (NCH)</p>
               </div>
 

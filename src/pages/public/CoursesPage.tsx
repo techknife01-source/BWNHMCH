@@ -14,49 +14,10 @@ export const CoursesPage: React.FC = () => {
       title: 'Bachelor of Homoeopathic Medicine and Surgery (BHMS)',
       degree: 'Undergraduate Degree (U.G.)',
       duration: '5.5 Years (4.5 Years Academic + 1 Year Mandatory Rotatory Internship)',
-      seats: 63,
+      seats: 50,
       eligibility: '10+2 Science with Physics, Chemistry, Biology & English (Min 50% aggregate). Must qualify NEET-UG (AYUSH counseling).',
       fees: '₹45,000 / Year (State Quota) | ₹1,20,000 / Year (Management Quota)',
       description: 'The premier undergraduate medical degree program recognized by NCH and affiliated with WBUHS. Training encompasses pre-clinical, para-clinical, and clinical homoeopathic subjects along with extensive OPD/IPD rotatory hospital internship.',
-      affiliation: 'WBUHS Kolkata & NCH New Delhi',
-      syllabusUrl: '/downloads'
-    },
-    {
-      id: 'md-mm',
-      code: 'MD-HOM-MM',
-      title: 'M.D. (Hom.) Materia Medica',
-      degree: 'Postgraduate Degree (P.G.)',
-      duration: '3 Years Full-Time Clinical Specialty',
-      seats: 6,
-      eligibility: 'Passed BHMS degree from an NCH recognized institution. Qualified AIAPGET (All India AYUSH Post Graduate Entrance Test).',
-      fees: '₹95,000 / Year',
-      description: 'Specialized postgraduate research & clinical residency focusing on drug provings, comparative materia medica, pharmacodynamics, and clinical case management.',
-      affiliation: 'WBUHS Kolkata & NCH New Delhi',
-      syllabusUrl: '/downloads'
-    },
-    {
-      id: 'md-org',
-      code: 'MD-HOM-ORG',
-      title: 'M.D. (Hom.) Organon of Medicine & Homoeopathic Philosophy',
-      degree: 'Postgraduate Degree (P.G.)',
-      duration: '3 Years Full-Time Clinical Specialty',
-      seats: 6,
-      eligibility: 'Passed BHMS degree from an NCH recognized institution + AIAPGET Rank.',
-      fees: '₹95,000 / Year',
-      description: 'In-depth study of Hahnemannian principles, chronic miasms, logic, philosophy of science, and advanced posology in hospital care.',
-      affiliation: 'WBUHS Kolkata & NCH New Delhi',
-      syllabusUrl: '/downloads'
-    },
-    {
-      id: 'md-rep',
-      code: 'MD-HOM-REP',
-      title: 'M.D. (Hom.) Repertory',
-      degree: 'Postgraduate Degree (P.G.)',
-      duration: '3 Years Full-Time Clinical Specialty',
-      seats: 6,
-      eligibility: 'Passed BHMS degree from an NCH recognized institution + AIAPGET Rank.',
-      fees: '₹95,000 / Year',
-      description: 'Focuses on Kentian, Boenninghausen, and Boger repertorial methodologies, computer-assisted repertorization, and case synthesis.',
       affiliation: 'WBUHS Kolkata & NCH New Delhi',
       syllabusUrl: '/downloads'
     },
@@ -75,7 +36,7 @@ export const CoursesPage: React.FC = () => {
     }
   ]);
 
-  const [activeTab, setActiveTab] = useState<'ALL' | 'UG' | 'PG' | 'CERT'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'UG' | 'CERT'>('ALL');
 
   useEffect(() => {
     courseApi.getCourses()
@@ -89,7 +50,6 @@ export const CoursesPage: React.FC = () => {
 
   const filteredCourses = courses.filter((c) => {
     if (activeTab === 'UG') return c.code.includes('UG');
-    if (activeTab === 'PG') return c.code.includes('MD');
     if (activeTab === 'CERT') return c.code.includes('CERT');
     return true;
   });
@@ -104,10 +64,10 @@ export const CoursesPage: React.FC = () => {
           Academic Curriculum & Degrees
         </span>
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-          UG, PG & Certificate Medical Programs
+          Undergraduate (BHMS) & Certificate Programs
         </h1>
         <p className="text-slate-300 text-sm sm:text-base max-w-3xl leading-relaxed">
-          Explore our NCH approved and WBUHS affiliated medical degree programs. We combine rigorous theoretical study with intensive clinical residency in our 50-bed teaching hospital.
+          Explore our NCH approved and WBUHS affiliated medical degree program. We combine rigorous theoretical study with intensive clinical residency in our 30-bed teaching hospital.
         </p>
 
         {/* Filter Buttons */}
@@ -127,14 +87,6 @@ export const CoursesPage: React.FC = () => {
             }`}
           >
             Undergraduate (BHMS)
-          </button>
-          <button
-            onClick={() => setActiveTab('PG')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
-              activeTab === 'PG' ? 'bg-[#00A651] text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'
-            }`}
-          >
-            Postgraduate (M.D. Hom.)
           </button>
           <button
             onClick={() => setActiveTab('CERT')}
@@ -195,7 +147,7 @@ export const CoursesPage: React.FC = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                   <GraduationCap className="w-3 h-3 text-purple-500" /> Entrance Exam
                 </p>
-                <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200 mt-1">NEET UG / AIAPGET</p>
+                <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200 mt-1">NEET UG / AYUSH UG</p>
               </div>
             </div>
 

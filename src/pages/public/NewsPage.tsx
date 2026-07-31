@@ -9,7 +9,7 @@ export const NewsPage: React.FC = () => {
       title: 'WBUHS Annual Homoeopathic Scientific Seminar 2026 Hosted at BHMC Campus',
       slug: 'wbuhs-annual-scientific-seminar-2026',
       summary: 'Distinguished research papers on chronic disease management with high-potency Homoeopathic remedies were presented by senior clinical professors.',
-      content: 'Burdwan Homoeopathic Medical College & Hospital successfully convened the WBUHS Annual Homoeopathic Scientific Conference. Over 400 delegates including post-graduate scholars, medical officers, and faculty members participated in technical sessions on Materia Medica and Repertory analysis.',
+      content: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL successfully convened the WBUHS Annual Homoeopathic Scientific Conference. Over 400 delegates including post-graduate scholars, medical officers, and faculty members participated in technical sessions on Materia Medica and Repertory analysis.',
       category: 'Academic Conference',
       author: 'Media Cell, BHMC&H',
       publishedAt: '2026-07-20',
@@ -44,8 +44,8 @@ export const NewsPage: React.FC = () => {
       id: '4',
       title: 'BHMS 2026 Batch Orientation & Hahnemannian Oath Ceremony',
       slug: 'bhms-orientation-oath-ceremony',
-      summary: '100 newly admitted BHMS medical students formally took the Hahnemannian Oath during the annual induction program.',
-      content: 'The 2026-2027 academic session commenced with solemnity as 100 scholars admitted through NEET AYUSH counseling received their white coats and pledged allegiance to the principles of Organon of Medicine.',
+      summary: '50 newly admitted BHMS medical students formally took the Hahnemannian Oath during the annual induction program.',
+      content: 'The 2026-2027 academic session commenced with solemnity as 50 scholars admitted through NEET AYUSH counseling received their white coats and pledged allegiance to the principles of Organon of Medicine.',
       category: 'Student Event',
       author: 'Academic Council',
       publishedAt: '2026-07-01',
@@ -92,7 +92,7 @@ export const NewsPage: React.FC = () => {
           Campus News, Events & Press Releases
         </h1>
         <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-3xl">
-          Stay updated with the latest academic milestones, medical research findings, hospital outreach camps, and campus events at Burdwan Homoeopathic Medical College & Hospital.
+          Stay updated with the latest academic milestones, medical research findings, hospital outreach camps, and campus events at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL.
         </p>
       </div>
 

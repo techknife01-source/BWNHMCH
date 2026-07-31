@@ -7,9 +7,9 @@ export const PrincipalDeskPage: React.FC = () => {
     name: 'Prof. (Dr.) Susmita Chatterjee',
     designation: 'Principal & Ex-Officio Superintendent',
     photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600',
-    qualifications: ['B.H.M.S. (Calcutta University)', 'M.D. (Hom.) Materia Medica', 'Ph.D. in Homoeopathy'],
+    qualifications: ['DHMS (West Bengal Council of Homoeopathic Medicine)', 'MD (Organon of Medicine)'],
     experienceYears: 28,
-    message: `It gives me immense pride and pleasure to welcome you to Burdwan Homoeopathic Medical College & Hospital. Homoeopathy is not merely a system of medicine; it is a gentle, individualistic, and holistic science of healing founded by Dr. Samuel Hahnemann. 
+    message: `It gives me immense pride and pleasure to welcome you to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Homoeopathy is not merely a system of medicine; it is a gentle, individualistic, and holistic science of healing founded by Dr. Samuel Hahnemann. 
 
 Our institution is committed to nurturing compassionate healthcare leaders who combine rigorous clinical training with deep empathetic care. With our 50-bed attached hospital, advanced research labs, and distinguished faculty members, we ensure every student acquires the highest standard of academic excellence and clinical acumen.
 
@@ -85,7 +85,7 @@ We invite aspiring scholars to join our vibrant academic community and embrace t
             <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
                 <p className="font-extrabold text-slate-900 dark:text-white text-sm">{data.name}</p>
-                <p className="text-xs text-slate-400 font-medium">Burdwan Homoeopathic Medical College & Hospital</p>
+                <p className="text-xs text-slate-400 font-medium">BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL</p>
               </div>
               <div className="flex items-center space-x-2 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-900">
                 <ShieldCheck className="w-4 h-4" />

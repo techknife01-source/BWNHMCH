@@ -42,7 +42,7 @@ class AdminHrService {
       designationName: 'Principal & Professor',
       employeeType: 'TEACHING',
       status: 'ACTIVE',
-      qualification: 'DMS, MD (Homoeopathy), Ph.D.',
+      qualification: 'DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)',
       experienceYears: 24,
       bloodGroup: 'O+',
       emergencyContact: {
@@ -337,7 +337,7 @@ class AdminHrService {
       hodEmail: 'subir.mitra@bhmc.edu.in',
       staffCount: 4,
       budgetAllocated: 900000,
-      description: 'Digital research library, rare homeopathic archives, and journal subscriptions.',
+      description: 'Digital research library, rare homoeopathic archives, and journal subscriptions.',
       roomLocation: 'Library Building - Floor 1 & 2',
     },
     {
@@ -376,7 +376,7 @@ class AdminHrService {
       minBasicPay: 144200,
       maxBasicPay: 218200,
       reportsTo: 'Governing Body / President',
-      description: 'Institutional academic and administrative head of the Homeopathic College & Hospital.',
+      description: 'Institutional academic and administrative head of the BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL.',
     },
     {
       id: 'DES-002',

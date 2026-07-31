@@ -1,78 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Card } from '../../components/common/Card';
 import { Image as ImageIcon, Filter, Maximize2, X, Sparkles } from 'lucide-react';
-
-interface GalleryItem {
-  id: string;
-  title: string;
-  category: 'Hospital & OPD' | 'Labs & Classrooms' | 'Events & Seminars' | 'Herbal Garden';
-  imageUrl: string;
-  description: string;
-}
+import { galleryService, GalleryItem } from '../../services/galleryService';
 
 export const GalleryPage: React.FC = () => {
-  const items: GalleryItem[] = [
-    {
-      id: 'g1',
-      title: '50-Bed Attached Teaching Hospital & OPD Building',
-      category: 'Hospital & OPD',
-      imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
-      description: 'Front facade of the hospital housing daily outpatient departments, casualty, and inpatient wards.'
-    },
-    {
-      id: 'g2',
-      title: 'Homoeopathic Pharmacy & HPLC Drug Standardization Lab',
-      category: 'Labs & Classrooms',
-      imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
-      description: 'Students performing potentization and vehicle testing under senior pharmacy professors.'
-    },
-    {
-      id: 'g3',
-      title: 'Annual Hahnemannian Oath Ceremony & Induction 2026',
-      category: 'Events & Seminars',
-      imageUrl: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&q=80&w=800',
-      description: 'Fresh BHMS 2026 scholars taking the Hahnemannian Oath at the 250-seater air-conditioned auditorium.'
-    },
-    {
-      id: 'g4',
-      title: 'Botanical Herbal Garden & Medicinal Flora Reserve',
-      category: 'Herbal Garden',
-      imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=800',
-      description: '250+ species of medicinal herbs preserved for practical drug identification and pharmacognosy study.'
-    },
-    {
-      id: 'g5',
-      title: 'Central Digital Medical Library & E-Learning Workstations',
-      category: 'Labs & Classrooms',
-      imageUrl: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=800',
-      description: 'Housing 12,000+ volumes of rare Homoeopathic treatises, WBUHS journals, and online databases.'
-    },
-    {
-      id: 'g6',
-      title: 'Free Rural Homoeopathic Medical Camp - Memari Village',
-      category: 'Events & Seminars',
-      imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800',
-      description: 'Interns and faculty doctors delivering free healthcare to over 600 rural patients in Purba Bardhaman.'
-    },
-    {
-      id: 'g7',
-      title: 'Anatomy Dissection Hall & Histology Microscope Room',
-      category: 'Labs & Classrooms',
-      imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
-      description: 'First year BHMS medical students exploring cadaveric dissection and tissue histology.'
-    },
-    {
-      id: 'g8',
-      title: 'Clinical Pathology Diagnostic & Culture Suite',
-      category: 'Hospital & OPD',
-      imageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',
-      description: 'Equipped for hematology, biochemistry panels, and bacterial culture sensitivity testing.'
-    }
-  ];
-
+  const [items, setItems] = useState<GalleryItem[]>(() => galleryService.getAllPublished());
   const [activeCat, setActiveCat] = useState<string>('All');
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setItems(galleryService.getAllPublished());
+    };
+    window.addEventListener('bhmch_gallery_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('bhmch_gallery_updated', handleUpdate);
+    };
+  }, []);
 
   const categories = ['All', 'Hospital & OPD', 'Labs & Classrooms', 'Events & Seminars', 'Herbal Garden'];
 

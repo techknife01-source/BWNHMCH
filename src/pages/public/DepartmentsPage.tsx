@@ -19,6 +19,14 @@ export const DepartmentsPage: React.FC = () => {
     // Load live CMS departments
     const list = departmentCmsService.getDepartments();
     setDepartments(list);
+
+    const handleUpdate = () => {
+      setDepartments(departmentCmsService.getDepartments());
+    };
+    window.addEventListener('bhmch_department_cms_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('bhmch_department_cms_updated', handleUpdate);
+    };
   }, [selectedDeptId]);
 
   // Sync URL search params

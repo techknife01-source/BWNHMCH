@@ -72,7 +72,7 @@ export const PharmacyModule: React.FC<PharmacyModuleProps> = ({ inventory, onUpd
             </h3>
           </div>
           <p className="text-3xs text-slate-400 mt-1">
-            Real-time tracking of homeopathic dilutions, mother tinctures, triturations, and globules.
+            Real-time tracking of homoeopathic dilutions, mother tinctures, triturations, and globules.
           </p>
         </div>
 

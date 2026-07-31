@@ -7,23 +7,29 @@ import { Link } from 'react-router-dom';
 import { aboutApi, AboutCollegeData } from '../../services/api/about.api';
 
 export const AboutPage: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+  const estdYear = 1978;
+  const experienceYears = currentYear - estdYear;
+
   const [aboutData, setAboutData] = useState<AboutCollegeData>({
-    history: `Established in 1978 in the historical city of Bardhaman, Burdwan Homoeopathic Medical College & Hospital (BHMC&H) was founded by visionary homoeopathic physicians and philanthropists. Over four decades of academic rigor, clinical excellence, and ethical medical practice have transformed the college into one of Eastern India's most prestigious Homoeopathic institutions.`,
+    history: `Established in 1978 in the historical city of Bardhaman, BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL (BHMC&H) was founded by visionary homoeopathic physicians and philanthropists. Over four decades of academic rigor, clinical excellence, and ethical medical practice have transformed the college into one of Eastern India's most prestigious Homoeopathic institutions.`,
     mission: `To impart scientific, ethical, and high-quality Homoeopathic medical education; to foster innovative clinical research; and to deliver compassionate, affordable healthcare to all strata of society.`,
     vision: `To lead as a benchmark center of excellence in Homoeopathic medical science, integrative clinical practice, and holistic patient wellness.`,
     objectives: [
-      'Provide comprehensive undergraduate BHMS and postgraduate MD clinical education.',
-      'Maintain an active 50-bed hospital providing subsidized outpatient and inpatient care.',
+      'Provide comprehensive undergraduate BHMS clinical education.',
+      'Maintain an active 30-bed hospital providing subsidized outpatient and inpatient care.',
       'Promote research in drug standardization, potentization, and chronic disease management.',
       'Conduct rural health outreach camps in Purba Bardhaman and neighboring districts.'
     ],
     infrastructure: [
-      '50-Bed Attached Teaching Hospital with 24/7 Emergency & OT',
+      '30-Bed Attached Teaching Hospital with 24/7 Emergency & OT',
       'Central Digital Library with 12,000+ Homoeopathic & Medical Volumes',
       'Hi-Tech Homoeopathic Pharmacy & Drug Standardization Laboratory',
       'Anatomy Dissection Hall, Pathology Museum, and Physiology Lab',
       'Herbal Botanical Garden featuring 250+ Medicinal Plant Species',
-      'Air-Conditioned 250-Seater Auditorium & ICT-Enabled Classrooms'
+      'Air-Conditioned 250-Seater Auditorium & ICT-Enabled Classrooms',
+      'METU Room (Medical Education Technology Unit)',
+      'Skill Lab (Clinical Skill & Simulation Lab)'
     ],
     recognition: [
       'National Commission for Homoeopathy (NCH), Ministry of AYUSH, Govt of India',
@@ -54,7 +60,7 @@ export const AboutPage: React.FC = () => {
         <div className="absolute -top-10 -right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-3xl space-y-4 relative z-10">
           <span className="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black rounded-full uppercase tracking-wider border border-emerald-500/30">
-            ESTD {aboutData.establishedYear} • 45+ Years Educational Heritage
+            ESTD {estdYear} • {experienceYears}+ Years Educational Heritage
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
             About {APP_CONSTANTS.INSTITUTION_NAME}
@@ -66,16 +72,16 @@ export const AboutPage: React.FC = () => {
 
         <div className="pt-6 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
           <div>
-            <p className="text-2xl font-black text-emerald-400">BHMS & MD</p>
-            <p className="text-2xs text-slate-400 font-bold uppercase">Degree Programs</p>
+            <p className="text-2xl font-black text-emerald-400">BHMS</p>
+            <p className="text-2xs text-slate-400 font-bold uppercase">Course Offered</p>
           </div>
           <div>
-            <p className="text-2xl font-black text-blue-400">50-Bed</p>
-            <p className="text-2xs text-slate-400 font-bold uppercase">Teaching Hospital</p>
+            <p className="text-2xl font-black text-blue-400">30 Beds</p>
+            <p className="text-2xs text-slate-400 font-bold uppercase">Hospital Bed Capacity</p>
           </div>
           <div>
-            <p className="text-2xl font-black text-amber-400">12,000+</p>
-            <p className="text-2xs text-slate-400 font-bold uppercase">Library Volumes</p>
+            <p className="text-2xl font-black text-amber-400">{experienceYears}+ Years</p>
+            <p className="text-2xs text-slate-400 font-bold uppercase">Experience</p>
           </div>
           <div>
             <p className="text-2xl font-black text-emerald-300">100%</p>
@@ -125,7 +131,7 @@ export const AboutPage: React.FC = () => {
           <Award className="h-8 w-8 text-blue-600" />
           <h3 className="font-bold text-sm text-slate-900 dark:text-white">NCH Recognition</h3>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Fully recognized by National Commission for Homoeopathy (NCH), Ministry of Ayush, Govt of India for undergraduate and postgraduate seats.
+            Fully recognized by National Commission for Homoeopathy (NCH), Ministry of Ayush, Govt of India for undergraduate BHMS degree.
           </p>
         </Card>
         <Card className="p-6 space-y-3 border border-slate-200/80 dark:border-slate-800">
@@ -139,7 +145,7 @@ export const AboutPage: React.FC = () => {
           <HeartHandshake className="h-8 w-8 text-amber-600" />
           <h3 className="font-bold text-sm text-slate-900 dark:text-white">Govt of West Bengal</h3>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Recognized by Health & Family Welfare Department, Govt of West Bengal with attached 50-bed clinical teaching hospital.
+            Recognized by Health & Family Welfare Department, Govt of West Bengal with attached 30-bed clinical teaching hospital.
           </p>
         </Card>
       </div>

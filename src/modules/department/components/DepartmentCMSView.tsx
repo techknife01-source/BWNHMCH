@@ -43,6 +43,17 @@ export const DepartmentCMSView: React.FC<DepartmentCMSViewProps> = ({
     departmentCmsService.getDepartmentById(departmentId)
   );
 
+  React.useEffect(() => {
+    const reload = () => {
+      setDeptData(departmentCmsService.getDepartmentById(departmentId));
+    };
+    reload();
+    window.addEventListener('bhmch_department_cms_updated', reload);
+    return () => {
+      window.removeEventListener('bhmch_department_cms_updated', reload);
+    };
+  }, [departmentId]);
+
   const [editorOpen, setEditorOpen] = useState(false);
   const [adminPreviewOverride, setAdminPreviewOverride] = useState(false);
 

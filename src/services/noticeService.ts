@@ -1,4 +1,4 @@
-import { NoticeItem, NoticeFilterParams, NoticeUserRole, NoticeStatus } from '../types/notice';
+import { NoticeItem, NoticeFilterParams, NoticeUserRole, NoticeStatus, NoticeCategory } from '../types/notice';
 import toast from 'react-hot-toast';
 
 const STORAGE_KEY = 'bhmc_notices_data_v2';
@@ -12,7 +12,7 @@ const INITIAL_NOTICES: NoticeItem[] = [
     summary: 'Official routine and guidelines for upcoming supplementary theory and practical examinations.',
     content: `
       <h2>BHMS 1st Professional Supplementary Examination Roster</h2>
-      <p>All eligible BHMS 1st Professional candidates of <strong>Burdwan Homoeopathic Medical College & Hospital</strong> are hereby notified that the WBUHS Supplementary Examinations 2026 are scheduled as follows:</p>
+      <p>All eligible BHMS 1st Professional candidates of <strong>BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL</strong> are hereby notified that the WBUHS Supplementary Examinations 2026 are scheduled as follows:</p>
       <ul>
         <li><strong>Anatomy Paper I & II:</strong> August 12 & 13, 2026 (11:00 AM - 2:00 PM)</li>
         <li><strong>Physiology & Biochemistry:</strong> August 16 & 17, 2026 (11:00 AM - 2:00 PM)</li>
@@ -53,7 +53,7 @@ const INITIAL_NOTICES: NoticeItem[] = [
     summary: 'Emergency OPD duty roster for interns and clinical faculty members.',
     content: `
       <h2>Hospital Duty Directive for National Holiday</h2>
-      <p>The Emergency & Casual OPD Services at Burdwan Homoeopathic Medical College & Hospital will remain <strong>FULLY OPERATIONAL 24x7</strong>.</p>
+      <p>The Emergency & Casual OPD Services at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL will remain <strong>FULLY OPERATIONAL 24x7</strong>.</p>
       <p>Specialized Skin, Pediatric, and General Medicine OPD clinics will run under duty roster batch B.</p>
     `,
     category: 'HOSPITAL',
@@ -208,16 +208,26 @@ class NoticeService {
   }
 
   // Permission helpers
-  canManageNotices(role: NoticeUserRole): boolean {
-    return role === 'ADMIN' || role === 'PRINCIPAL' || role === 'HOD' || role === 'FACULTY';
+  canManageNotices(role: NoticeUserRole | string): boolean {
+    const norm = (role || '').toString().toUpperCase();
+    return (
+      norm === 'SUPER_ADMIN' ||
+      norm === 'ROLE_SUPER_ADMIN' ||
+      norm === 'ADMIN' ||
+      norm === 'ROLE_ADMIN' ||
+      norm === 'PRINCIPAL' ||
+      norm === 'ROLE_PRINCIPAL' ||
+      norm === 'VICE_PRINCIPAL' ||
+      norm === 'ROLE_VICE_PRINCIPAL'
+    );
   }
 
-  canPublishNotice(role: NoticeUserRole): boolean {
-    return role === 'ADMIN' || role === 'PRINCIPAL' || role === 'HOD';
+  canPublishNotice(role: NoticeUserRole | string): boolean {
+    return this.canManageNotices(role);
   }
 
-  canDeleteNotice(role: NoticeUserRole): boolean {
-    return role === 'ADMIN' || role === 'PRINCIPAL';
+  canDeleteNotice(role: NoticeUserRole | string): boolean {
+    return this.canManageNotices(role);
   }
 
   // Query & Filter
@@ -384,6 +394,86 @@ class NoticeService {
       notice.isImportant = !notice.isImportant;
       this.saveToStorage();
       toast.success(notice.isImportant ? 'Notice pinned to top!' : 'Notice unpinned');
+    }
+  }
+
+  // Bulk Operations
+  bulkDeleteNotices(ids: string[]): boolean {
+    if (ids.length === 0) return false;
+    this.notices = this.notices.filter((n) => !ids.includes(n.id));
+    this.saveToStorage();
+    toast.success(`${ids.length} notice(s) deleted.`);
+    return true;
+  }
+
+  bulkPublishNotices(ids: string[]): void {
+    if (ids.length === 0) return;
+    this.notices.forEach((n) => {
+      if (ids.includes(n.id)) n.status = 'PUBLISHED';
+    });
+    this.saveToStorage();
+    toast.success(`${ids.length} notice(s) published.`);
+  }
+
+  bulkArchiveNotices(ids: string[]): void {
+    if (ids.length === 0) return;
+    this.notices.forEach((n) => {
+      if (ids.includes(n.id)) n.status = 'ARCHIVED';
+    });
+    this.saveToStorage();
+    toast.success(`${ids.length} notice(s) archived.`);
+  }
+
+  bulkCategoryUpdateNotices(ids: string[], newCategory: NoticeCategory): void {
+    if (ids.length === 0) return;
+    this.notices.forEach((n) => {
+      if (ids.includes(n.id)) n.category = newCategory;
+    });
+    this.saveToStorage();
+    toast.success(`${ids.length} notice(s) updated to ${newCategory}.`);
+  }
+
+  exportNotices(ids?: string[]): string {
+    const exportList = ids && ids.length > 0 ? this.notices.filter((n) => ids.includes(n.id)) : this.notices;
+    return JSON.stringify(exportList, null, 2);
+  }
+
+  importNotices(jsonString: string): number {
+    try {
+      const parsed = JSON.parse(jsonString);
+      if (!Array.isArray(parsed)) throw new Error('Expected an array of notices.');
+      let count = 0;
+      parsed.forEach((n, idx) => {
+        if (n.title) {
+          const item: NoticeItem = {
+            id: n.id || `notice-imp-${Date.now()}-${idx}`,
+            noticeNo: n.noticeNo || `BHMCH/IMP/2026/${Math.floor(100 + Math.random() * 900)}`,
+            title: n.title,
+            summary: n.summary || '',
+            content: n.content || `<p>${n.title}</p>`,
+            category: n.category || 'ACADEMIC',
+            department: n.department || 'All',
+            author: n.author || 'Imported Desk',
+            authorRole: n.authorRole || 'Administrator',
+            publishedDate: n.publishedDate || new Date().toISOString().split('T')[0],
+            expiryDate: n.expiryDate,
+            isImportant: !!n.isImportant,
+            status: n.status || 'PUBLISHED',
+            attachments: n.attachments || [],
+            targetAudience: n.targetAudience || 'ALL',
+            viewsCount: 1,
+            createdAt: new Date().toISOString(),
+          };
+          this.notices.unshift(item);
+          count++;
+        }
+      });
+      this.saveToStorage();
+      toast.success(`${count} notice(s) imported successfully!`);
+      return count;
+    } catch (e: any) {
+      toast.error(`Import failed: ${e.message || 'Invalid format'}`);
+      return 0;
     }
   }
 }

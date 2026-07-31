@@ -38,7 +38,7 @@ export const ProfilePage: React.FC = () => {
     designation: getUserDisplayDesignation(user),
     address: 'Rajbati, Purba Bardhaman, West Bengal 713104',
     regNo: 'WB-NCH-1994-0821',
-    qualification: 'M.D. (Hom.), Ph.D.',
+    qualification: 'DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)',
     experienceYears: '28 Years'
   });
 
@@ -261,7 +261,7 @@ export const ProfilePage: React.FC = () => {
                 <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1 list-disc list-inside">
                   <li>Author of 14 peer-reviewed research papers in Homoeopathic Repertory & Organon</li>
                   <li>Member of WBUHS Academic Board & NCH Curriculum Advisory Committee</li>
-                  <li>Principal Supervisor for 8 M.D. (Hom.) Scholars</li>
+                  <li>Principal Supervisor for Senior BHMS Interns & Clinical Scholars</li>
                 </ul>
               </div>
             </motion.div>

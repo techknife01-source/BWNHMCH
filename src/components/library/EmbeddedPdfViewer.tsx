@@ -103,7 +103,7 @@ export const EmbeddedPdfViewer: React.FC<EmbeddedPdfViewerProps> = ({
   const sampleText =
     book.sampleContent && book.sampleContent[currentPage - 1]
       ? book.sampleContent[currentPage - 1]
-      : `Page ${currentPage} of ${book.title}. Detailed academic homeopathic study resource covering principles, clinical observations, repertory formulations, and therapeutic applications for medical scholars and faculty.`;
+      : `Page ${currentPage} of ${book.title}. Detailed academic homoeopathic study resource covering principles, clinical observations, repertory formulations, and therapeutic applications for medical scholars and faculty.`;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 select-none animate-fadeIn">
@@ -302,7 +302,7 @@ export const EmbeddedPdfViewer: React.FC<EmbeddedPdfViewerProps> = ({
               <div className="flex justify-between items-center border-b border-slate-200 pb-3 mb-6">
                 <div>
                   <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-700 block">
-                    {book.department || 'Burdwann Homoeopathic Medical College'}
+                    {book.department || 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL'}
                   </span>
                   <h2 className="text-base font-bold text-[#002147] mt-0.5">{book.title}</h2>
                 </div>

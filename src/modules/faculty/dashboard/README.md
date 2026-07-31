@@ -1,6 +1,6 @@
-# Smart Homeopathic Medical College Digital Ecosystem — Faculty Dashboard Module
+# BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Digital Ecosystem — Faculty Dashboard Module
 
-Welcome to the **Faculty Operations & Academic Portal** dashboard module. This enterprise dashboard empowers senior lecturers, department heads, and clinical consultants at the Homeopathic Medical College to manage academic lectures, clinical OPD duties, student logbook evaluations, CCRH research projects, e-library requisitions, and departmental circulars seamlessly.
+Welcome to the **Faculty Operations & Academic Portal** dashboard module. This enterprise dashboard empowers senior lecturers, department heads, and clinical consultants at the Homoeopathic Medical College to manage academic lectures, clinical OPD duties, student logbook evaluations, CCRH research projects, e-library requisitions, and departmental circulars seamlessly.
 
 ---
 

@@ -23,7 +23,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ profile, onNav
             {profile.academicQualifications.length} Qualifications
           </div>
           <p className="text-3xs text-slate-500 font-medium">
-            Highest: M.D. (Hom.), Ph.D.
+            Highest: DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ profile, onNav
               </button>
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Dr. Swapna Roy is an Associate Professor in the Department of Organon of Medicine & Homoeopathic Philosophy at Burdwan Homoeopathic Medical College & Hospital. With over 12 years of clinical and undergraduate teaching experience, she specializes in miasmatic classification of chronic diseases, constitutional case taking, and autoimmune homoeopathic prescribing.
+              Dr. Swapna Roy is an Associate Professor in the Department of Organon of Medicine & Homoeopathic Philosophy at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. With over 12 years of clinical and undergraduate teaching experience, she specializes in miasmatic classification of chronic diseases, constitutional case taking, and autoimmune homoeopathic prescribing.
             </p>
           </div>
 

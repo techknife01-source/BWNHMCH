@@ -135,7 +135,7 @@ export const StudentDigitalLibraryView: React.FC = () => {
               Homoeopathic Digital Library & Reading Room
             </h1>
             <p className="text-xs sm:text-sm text-slate-200 max-w-2xl font-medium">
-              Read classical homeopathic literature, lecture presentations, faculty notes, and official BHMS question papers online with built-in DRM streaming.
+              Read classical homoeopathic literature, lecture presentations, faculty notes, and official BHMS question papers online with built-in DRM streaming.
             </p>
           </div>
 

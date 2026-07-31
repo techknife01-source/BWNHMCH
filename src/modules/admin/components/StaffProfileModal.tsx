@@ -220,7 +220,7 @@ export const StaffProfileModal: React.FC<StaffProfileModalProps> = ({
               <div className="w-full max-w-sm bg-gradient-to-br from-[#002147] to-[#003366] text-white p-5 rounded-2xl shadow-xl border-2 border-amber-400 space-y-3 text-center">
                 <div className="border-b border-blue-400/40 pb-2">
                   <h4 className="font-black text-sm tracking-wider uppercase">BHMC & Hospital</h4>
-                  <p className="text-[9px] text-blue-200">Smart Homeopathic Medical College, West Bengal</p>
+                  <p className="text-[9px] text-blue-200">BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL, West Bengal</p>
                 </div>
 
                 <div className="w-20 h-20 mx-auto rounded-full bg-white text-[#002147] font-black text-2xl flex items-center justify-center border-2 border-amber-400 shadow-md">

@@ -63,7 +63,7 @@ export const SecureELibrary: React.FC<SecureELibraryProps> = ({ books, userRole,
             </h3>
           </div>
           <p className="text-3xs text-slate-400 mt-1">
-            Access classical homeopathic treatises, Organon archives, repertories, and peer-reviewed AYUSH journals online.
+            Access classical homoeopathic treatises, Organon archives, repertories, and peer-reviewed AYUSH journals online.
           </p>
         </div>
 

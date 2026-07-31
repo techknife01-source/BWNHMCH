@@ -22,28 +22,28 @@ import {
 } from '../types';
 
 export const DEFAULT_PRINCIPAL_PROFILE: PrincipalProfile = {
-  name: 'Dr. Partha Sarathi Chakraborty',
+  name: 'Dr. Susmita Chatterjee',
   title: 'Principal & Chief Administrator',
-  qualification: 'BHMS, MD (Homoeopathy), PhD (Hom)',
+  qualification: 'DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)',
   experience: '26 Years in Academic Administration & Clinical Medicine',
   image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600',
-  messageText: 'Welcome to Burdwan Homoeopathic Medical College & Hospital. Established in 1958, our institution stands as a premier seat of homeopathic learning in Eastern India. We strive to merge Hahnemannian classical philosophy with modern medical diagnostics and research.',
+  messageText: 'Welcome to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Established in 1958, our institution stands as a premier seat of homoeopathic learning in Eastern India. We strive to merge Hahnemannian classical philosophy with modern medical diagnostics and research.',
   tenure: '2021 - Present',
   email: 'principal@bhmch.com',
   phone: '+91 342 2656331'
 };
 
 export const DEFAULT_CMS_DATA: CMSData = {
-  collegeName: 'Burdwan Homeopathic Medical College & Hospital',
+  collegeName: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
   address: '1, Ramkrishna Road, Burdwan, West Bengal - 713101, India',
   phone: '+91 (0342) 2656331 / 2568442',
   email: 'principal@bhmch.com',
-  aboutText: 'Burdwan Homoeopathic Medical College & Hospital is a premier AYUSH educational institution in West Bengal, dedicated to classical homeopathic education, research, and patient care.',
-  historyText: 'Founded in 1958 by visionaries in Burdwan district, the college was established to deliver affordable homeopathic healthcare and quality medical training.',
-  missionText: 'To nurture highly competent, empathetic homeopathic physicians equipped with deep classical knowledge and modern clinical diagnostic skills.',
-  visionText: 'To be a global center of excellence in homeopathic medical education, clinical research, and community health service.',
-  seoTitle: 'Burdwan Homoeopathic Medical College & Hospital | Premier AYUSH Institute',
-  seoDescription: 'Official Portal of Burdwan Homoeopathic Medical College & Hospital. Offering BHMS and MD (Homoeopathy) degrees affiliated with WBUHS and recognized by NCH.'
+  aboutText: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL is a premier AYUSH educational institution in West Bengal, dedicated to classical homoeopathic education, research, and patient care.',
+  historyText: 'Founded in 1958 by visionaries in Burdwan district, the college was established to deliver affordable homoeopathic healthcare and quality medical training.',
+  missionText: 'To nurture highly competent, empathetic homoeopathic physicians equipped with deep classical knowledge and modern clinical diagnostic skills.',
+  visionText: 'To be a global center of excellence in homoeopathic medical education, clinical research, and community health service.',
+  seoTitle: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL | Premier AYUSH Institute',
+  seoDescription: 'Official Portal of BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Offering BHMS degree affiliated with WBUHS and recognized by NCH.'
 };
 
 export const DEFAULT_LIBRARY_BOOKS: LibraryBook[] = [
@@ -85,7 +85,7 @@ export const DEFAULT_LIBRARY_BOOKS: LibraryBook[] = [
   },
   {
     id: 'bk_103',
-    title: 'Repertory of the Homeopathic Materia Medica',
+    title: 'Repertory of the Homoeopathic Materia Medica',
     author: 'Dr. James Tyler Kent',
     category: 'Repertory',
     publisher: 'Sett Dey & Co.',
@@ -297,7 +297,7 @@ export const DEPARTMENTS: Department[] = [
     code: 'DEPT-PHARM',
     hod: 'Dr. R. Bannerjee, M.D. (Hom.)',
     facultyCount: 4,
-    description: 'The science of preparing, compounding, standardizing, and dispensing homeopathic potentized remedies from natural sources under HPI compliance.',
+    description: 'The science of preparing, compounding, standardizing, and dispensing homoeopathic potentized remedies from natural sources under HPI compliance.',
     labs: ['HPLC & Spectrophotometry Lab', 'Vehicle Preparation & Trituration Hall', 'Pharmacognosy Herbarium']
   },
   {
@@ -380,7 +380,7 @@ export const FACULTY: FacultyMember[] = [
     name: 'Dr. S. K. Banerjea',
     designation: 'Professor & HOD',
     department: 'Materia Medica',
-    qualification: 'MD (Hom), PhD',
+    qualification: 'MD (Hom)',
     experience: '28 Years',
     email: 'skbanerjea@bhmch.com',
     publications: 24
@@ -410,7 +410,7 @@ export const FACULTY: FacultyMember[] = [
     name: 'Dr. Susmita Chatterjee',
     designation: 'Principal & HOD',
     department: 'Practice of Medicine',
-    qualification: 'BHMS, MD (Hom)',
+    qualification: 'DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)',
     experience: '22 Years',
     email: 'principal@bhmch.com',
     publications: 18
@@ -499,7 +499,7 @@ export const STUDENTS: StudentRecord[] = [
     feesPaid: 100000,
     feesTotal: 150000,
     scholarship: 'None',
-    clinicalPosting: 'Homeopathic Pharmacy Potentization Lab',
+    clinicalPosting: 'Homoeopathic Pharmacy Potentization Lab',
     email: 'kabir.mal@bhmch.com',
     phone: '+91 88877 66554'
   },
@@ -546,7 +546,7 @@ export const PATIENTS: PatientRecord[] = [
     type: 'OPD',
     department: 'Practice of Medicine',
     complaint: 'Chronic allergic rhinitis, watery discharge, sneezing worse in cold air, relief with warm drinks.',
-    homeopathicRemedy: 'Arsenicum Album',
+    homoeopathicRemedy: 'Arsenicum Album',
     potency: '30C',
     status: 'Recovered',
     doctor: 'Dr. Susmita Chatterjee'
@@ -561,7 +561,7 @@ export const PATIENTS: PatientRecord[] = [
     type: 'IPD',
     department: 'Gynecology & Obstetrics',
     complaint: 'Uterine fibroids, dragging down pain in lower abdomen, hot flushes, highly irritable mood.',
-    homeopathicRemedy: 'Sepia Officinalis',
+    homoeopathicRemedy: 'Sepia Officinalis',
     potency: '200C',
     status: 'Under Treatment',
     doctor: 'Dr. Sunita Sharma'
@@ -576,7 +576,7 @@ export const PATIENTS: PatientRecord[] = [
     type: 'OPD',
     department: 'Materia Medica',
     complaint: 'Enuresis (bedwetting), fear of dark, clinging to mother, timid temperament, likes sweets.',
-    homeopathicRemedy: 'Pulsatilla Nigricans',
+    homoeopathicRemedy: 'Pulsatilla Nigricans',
     potency: '200C',
     status: 'Under Treatment',
     doctor: 'Dr. S. K. Banerjea'
@@ -589,9 +589,9 @@ export const PATIENTS: PatientRecord[] = [
     gender: 'Male',
     dateRegistered: '2026-07-19',
     type: 'OPD',
-    department: 'Surgery & Homeopathic Therapeutics',
+    department: 'Surgery & Homoeopathic Therapeutics',
     complaint: 'Fistula-in-ano, sharp splinter-like pain during stool, highly sensitive to cold water.',
-    homeopathicRemedy: 'Nitricum Acidum',
+    homoeopathicRemedy: 'Nitricum Acidum',
     potency: '200C',
     status: 'Under Treatment',
     doctor: 'Dr. Rajesh Patel'
@@ -606,7 +606,7 @@ export const PATIENTS: PatientRecord[] = [
     type: 'IPD',
     department: 'Practice of Medicine',
     complaint: 'Severe gastric burning, flatulence, abdominal bloating starting 4 PM, relief after passing gas.',
-    homeopathicRemedy: 'Lycopodium Clavatum',
+    homoeopathicRemedy: 'Lycopodium Clavatum',
     potency: '1M',
     status: 'Discharged',
     doctor: 'Dr. Susmita Chatterjee'
@@ -628,13 +628,13 @@ export const NOTICES: Notice[] = [
     title: 'Mandatory Clinical Posting Cycle for III & IV Year BHMS',
     category: 'Academic',
     date: '2026-07-15',
-    content: 'Clinical postings at the associated Burdwan Homoeopathic Teaching Hospital have been updated. Ensure logbooks are signed daily by respective HODs. 85% attendance is required to appear in final assessments.',
+    content: 'Clinical postings at the associated BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL (Teaching Hospital) have been updated. Ensure logbooks are signed daily by respective HODs. 85% attendance is required to appear in final assessments.',
     isPinned: true,
     attachmentName: 'Clinical_Rotation_Chart_Q3.pdf'
   },
   {
     id: 'ntc_3',
-    title: 'Free Mega Homeopathic Medical Camp on World Health Day',
+    title: 'Free Mega Homoeopathic Medical Camp on World Health Day',
     category: 'Hospital',
     date: '2026-07-14',
     content: 'Our Hospital is organizing a free diagnostic and prescribing health camp focusing on chronic rheumatological, dermatological, and pediatric diseases. All faculty, interns, and postgraduate scholars must attend.',
@@ -655,7 +655,7 @@ export const NOTICES: Notice[] = [
     title: 'PG Seminar & Materia Medica Research Symposium',
     category: 'General',
     date: '2026-07-08',
-    content: 'Symposium on "Scientific Verification of High-Potency Homeopathic Dilutions" will take place on August 3rd, 2026, in the main college auditorium. Guest Speaker: Senior Researcher from IIT Bombay.',
+    content: 'Symposium on "Scientific Verification of High-Potency Homoeopathic Dilutions" will take place on August 3rd, 2026, in the main college auditorium. Guest Speaker: Senior Researcher from IIT Bombay.',
     isPinned: false,
     attachmentName: 'Symposium_Brochure.pdf'
   }
@@ -665,7 +665,7 @@ export const GALLERY: GalleryAlbum[] = [
   {
     id: 'gal_1',
     title: 'Annual Hahnemann Day Celebrations',
-    description: 'Celebrating the birth anniversary of Dr. Samuel Hahnemann with medical exhibits and classical homeopathic presentations.',
+    description: 'Celebrating the birth anniversary of Dr. Samuel Hahnemann with medical exhibits and classical homoeopathic presentations.',
     coverImage: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=600',
     category: 'Campus',
     date: '2026-04-10'
@@ -681,7 +681,7 @@ export const GALLERY: GalleryAlbum[] = [
   {
     id: 'gal_3',
     title: 'International Seminar on Organon Philosophy',
-    description: 'Expert talks delivered by globally renowned homeopathic clinicians regarding chronic miasmatic diagnosis.',
+    description: 'Expert talks delivered by globally renowned homoeopathic clinicians regarding chronic miasmatic diagnosis.',
     coverImage: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600',
     category: 'Seminars',
     date: '2026-05-15'
@@ -689,7 +689,7 @@ export const GALLERY: GalleryAlbum[] = [
   {
     id: 'gal_4',
     title: 'Free Ayush Rural Outreach Clinic',
-    description: 'Interns and faculty operating a mobile dispensary in rural tribal communities, diagnosing and dispensing free homeopathic remedies.',
+    description: 'Interns and faculty operating a mobile dispensary in rural tribal communities, diagnosing and dispensing free homoeopathic remedies.',
     coverImage: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=600',
     category: 'Social Service',
     date: '2026-07-02'
@@ -748,7 +748,7 @@ export const COURSES: Course[] = [
     id: 'crs_bhms',
     name: 'Bachelor of Homoeopathic Medicine and Surgery (BHMS)',
     duration: '5.5 Years (including 1 Year compulsory clinical internship)',
-    intake: 63,
+    intake: 50,
     eligibility: '10+2 with Physics, Chemistry, Biology & English (NEET Qualified under AYUSH stream)',
     syllabusOverview: [
       'First Professional: Anatomy, Physiology & Biochemistry, Homoeopathic Pharmacy, Organon of Medicine (Principles)',
@@ -756,18 +756,6 @@ export const COURSES: Course[] = [
       'Third Professional: Surgery & Therapeutics, Gynecology & Obstetrics & Therapeutics, Organon & Homoeopathic Philosophy',
       'Fourth Professional: Practice of Medicine & Therapeutics, Homoeopathic Repertory, Community Medicine',
       'Compulsory Internship: 12 months rotational duty across OPD/IPD departments including rural clinics'
-    ]
-  },
-  {
-    id: 'crs_md',
-    name: 'MD (Homoeopathy) - Postgraduate Studies',
-    duration: '3 Years',
-    intake: 36,
-    eligibility: 'BHMS Degree from a recognized institution (AIAPGET Qualified under AYUSH stream)',
-    syllabusOverview: [
-      'Specializations offered: Materia Medica, Repertory, Organon of Medicine, Homoeopathic Pharmacy, Practice of Medicine, Pediatrics',
-      'Year 1: Research Methodology, Bio-statistics, advanced philosophy studies',
-      'Year 2 & 3: Advanced clinical training, clinical posting, and dissertation thesis publication'
     ]
   }
 ];
@@ -798,7 +786,7 @@ export const FEEDBACK_LIST: FeedbackSubmission[] = [
 export const GENERAL_STATS = {
   totalStudents: 315,
   totalFaculty: 42,
-  totalBeds: 20,
+  totalBeds: 30,
   dailyOpdCount: 250,
   researchProjects: 18,
   ayushRating: 'Grade A (Govt. Aided)',
@@ -824,11 +812,11 @@ export const FINANCE_ANALYTICS = [
 ];
 
 export const ADMISSION_TRENDS = [
-  { year: '2022', bhms: 63, md: 0, applications: 1240 },
-  { year: '2023', bhms: 63, md: 0, applications: 1480 },
-  { year: '2024', bhms: 63, md: 0, applications: 1720 },
-  { year: '2025', bhms: 63, md: 0, applications: 1950 },
-  { year: '2026', bhms: 63, md: 0, applications: 2280 }
+  { year: '2022', bhms: 50, md: 0, applications: 1240 },
+  { year: '2023', bhms: 50, md: 0, applications: 1480 },
+  { year: '2024', bhms: 50, md: 0, applications: 1720 },
+  { year: '2025', bhms: 50, md: 0, applications: 1950 },
+  { year: '2026', bhms: 50, md: 0, applications: 2280 }
 ];
 
 export const RESEARCH_BY_DEPT = [

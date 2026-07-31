@@ -359,7 +359,7 @@ const INITIAL_SETTINGS: ReceptionSettings = {
   emergencyOverrideAllowed: true,
   announcementSound: true,
   receptionCounterName: 'Counter 01 - General Registration Desk',
-  hospitalName: 'Burdwan Homoeopathic Medical College & Hospital',
+  hospitalName: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
 };
 
 // In-Memory Storage / Hydration from LocalStorage

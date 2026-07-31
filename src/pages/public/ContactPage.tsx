@@ -48,7 +48,7 @@ export const ContactPage: React.FC = () => {
             Official Institution Desk
           </span>
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-            Burdwan Homoeopathic Medical College & Hospital
+            BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
           </h1>
           <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
             Get in touch with the principal’s secretariat, college administrative office, hospital OPD registration, or emergency helpline for general inquiries, admissions, and hospital services.
@@ -175,7 +175,7 @@ export const ContactPage: React.FC = () => {
                     className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none"
                   >
                     <option value="General Enquiry">General Information</option>
-                    <option value="Admission Cell">BHMS / M.D. Admission Cell</option>
+                    <option value="Admission Cell">BHMS Admission Cell</option>
                     <option value="Hospital Desk">Hospital OPD & IPD Desk</option>
                     <option value="Principal Secretariat">Principal Office Secretariat</option>
                     <option value="Accounts Section">Accounts & Fees Section</option>
@@ -217,7 +217,7 @@ export const ContactPage: React.FC = () => {
             <div className="space-y-4 text-xs text-slate-600 dark:text-slate-300">
               <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-1">
                 <p className="font-extrabold text-slate-900 dark:text-white text-sm">
-                  Burdwan Homoeopathic Medical College & Hospital
+                  BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
                 </p>
                 <p>Nimbark Bhaban</p>
                 <p>Rajganj, P.O. Nutanganj</p>
@@ -324,7 +324,7 @@ export const ContactPage: React.FC = () => {
 
         <div className="w-full h-80 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner bg-slate-100 dark:bg-slate-900">
           <iframe
-            title="Burdwan Homoeopathic Medical College & Hospital Google Map Location"
+            title="BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Google Map Location"
             src="https://maps.google.com/maps?q=Burdwan%20Homoeopathic%20Medical%20College%20%26%20Hospital%20Nimbark%20Bhaban%20Nutanganj%20Purba%20Bardhaman&t=&z=15&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"

@@ -1,5 +1,5 @@
 export const APP_CONSTANTS = {
-  INSTITUTION_NAME: "Burdwan Homeopathic Medical College & Hospital",
+  INSTITUTION_NAME: "BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL",
   SHORT_NAME: "BHMCH",
   ESTD_YEAR: "1978",
   AFFILIATION: "Affiliated to West Bengal University of Health Sciences (WBUHS) & Recognized by National Commission for Homoeopathy (NCH)",

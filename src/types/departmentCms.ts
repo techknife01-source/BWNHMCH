@@ -7,6 +7,12 @@ export interface FacultyMemberCMS {
   email?: string;
   phone?: string;
   photoUrl?: string;
+  imageUrl?: string;
+  joiningDate?: string;
+  experienceYears?: string;
+  registrationNumber?: string;
+  biography?: string;
+  status?: 'Active' | 'Inactive';
 }
 
 export interface GalleryItemCMS {

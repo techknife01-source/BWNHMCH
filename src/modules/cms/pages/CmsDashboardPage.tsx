@@ -20,6 +20,11 @@ import {
 } from '../types/cms.types';
 import { RichTextEditor } from '../../../components/common/RichTextEditor';
 import { MediaLibraryModal } from '../../../components/cms/MediaLibraryModal';
+import { GalleryManagementPanel } from '../components/GalleryManagementPanel';
+import { NoticeManagementPanel } from '../components/NoticeManagementPanel';
+import { NoticeBoardManagementPanel } from '../components/NoticeBoardManagementPanel';
+import { DepartmentStaffManagementPanel } from '../components/DepartmentStaffManagementPanel';
+import { AdmissionManagementPanel } from '../components/AdmissionManagementPanel';
 import {
   Globe,
   Plus,
@@ -51,11 +56,26 @@ import {
   MapPin,
   ListOrdered,
   Tag,
+  Users,
+  Pin,
 } from 'lucide-react';
 
 export const CmsDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'banners' | 'notices' | 'news' | 'events' | 'about' | 'departments' | 'courses' | 'downloads' | 'hospital' | 'contact_seo'
+    | 'overview'
+    | 'banners'
+    | 'gallery'
+    | 'notices'
+    | 'notice_board'
+    | 'news'
+    | 'events'
+    | 'about'
+    | 'departments'
+    | 'staff'
+    | 'courses'
+    | 'downloads'
+    | 'hospital'
+    | 'contact_seo'
   >('overview');
 
   // Loading & notification states
@@ -294,13 +314,17 @@ export const CmsDashboardPage: React.FC = () => {
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800 custom-scrollbar">
         {[
           { id: 'overview', label: 'Overview', icon: Layout },
-          { id: 'banners', label: 'Hero Banners', icon: ImageIcon },
+          { id: 'gallery', label: 'Gallery Management', icon: ImageIcon },
           { id: 'notices', label: 'Notices & Circulars', icon: Megaphone },
+          { id: 'notice_board', label: 'Notice Board Control', icon: Pin },
+          { id: 'banners', label: 'Hero Banners', icon: Layers },
+          { id: 'departments', label: 'Departments', icon: Building },
+          { id: 'staff', label: 'Department Staff', icon: Users },
           { id: 'news', label: 'News & Press', icon: FileText },
           { id: 'events', label: 'Events & Calendar', icon: Calendar },
           { id: 'about', label: 'About & Principal', icon: BookOpen },
-          { id: 'departments', label: 'Departments', icon: Building },
           { id: 'courses', label: 'Courses', icon: GraduationCap },
+          { id: 'admissions', label: 'BHMS Admissions', icon: CheckCircle },
           { id: 'downloads', label: 'Downloads', icon: DownloadIcon },
           { id: 'contact_seo', label: 'Contact, Map & SEO', icon: MapPin },
         ].map((tab) => {
@@ -625,264 +649,24 @@ export const CmsDashboardPage: React.FC = () => {
       )}
 
       {/* ======================================================== */}
-      {/* 3. NOTICES & CIRCULARS TAB */}
+      {/* GALLERY MANAGEMENT TAB */}
       {/* ======================================================== */}
-      {activeTab === 'notices' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                Official Notice Board & Circulars Manager
-              </h3>
-              <p className="text-3xs text-slate-400">
-                Publish WBUHS examination routines, hospital rosters, and administrative gazettes.
-              </p>
-            </div>
+      {activeTab === 'gallery' && <GalleryManagementPanel />}
 
-            <button
-              onClick={() =>
-                setEditingNotice({
-                  title: '',
-                  category: NoticeCategory.ACADEMIC,
-                  content: '',
-                  summary: '',
-                  publishedDate: new Date().toISOString().split('T')[0],
-                  isImportant: false,
-                  author: 'Principal Office',
-                  status: ContentStatus.PUBLISHED,
-                })
-              }
-              className="px-4 py-2 bg-[#002147] dark:bg-[#00A651] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create New Notice</span>
-            </button>
-          </div>
+      {/* ======================================================== */}
+      {/* NOTICES MANAGEMENT TAB */}
+      {/* ======================================================== */}
+      {activeTab === 'notices' && <NoticeManagementPanel />}
 
-          {/* Filter Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-            <div className="relative flex-1 max-w-md">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search notices by keyword..."
-                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#002147]"
-              />
-            </div>
+      {/* ======================================================== */}
+      {/* NOTICE BOARD CONTROL TAB */}
+      {/* ======================================================== */}
+      {activeTab === 'notice_board' && <NoticeBoardManagementPanel />}
 
-            <div className="flex items-center gap-2">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
-              {['ALL', 'PUBLISHED', 'DRAFT'].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setStatusFilter(st)}
-                  className={`px-3 py-1.5 rounded-xl text-3xs font-extrabold uppercase transition ${
-                    statusFilter === st
-                      ? 'bg-[#002147] text-white dark:bg-[#00A651]'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                  }`}
-                >
-                  {st}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Notice List */}
-          <div className="space-y-3">
-            {notices
-              .filter(
-                (n) =>
-                  n.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                  (statusFilter === 'ALL' || n.status === statusFilter)
-              )
-              .map((n) => (
-                <div
-                  key={n.id}
-                  className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs"
-                >
-                  <div className="space-y-1.5 min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                        {n.category}
-                      </span>
-                      {n.isImportant && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-rose-500 text-white animate-pulse">
-                          High Priority
-                        </span>
-                      )}
-                      <span className="text-[11px] text-slate-400">• {n.publishedDate}</span>
-                    </div>
-
-                    <h4 className="font-extrabold text-sm text-slate-900 dark:text-white leading-snug">
-                      {n.title}
-                    </h4>
-                    {n.summary && <p className="text-2xs text-slate-500">{n.summary}</p>}
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
-                        n.status === ContentStatus.PUBLISHED
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                          : 'bg-amber-100 text-amber-800'
-                      }`}
-                    >
-                      {n.status}
-                    </span>
-
-                    <button
-                      onClick={() => setEditingNotice(n)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-xl transition cursor-pointer"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteNotice(n.id)}
-                      className="p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-          </div>
-
-          {/* EDIT NOTICE MODAL */}
-          {editingNotice && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-              <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                  {editingNotice.id ? 'Edit Official Circular Notice' : 'Publish New Notice Circular'}
-                </h3>
-
-                <form onSubmit={handleSaveNotice} className="space-y-4 text-2xs">
-                  <div>
-                    <label className="block font-bold text-slate-600 dark:text-slate-300 mb-1">
-                      Notice Title / Circular Heading *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editingNotice.title || ''}
-                      onChange={(e) => setEditingNotice({ ...editingNotice, title: e.target.value })}
-                      className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 font-bold"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block font-bold text-slate-600 dark:text-slate-300 mb-1">
-                        Category
-                      </label>
-                      <select
-                        value={editingNotice.category || NoticeCategory.ACADEMIC}
-                        onChange={(e) => setEditingNotice({ ...editingNotice, category: e.target.value as any })}
-                        className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 font-bold"
-                      >
-                        {Object.values(NoticeCategory).map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-600 dark:text-slate-300 mb-1">
-                        Publish Date
-                      </label>
-                      <input
-                        type="date"
-                        required
-                        value={editingNotice.publishedDate || new Date().toISOString().split('T')[0]}
-                        onChange={(e) => setEditingNotice({ ...editingNotice, publishedDate: e.target.value })}
-                        className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 font-bold"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-600 dark:text-slate-300 mb-1">
-                        Publication Status
-                      </label>
-                      <select
-                        value={editingNotice.status || ContentStatus.PUBLISHED}
-                        onChange={(e) => setEditingNotice({ ...editingNotice, status: e.target.value as any })}
-                        className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 font-bold"
-                      >
-                        <option value={ContentStatus.PUBLISHED}>PUBLISHED</option>
-                        <option value={ContentStatus.DRAFT}>DRAFT</option>
-                        <option value={ContentStatus.ARCHIVED}>ARCHIVED</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Rich Text Editor for Notice Body */}
-                  <RichTextEditor
-                    label="Full Notice Description / Circular Text"
-                    value={editingNotice.content || ''}
-                    onChange={(val) => setEditingNotice({ ...editingNotice, content: val })}
-                  />
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-bold text-slate-600 dark:text-slate-300 mb-1">
-                        Attachment File / PDF Download URL
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="/downloads/notice-file.pdf"
-                          value={editingNotice.attachmentUrl || ''}
-                          onChange={(e) => setEditingNotice({ ...editingNotice, attachmentUrl: e.target.value })}
-                          className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker((url) => setEditingNotice({ ...editingNotice, attachmentUrl: url }))}
-                          className="px-3 bg-slate-200 dark:bg-slate-800 rounded-xl font-bold"
-                        >
-                          PDF
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center pt-5">
-                      <label className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={editingNotice.isImportant || false}
-                          onChange={(e) => setEditingNotice({ ...editingNotice, isImportant: e.target.checked })}
-                          className="w-4 h-4 rounded text-[#002147]"
-                        />
-                        <span>Mark as High Priority / Important (Flashing Badge)</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setEditingNotice(null)}
-                      className="px-4 py-2 bg-slate-200 dark:bg-slate-800 font-bold rounded-xl"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-5 py-2 bg-[#002147] dark:bg-[#00A651] text-white font-bold rounded-xl"
-                    >
-                      Save & Publish Notice
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      {/* ======================================================== */}
+      {/* DEPARTMENT STAFF MANAGEMENT TAB */}
+      {/* ======================================================== */}
+      {activeTab === 'staff' && <DepartmentStaffManagementPanel />}
 
       {/* ======================================================== */}
       {/* 4. NEWS & PRESS RELEASES TAB */}
@@ -1294,7 +1078,7 @@ export const CmsDashboardPage: React.FC = () => {
                   title: '',
                   type: CourseType.UNDERGRADUATE,
                   duration: '5.5 Years',
-                  intakeCapacity: 63,
+                  intakeCapacity: 50,
                   eligibilityCriteria: '',
                   syllabusOverview: '',
                   status: ContentStatus.PUBLISHED,
@@ -1331,6 +1115,11 @@ export const CmsDashboardPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ======================================================== */}
+      {/* ADMISSIONS & TIMELINE TAB */}
+      {/* ======================================================== */}
+      {activeTab === 'admissions' && <AdmissionManagementPanel />}
 
       {/* ======================================================== */}
       {/* 9. DOWNLOADS TAB */}

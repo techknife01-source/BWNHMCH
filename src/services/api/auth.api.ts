@@ -188,7 +188,7 @@ export const authApi = {
         email: matched?.email || identifier || 'user@bhmch.com',
         fullName: matched?.fullName || (identifier.split('@')[0] || 'College Staff').toUpperCase(),
         roles: userRoles as any,
-        department: matched?.department || 'Burdwan Homeopathic Medical College & Hospital',
+        department: matched?.department || 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
         avatar: matched?.avatar || 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       };
 

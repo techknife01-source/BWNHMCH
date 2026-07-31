@@ -282,7 +282,7 @@ export const AcademicActivityPage: React.FC = () => {
           Academic Activity Calendar & Initiatives
         </h1>
         <p className="text-slate-300 text-sm sm:text-base max-w-3xl leading-relaxed">
-          Explore the vibrant spectrum of scholarly activities, clinical workshops, research initiatives, community health outreach, and cultural programs conducted at Burdwan Homoeopathic Medical College & Hospital.
+          Explore the vibrant spectrum of scholarly activities, clinical workshops, research initiatives, community health outreach, and cultural programs conducted at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL.
         </p>
 
         {/* Search & Filter */}

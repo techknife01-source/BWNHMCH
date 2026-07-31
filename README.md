@@ -1,8 +1,8 @@
-# Smart Homeopathic Medical College Digital Ecosystem 🏥🎓
+# BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Digital Ecosystem 🏥🎓
 
 An enterprise-grade, production-ready, clean-architecture digital ecosystem engineered for **Homeopathic Medical Colleges & Hospitals**.
 
-Built for **Burdwan Homoeopathic Medical College & Hospital (Estd. 1958)** & AYUSH medical institutions across India.
+Built for **BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL (Estd. 1958)** & AYUSH medical institutions across India.
 
 ---
 

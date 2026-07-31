@@ -50,7 +50,7 @@ export const HospitalOverview: React.FC<HospitalOverviewProps> = ({
             </span>
             <span className="text-slate-300 text-xs">Counter 01 Active</span>
           </div>
-          <h2 className="text-xl font-black">Burdwan Homoeopathic Medical College & Hospital</h2>
+          <h2 className="text-xl font-black">BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL</h2>
           <p className="text-xs text-slate-300 mt-0.5">
             Real-time OPD Patient Registration, Token Queue Management & Doctor Schedules
           </p>

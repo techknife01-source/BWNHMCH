@@ -13,7 +13,7 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
       badge: 'NCH Recognized Core Faculty',
       bgImageUrl: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=1200'
     },
-    description: 'The Department of Organon of Medicine & Homoeopathic Philosophy at Burdwan Homoeopathic Medical College & Hospital imparts rigorous, classical training in the philosophy of Dr. Samuel Hahnemann (§1-§294), holistic disease evaluation, miasmatic analysis, and psychological understanding integral to clinical case handling.',
+    description: 'The Department of Organon of Medicine & Homoeopathic Philosophy at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL imparts rigorous, classical training in the philosophy of Dr. Samuel Hahnemann (§1-§294), holistic disease evaluation, miasmatic analysis, and psychological understanding integral to clinical case handling.',
     hod: 'Prof. (Dr.) A. K. Roy, M.D. (Hom.)',
     yearsCovered: 'BHMS 1st Year to 4th Year',
     methodology: [
@@ -45,7 +45,7 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
         id: 'f-org-1',
         name: 'Prof. (Dr.) A. K. Roy',
         designation: 'Professor & Head of Department (HOD)',
-        qualification: 'M.D. (Hom.), Ph.D. (Hom.)',
+        qualification: 'M.D. (Hom.)',
         specialization: 'Organon & Hahnemannian Philosophy',
         email: 'akroy.org@bwnhmch.com',
         phone: '+91 94343 11101'
@@ -335,7 +335,7 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
       badge: 'Integrative Health Wing',
       bgImageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200'
     },
-    description: 'The Department of Yoga at Burdwan Homoeopathic Medical College & Hospital integrates classical yogic philosophy and practices with modern medical sciences to promote physical health, mental wellbeing, stress management, and holistic lifestyle correction.',
+    description: 'The Department of Yoga at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL integrates classical yogic philosophy and practices with modern medical sciences to promote physical health, mental wellbeing, stress management, and holistic lifestyle correction.',
     hod: 'Dr. P. K. Samanta, M.D. (Hom.), Dip. Yoga',
     yearsCovered: 'BHMS Curriculum & OPD Lifestyle Clinic',
     methodology: [

@@ -26,7 +26,7 @@ export const ServiceBookingModule: React.FC<{ studentId: string; studentName: st
   const services = [
     { id: 'transcript', name: 'Academic Transcript Issue', desc: 'Official transcripts of all professional BHMS years.', docs: ['BHMS I, II, III & IV Marksheets', 'College ID Card'] },
     { id: 'noc', name: 'NOC for Hospital Internship', desc: 'No-Objection Certificate for rotational internship at associated hospitals.', docs: ['BHMS Provisional Pass Certificate', 'Clinical Posting Logbook Copy'] },
-    { id: 'lib', name: 'Library Card Extension', desc: 'Requesting permission to issue 4 standard homeopathic text books.', docs: ['Current Library Card Receipt'] },
+    { id: 'lib', name: 'Library Card Extension', desc: 'Requesting permission to issue 4 standard homoeopathic text books.', docs: ['Current Library Card Receipt'] },
     { id: 'scholarship', name: 'Scholarship Application Verification', desc: 'Verification of state or national AYUSH merit scholarships.', docs: ['Income Certificate', 'NEET Rank Card', 'Aadhar Card'] }
   ];
 

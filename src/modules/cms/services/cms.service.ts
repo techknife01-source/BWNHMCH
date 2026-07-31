@@ -157,7 +157,7 @@ let mockCourses: Course[] = [
     title: 'Bachelor of Homoeopathic Medicine and Surgery (B.H.M.S.)',
     type: CourseType.UNDERGRADUATE,
     duration: '5.5 Years (4.5 Yrs Academic + 1 Yr Internship)',
-    intakeCapacity: 63,
+    intakeCapacity: 50,
     eligibilityCriteria: '10+2 with Physics, Chemistry, Biology & English with NEET UG Qualification',
     syllabusOverview: 'Anatomy, Physiology, Pharmacy, Materia Medica, Organon, Pathology, Practice of Medicine, Surgery, Gynaecology, Repertory.',
     status: ContentStatus.PUBLISHED,
@@ -169,7 +169,7 @@ let mockCourses: Course[] = [
     type: CourseType.POSTGRADUATE,
     duration: '3 Years Full Time',
     intakeCapacity: 12,
-    eligibilityCriteria: 'BHMS Degree from recognized university with AIAPGET Qualification',
+    eligibilityCriteria: 'BHMS Degree from recognized university with NEET UG / AYUSH UG Qualification',
     syllabusOverview: 'Specialization in Materia Medica, Organon of Medicine, and Practice of Medicine.',
     status: ContentStatus.PUBLISHED,
   },
@@ -214,7 +214,7 @@ let mockCommittees: Committee[] = [
 
 let mockAbout: About = {
   id: 'ab1',
-  title: 'Burdwan Homoeopathic Medical College & Hospital',
+  title: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
   establishmentYear: 1958,
   vision: 'To emerge as a premier global institution for Homoeopathic education, research, and holistic patient care.',
   mission: [
@@ -233,17 +233,17 @@ let mockAbout: About = {
 
 let mockPrincipalDesk: PrincipalDesk = {
   id: 'pd1',
-  principalName: 'Prof. (Dr.) S. N. Das, M.D. (Hom.)',
+  principalName: 'Prof. (Dr.) Susmita Chatterjee',
   designation: 'Principal & Medical Superintendent',
-  qualifications: 'B.H.M.S. (Cal), M.D. Hom. (Organon), Ph.D.',
-  message: 'Welcome to Burdwan Homoeopathic Medical College & Hospital. We are dedicated to nurturing scientific rigor and compassionate clinical care in Homoeopathic Medicine.',
+  qualifications: 'DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)',
+  message: 'Welcome to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. We are dedicated to nurturing scientific rigor and compassionate clinical care in Homoeopathic Medicine.',
   imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800',
   email: 'principal@bhmch.ac.in',
   phone: '+91 342 2634211',
 };
 
 let mockContactInfo: ContactInformation = {
-  institutionName: 'Burdwan Homoeopathic Medical College & Hospital',
+  institutionName: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
   address: 'M.K.T. Road, Rajbati, Purba Bardhaman',
   city: 'Burdwan',
   state: 'West Bengal',
@@ -592,7 +592,7 @@ export const cmsService = {
         success: true,
         data: {
           id: 'ho1',
-          name: 'Burdwan Homoeopathic Medical College Hospital',
+          name: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
           totalBedCapacity: 100,
           dailyAverageOpdCount: 250,
           emergencyAvailable24x7: true,

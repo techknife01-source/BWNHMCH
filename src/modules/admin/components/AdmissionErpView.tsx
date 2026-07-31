@@ -407,19 +407,27 @@ export const AdmissionErpView: React.FC = () => {
                 <p className="font-bold text-slate-700 dark:text-slate-300">Mandatory Checklist Verification:</p>
                 <ul className="space-y-1 text-slate-600 dark:text-slate-400">
                   <li className="flex items-center justify-between">
-                    <span>1. NEET 2026 Scorecard & Admit Card</span>
+                    <span>1. Allotment Letter (AACCC / WBMCC)</span>
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   </li>
                   <li className="flex items-center justify-between">
-                    <span>2. Class 10 & 12 Passing Marksheets</span>
+                    <span>2. 6 Passport Size Photographs</span>
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   </li>
                   <li className="flex items-center justify-between">
-                    <span>3. WBMCC Domicile Certificate (a1/a2)</span>
+                    <span>3. NEET 2026 Scorecard & Admit Card</span>
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   </li>
                   <li className="flex items-center justify-between">
-                    <span>4. Medical Fitness & Caste Certificate</span>
+                    <span>4. Class 10 & 12 Passing Marksheets</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span>5. WBMCC Domicile Certificate (a1/a2)</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span>6. Medical Fitness & Caste Certificate</span>
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   </li>
                 </ul>

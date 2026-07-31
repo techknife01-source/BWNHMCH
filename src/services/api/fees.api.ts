@@ -58,7 +58,7 @@ export const feesApi = {
       const response = await apiClient.get(`/student/fees/receipt/${transactionId}`, { responseType: 'blob' });
       return response.data;
     } catch {
-      const content = `Burdwan Homoeopathic Medical College Fee Receipt - Tx ID: ${transactionId}`;
+      const content = `BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Fee Receipt - Tx ID: ${transactionId}`;
       return new Blob([content], { type: 'application/pdf' });
     }
   }

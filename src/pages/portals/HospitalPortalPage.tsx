@@ -15,7 +15,7 @@ export const HospitalPortalPage: React.FC = () => {
         <div className="flex items-center space-x-2">
           <span className="font-mono font-bold text-blue-300">BHMC HOSPITAL TERMINAL</span>
           <span className="text-slate-400">•</span>
-          <span className="text-slate-300">Smart Homeopathic Medical College Hospital Portal</span>
+          <span className="text-slate-300">BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL Hospital Portal</span>
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar w-full sm:w-auto pb-1">

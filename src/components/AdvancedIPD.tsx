@@ -120,7 +120,7 @@ export const AdvancedIPD: React.FC<AdvancedIPDProps> = ({ beds, onUpdateBeds, us
               </h3>
             </div>
             <p className="text-3xs text-slate-400 mt-1">
-              Dhanvantari Acute Ward & Specialized Homeopathic Inpatient Units
+              Dhanvantari Acute Ward & Specialized Homoeopathic Inpatient Units
             </p>
           </div>
 
@@ -356,7 +356,7 @@ export const AdvancedIPD: React.FC<AdvancedIPDProps> = ({ beds, onUpdateBeds, us
             <div className="border border-slate-300 p-6 space-y-6 bg-[#FCFDFE]">
               <div className="text-center border-b-2 border-slate-800 pb-4 space-y-1">
                 <h2 className="text-xs font-black uppercase tracking-widest text-[#002147]">
-                  Burdwan Homoeopathic Medical College & Hospital
+                  BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
                 </h2>
                 <p className="text-[9px] font-bold text-slate-500 uppercase">
                   1, Ramkrishna Road, Burdwan, West Bengal - 713101

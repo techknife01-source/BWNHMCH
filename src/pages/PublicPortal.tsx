@@ -173,7 +173,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
             <div className="relative group">
               <span className="hover:text-[#00A651] cursor-pointer flex items-center gap-0.5">Academics ▾</span>
               <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-lg hidden group-hover:block py-2 z-50">
-                <button onClick={() => onNavigate('courses')} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-3xs uppercase text-[#002147] dark:text-slate-200 font-bold">BHMS & MD Courses</button>
+                <button onClick={() => onNavigate('courses')} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-3xs uppercase text-[#002147] dark:text-slate-200 font-bold">BHMS Course</button>
                 <button onClick={() => onNavigate('admissions')} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-3xs uppercase text-[#002147] dark:text-slate-200 font-bold">Admissions & Eligibility</button>
                 <button onClick={() => onNavigate('academic_calendar')} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-3xs uppercase text-[#002147] dark:text-slate-200 font-bold">Academic Calendar</button>
                 <button onClick={() => onNavigate('downloads')} className="w-full text-left px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-3xs uppercase text-[#002147] dark:text-slate-200 font-bold">Downloads Desk</button>
@@ -203,7 +203,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   A Grade Accredited by NAAC & NCH
                 </span>
                 <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                  Empowering the Future of <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Homeopathic Science</span>
+                  Empowering the Future of <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Homoeopathic Science</span>
                 </h1>
                 <p className="text-sm md:text-base text-slate-300 leading-relaxed">
                   Integrating centuries-old therapeutic philosophy with cutting-edge medical research and clinical internships. Join India's premier AYUSH ecosystem.
@@ -222,7 +222,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
             {/* KEY METRICS GRID */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { value: GENERAL_STATS.totalStudents, label: 'BHMS & MD Scholars', icon: <Users className="w-6 h-6" /> },
+                { value: GENERAL_STATS.totalStudents, label: 'BHMS Scholars', icon: <Users className="w-6 h-6" /> },
                 { value: GENERAL_STATS.totalFaculty, label: 'Super-Specialty Clinicians', icon: <Award className="w-6 h-6" /> },
                 { value: GENERAL_STATS.totalBeds, label: 'Associated Hospital Beds', icon: <Heart className="w-6 h-6" /> },
                 { value: GENERAL_STATS.dailyOpdCount + '+', label: 'Average Daily OPD Footfall', icon: <Calendar className="w-6 h-6" /> }
@@ -327,10 +327,10 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="space-y-4">
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Burdwan Homoeopathic Medical College & Hospital has remained a beacon of educational excellence in natural medicine for over four decades. Located in Nutanganj, Burdwan, our state-aided institution integrates foundational modern pathology and clinical diagnostic tools with rigorous study of classical Hahnemannian homeopathic therapeutics.
+                  BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL has remained a beacon of educational excellence in natural medicine for over four decades. Located in Nutanganj, Burdwan, our state-aided institution integrates foundational modern pathology and clinical diagnostic tools with rigorous study of classical Hahnemannian homoeopathic therapeutics.
                 </p>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Our associated 25-bed teaching hospital offers interns unique clinical training in specialized OPDs and IPD wards, handling complex dermatological issues, pediatric cases, and respiratory conditions.
+                  Our associated 30-bed teaching hospital offers interns unique clinical training in specialized OPDs and IPD wards, handling complex dermatological issues, pediatric cases, and respiratory conditions.
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
@@ -366,7 +366,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                 Our Vision
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                To achieve global leadership in holistic healthcare education by establishing a scientifically validated, patient-centric homeopathic healing environment. We strive to mold clinicians who possess both high intellectual capability and the human touch.
+                To achieve global leadership in holistic healthcare education by establishing a scientifically validated, patient-centric homoeopathic healing environment. We strive to mold clinicians who possess both high intellectual capability and the human touch.
               </p>
             </div>
             <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 space-y-4">
@@ -378,7 +378,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
               </h2>
               <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-2 list-disc list-inside leading-relaxed">
                 <li>Provide world-class medical instruction under NCH standards.</li>
-                <li>Pioneer research projects validating homeopathic potency chemistry.</li>
+                <li>Pioneer research projects validating homoeopathic potency chemistry.</li>
                 <li>Operate rural diagnostic centers and mobile Ayush clinics.</li>
                 <li>Instill rigorous medical ethics and empathy in student interns.</li>
               </ul>
@@ -400,7 +400,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">Dr. Susmita Chatterjee, BHMS, MD (Hom)</h3>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">Dr. Susmita Chatterjee, DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)</h3>
                   <p className="text-3xs text-slate-400 uppercase font-bold">Principal & Administrator</p>
                   <p className="text-4xs text-slate-400 mt-1">Renowned Homoeopathic Clinician & Academician</p>
                 </div>
@@ -411,7 +411,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                 </h2>
                 <div className="w-12 h-1 bg-blue-600 rounded"></div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  "Dear Scholars, Clinicians, and Patrons, Welcome to Burdwan Homoeopathic Medical College & Hospital. Our institution is built on the profound medical philosophy laid down by Dr. Samuel Hahnemann. In today’s complex clinical environment, chronic lifestyle ailments and autoimmune syndromes demand gentle, restorative therapeutics."
+                  "Dear Scholars, Clinicians, and Patrons, Welcome to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Our institution is built on the profound medical philosophy laid down by Dr. Samuel Hahnemann. In today’s complex clinical environment, chronic lifestyle ailments and autoimmune syndromes demand gentle, restorative therapeutics."
                 </p>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   "Our role here is not just to teach repertories, but to educate students on the art and science of pathogenetic evaluation. Through our fully digitized ERP system, student scholars trace clinical cases from OPD registration down to remedial dispensaries, ensuring a truly immersive educational experience."
@@ -433,7 +433,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
             </h2>
             <div className="space-y-6 relative pl-6 border-l border-slate-100 dark:border-slate-800">
               {[
-                { year: '1978', title: 'Foundation Stone', text: 'Established as Burdwan Homoeopathic Medical College & Hospital to provide quality homeopathic education in West Bengal.' },
+                { year: '1978', title: 'Foundation Stone', text: 'Established as BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL to provide quality homoeopathic education in West Bengal.' },
                 { year: '2003', title: 'WBUHS Affiliation', text: 'Transferred affiliation to the newly established West Bengal University of Health Sciences (WBUHS), Kolkata.' },
                 { year: '2016', title: 'Clinical & Lab Expansion', text: 'Upgraded associated teaching hospital with 25 IPD beds and modern departmental museums according to CCH/NCH guidelines.' },
                 { year: '2026', title: 'Digital Transformation', text: 'Deploying the comprehensive digital ERP enabling cloud clinical tracking, student portfolios, and service logs.' }
@@ -460,8 +460,10 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 { title: 'Repertory Software Suite', desc: 'Fully modernized IT lab containing computerized repertories (RADAR, MacRepertory, Hompath).', img: 'https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=400' },
-                { title: 'Botanical Garden', desc: 'Acres of cultivated organic flora for pharmacognosy identification and raw homeopathic dilutions.', img: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400' },
-                { title: 'Medical Library & Reading Hall', desc: 'Access to over 15,000 international textbooks, archives, Hahnemannian journals, and online research indexes.', img: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=400' }
+                { title: 'Botanical Garden', desc: 'Acres of cultivated organic flora for pharmacognosy identification and raw homoeopathic dilutions.', img: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400' },
+                { title: 'Medical Library & Reading Hall', desc: 'Access to over 15,000 international textbooks, archives, Hahnemannian journals, and online research indexes.', img: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=400' },
+                { title: 'METU Room', desc: 'Dedicated Medical Education Technology Unit equipped for faculty development, workshops, and modern audio-visual teaching.', img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=400' },
+                { title: 'Skill Lab', desc: 'State-of-the-art clinical skills and simulation lab for hands-on training in examination techniques and procedure mannequins.', img: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=400' }
               ].map((c, i) => (
                 <div key={i} className="border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
                   <img referrerPolicy="no-referrer" src={c.img} alt={c.title} className="w-full h-40 object-cover" />
@@ -483,7 +485,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                 Our Academic & Clinical Departments
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                The core pillars of homeopathic study approved by NCH curriculum committees.
+                The core pillars of homoeopathic study approved by NCH curriculum committees.
               </p>
             </div>
 
@@ -526,7 +528,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   Our Faculty of Medicine
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Experienced clinicians, homeopathic pharmaceutical researchers, and guides.
+                  Experienced clinicians, homoeopathic pharmaceutical researchers, and guides.
                 </p>
               </div>
 
@@ -591,10 +593,10 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 space-y-8 animate-fadeIn" id="page_teaching_hospital">
             <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
               <h2 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
-                Burdwan Homoeopathic Associated Teaching Hospital
+                BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL (Associated Teaching Hospital)
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                A 25-bed clinical multi-specialty OPD and IPD supporting the community since 1978.
+                A 30-bed clinical multi-specialty OPD and IPD supporting the community since 1978.
               </p>
             </div>
 
@@ -619,10 +621,10 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   Clinical Training For Scholars
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Both 3rd and 4th Professional BHMS scholars receive mandatory rotational clinical postings. Under the supervision of senior MD consultants, they master chronic case-taking, repertorization, and remedial dispensing.
+                  Both 3rd and 4th Professional BHMS scholars receive mandatory rotational clinical postings. Under the supervision of senior clinical consultants, they master chronic case-taking, repertorization, and remedial dispensing.
                 </p>
                 <div className="bg-emerald-50 dark:bg-emerald-950/40 p-4 border border-emerald-150 dark:border-emerald-900 rounded-xl text-xs text-emerald-800 dark:text-emerald-400 leading-relaxed">
-                  <strong>Did you know?</strong> 100% of our patient prescribing records are archived digitally in the hospital database, helping postgraduate scholars track remedy efficacy trends.
+                  <strong>Did you know?</strong> 100% of our patient prescribing records are archived digitally in the hospital database, helping clinical scholars track remedy efficacy trends.
                 </div>
               </div>
             </div>
@@ -674,14 +676,14 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
               Admission Criteria & Intake 2026
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              All BHMS (Undergraduate) and MD (Postgraduate) admissions are routed strictly via national counseling frameworks.
+              All BHMS (Undergraduate) admissions are routed strictly via national NEET counseling frameworks.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-5 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-3">
-                <span className="text-3xs font-bold uppercase tracking-wider text-blue-600 block">BHMS Program Admission</span>
+                <span className="text-3xs font-bold uppercase tracking-wider text-blue-600 block">BHMS Degree Program Admission</span>
                 <p className="text-2xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  NEET-UG qualification is mandatory. Candidates must register on the AYUSH Admissions Central Counseling Committee (AACCC) website for national seat allocations.
+                  NEET-UG qualification is mandatory. Candidates must register on the AYUSH Admissions Central Counseling Committee (AACCC) or WBMCC state counseling website for seat allocation.
                 </p>
                 <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl text-3xs text-slate-500 space-y-1">
                   <div>• Minimum Physics, Chemistry, Biology aggregate: 50%</div>
@@ -690,12 +692,12 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
               </div>
 
               <div className="p-5 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-3">
-                <span className="text-3xs font-bold uppercase tracking-wider text-emerald-600 block">MD (Homoeopathy) Admission</span>
+                <span className="text-3xs font-bold uppercase tracking-wider text-emerald-600 block">Certificate Course Admission</span>
                 <p className="text-2xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  AIAPGET (All India AYUSH Post Graduate Entrance Test) qualification is mandatory. Registered BHMS degree from an NCH recognized college is required.
+                  Certificate course in Homoeopathic Dispensing & Pharmacy. Merit-based entry on 10+2 marks verification.
                 </p>
                 <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl text-3xs text-slate-500 space-y-1">
-                  <div>• Mandatory 12-month clinical internship completion required before counselling dates.</div>
+                  <div>• 1-Year weekend clinical and pharmacy dispensing curriculum.</div>
                 </div>
               </div>
             </div>
@@ -718,7 +720,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
               {[
                 { date: 'July 28, 2026', title: 'BHMS Main Exam Admit Card Collection', desc: 'Distribution starts from administration counter.' },
                 { date: 'August 10 - 24, 2026', title: 'BHMS Annual Professional Written Examinations', desc: 'Theory exam sessions in the central auditorium.' },
-                { date: 'September 01, 2026', title: 'New Academic Term Resumption (BHMS & MD)', desc: 'Roll-calls for semesters start at 09:00 AM.' },
+                { date: 'September 01, 2026', title: 'New Academic Term Resumption (BHMS)', desc: 'Roll-calls for semesters start at 09:00 AM.' },
                 { date: 'October 15, 2026', title: 'Mega Clinical Poster Presentation', desc: 'Organized by Repertory & Materia Medica departments.' }
               ].map((cal, i) => (
                 <div key={i} className="flex gap-4 items-start p-3.5 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-100 dark:border-slate-800/60">
@@ -1057,7 +1059,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
               <span>Internal Quality Assurance Cell (IQAC)</span>
             </h2>
             <p className="text-xs text-slate-500 leading-relaxed">
-              IQAC works to maintain high academic and clinical prescribing quality at the Burdwan Homoeopathic College & Hospital. Annual self-study reports are published regularly for NCH monitoring.
+              IQAC works to maintain high academic and clinical prescribing quality at the BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Annual self-study reports are published regularly for NCH monitoring.
             </p>
             <div className="border border-slate-100 dark:border-slate-800 rounded-xl p-4 text-3xs space-y-2 text-slate-400">
               <span className="font-bold text-slate-700 dark:text-slate-200">Latest Disclosures:</span>
@@ -1072,7 +1074,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
           <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 space-y-4 animate-fadeIn" id="page_privacy">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Privacy & Data Governance Policy</h2>
             <p className="text-2xs text-slate-500 leading-relaxed">
-              We secure all academic indices and clinical prescription case notes. Homeopathic prescription logs are strictly anonymized for research publications under Ayush health research policies.
+              We secure all academic indices and clinical prescription case notes. Homoeopathic prescription logs are strictly anonymized for research publications under Ayush health research policies.
             </p>
           </div>
         )}
@@ -1105,7 +1107,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
             <h4 className="text-2xs font-bold uppercase tracking-wider text-white">Admissions & Study</h4>
             <div className="flex flex-col space-y-1 text-3xs font-medium">
               <button onClick={() => onNavigate('courses')} className="hover:text-white transition text-left">BHMS Program Structure</button>
-              <button onClick={() => onNavigate('courses')} className="hover:text-white transition text-left">MD Specialties Chairs</button>
+              <button onClick={() => onNavigate('courses')} className="hover:text-white transition text-left">Certificate & Pharmacy Course</button>
               <button onClick={() => onNavigate('admissions')} className="hover:text-white transition text-left">Eligibility & NEET Counsel</button>
               <button onClick={() => onNavigate('downloads')} className="hover:text-white transition text-left">Academic Syllabus PDF</button>
             </div>
@@ -1132,7 +1134,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
         </div>
 
         <div className="max-w-7xl mx-auto border-t border-slate-800/80 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center text-3xs text-slate-600 gap-4">
-          <span>© 2026 Burdwan Homoeopathic Medical College & Hospital. All Rights Reserved.</span>
+          <span>© 2026 BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. All Rights Reserved.</span>
           <div className="flex gap-4">
             <button onClick={() => onNavigate('privacy')} className="hover:underline">Privacy Policy</button>
             <button onClick={() => onNavigate('terms')} className="hover:underline">Terms of Service</button>

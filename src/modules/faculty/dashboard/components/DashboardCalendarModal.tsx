@@ -31,7 +31,7 @@ const MOCK_CALENDAR_EVENTS: CalendarEvent[] = [
     dayNum: 24,
     time: '11:30 AM - 02:30 PM',
     location: 'OPD Building Room 4',
-    description: 'Patient consultations & prescribing homeopathic potencies.',
+    description: 'Patient consultations & prescribing homoeopathic potencies.',
   },
   {
     id: 'e3',

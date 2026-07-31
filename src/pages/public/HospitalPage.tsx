@@ -230,13 +230,13 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
             <span className="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black rounded-full uppercase tracking-wider border border-emerald-500/30">
-              20-Bed Attached Clinical Teaching Hospital
+              30-Bed Attached Clinical Teaching Hospital
             </span>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-              Burdwan Homoeopathic Medical College Hospital
+              BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
             </h1>
             <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
-              Providing compassionate, holistic, and evidence-based Homoeopathic clinical healthcare. Equipped with 11 OPD departments, 20 IPD bed capacity, pathology, radiology, and emergency medical services.
+              Providing compassionate, holistic, and evidence-based Homoeopathic clinical healthcare. Equipped with 11 OPD departments, 30 IPD bed capacity, pathology, radiology, and emergency medical services.
             </p>
           </div>
 
@@ -266,7 +266,7 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
             <p className="text-[10px] text-slate-300 uppercase font-bold mt-0.5">Avg OPD Footfall</p>
           </div>
           <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-            <p className="text-xl sm:text-2xl font-black text-blue-300">20 Beds</p>
+            <p className="text-xl sm:text-2xl font-black text-blue-300">30 Beds</p>
             <p className="text-[10px] text-slate-300 uppercase font-bold mt-0.5">Total IPD Capacity</p>
           </div>
           <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
@@ -298,7 +298,7 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
           }`}
         >
           <BedDouble className="w-4 h-4" />
-          <span>IPD Wards & Occupancy (20 Beds)</span>
+          <span>IPD Wards & Occupancy (30 Beds)</span>
         </button>
         <button
           onClick={() => setActiveTab('investigations')}
@@ -539,15 +539,15 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 text-[#002147] dark:text-[#00A651]">
                 <BedDouble className="w-6 h-6" />
-                <h2 className="text-xl font-black">20-Bed Hospital In-Patient Department (IPD)</h2>
+                <h2 className="text-xl font-black">30-Bed Hospital In-Patient Department (IPD)</h2>
               </div>
               <span className="px-3 py-1 bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300 text-xs font-black rounded-full border border-blue-200 dark:border-blue-800">
-                Total Capacity: 20 Beds
+                Total Capacity: 30 Beds
               </span>
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Burdwan Homoeopathic Medical College & Hospital operates a 20-bed attached teaching hospital categorized into General Medicine (Male & Female), Surgery (Male & Female), Paediatrics, and Gynaecology & Obstetrics.
+              BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL operates a 30-bed attached teaching hospital categorized into General Medicine (Male & Female), Surgery (Male & Female), Paediatrics, and Gynaecology & Obstetrics.
             </p>
 
             {/* Official Bed Allocation Cards */}
@@ -786,7 +786,7 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
             </span>
             <h2 className="text-2xl font-black text-slate-900 dark:text-white">Investigation & Diagnostic Services</h2>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-              Comprehensive laboratory, radiological, and cardiology investigation services at Burdwan Homoeopathic Medical College Hospital. Subsidized government tariff rates applied for all registered OPD and IPD patients.
+              Comprehensive laboratory, radiological, and cardiology investigation services at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Subsidized government tariff rates applied for all registered OPD and IPD patients.
             </p>
           </div>
 

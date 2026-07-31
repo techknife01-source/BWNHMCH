@@ -117,7 +117,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
     setEditingPatient(p);
     setEditForm({
       complaint: p.complaint || '',
-      remedy: p.homeopathicRemedy || '',
+      remedy: p.homoeopathicRemedy || '',
       potency: p.potency || '30C',
       status: p.status,
       department: p.department || 'Practice of Medicine'
@@ -132,7 +132,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
         ? {
             ...p,
             complaint: editForm.complaint,
-            homeopathicRemedy: editForm.remedy,
+            homoeopathicRemedy: editForm.remedy,
             potency: editForm.potency,
             status: editForm.status as any,
             department: editForm.department
@@ -156,7 +156,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
       type: patientForm.type,
       department: patientForm.dept,
       complaint: patientForm.complaint,
-      homeopathicRemedy: patientForm.remedy || 'Nux Vomica',
+      homoeopathicRemedy: patientForm.remedy || 'Nux Vomica',
       potency: patientForm.potency,
       status: 'Under Treatment',
       doctor: session.name
@@ -538,7 +538,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                       <div className="p-4 border border-slate-100 dark:border-slate-800 rounded-xl space-y-1.5">
                         <span className="text-3xs font-bold uppercase tracking-wider text-blue-600 block">Assigned Lectures today</span>
                         <div className="text-3xs text-slate-400 space-y-1">
-                          <div>• 10:00 AM: BHMS I - Intro to Homeopathic Dilutions</div>
+                          <div>• 10:00 AM: BHMS I - Intro to Homoeopathic Dilutions</div>
                           <div>• 02:00 PM: BHMS III - Lycopodium drug proving characteristics</div>
                         </div>
                       </div>
@@ -861,7 +861,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                 <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xs">
                   <span className="text-4xs font-bold text-slate-400 uppercase tracking-widest block">Active Prescriptions</span>
                   <span className="text-lg font-black text-[#00A651] block mt-1">
-                    {localPatients.filter(p => p.homeopathicRemedy && p.homeopathicRemedy !== 'Nux Vomica').length}
+                    {localPatients.filter(p => p.homoeopathicRemedy && p.homoeopathicRemedy !== 'Nux Vomica').length}
                   </span>
                   <span className="text-[10px] text-emerald-600 font-bold block mt-0.5">Verified AYUSH</span>
                 </div>
@@ -906,7 +906,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                         </tr>
                       </thead>
                       <tbody>
-                        {localPatients.filter(p => p.name.toLowerCase().includes(patientSearch.toLowerCase()) || (p.homeopathicRemedy || '').toLowerCase().includes(patientSearch.toLowerCase())).map(p => (
+                        {localPatients.filter(p => p.name.toLowerCase().includes(patientSearch.toLowerCase()) || (p.homoeopathicRemedy || '').toLowerCase().includes(patientSearch.toLowerCase())).map(p => (
                           <tr key={p.id} className="border-b border-slate-50/50 dark:border-slate-850/50 hover:bg-slate-50/40 dark:hover:bg-slate-850/20">
                             <td className="py-3 font-mono text-slate-500 font-bold">{p.caseNo}</td>
                             <td className="py-3">
@@ -914,7 +914,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                               <span className="text-4xs text-slate-400 block">Age {p.age} • {p.gender}</span>
                             </td>
                             <td className="py-3 font-semibold text-emerald-600">
-                              {p.homeopathicRemedy} <span className="text-3xs text-slate-400 font-normal">{p.potency}</span>
+                              {p.homoeopathicRemedy} <span className="text-3xs text-slate-400 font-normal">{p.potency}</span>
                             </td>
                             <td className="py-3 text-slate-500 font-medium">{p.department}</td>
                             <td className="py-3">
@@ -1068,7 +1068,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label>Homeopathic Remedy</label>
+                          <label>Homoeopathic Remedy</label>
                           <input
                             type="text"
                             required
@@ -1149,7 +1149,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                       {/* BHMCH HEADER */}
                       <div className="text-center border-b-2 border-slate-800 pb-4 space-y-1">
                         <h2 className="text-xs font-black uppercase tracking-widest text-[#002147]">
-                          Burdwan Homoeopathic Medical College & Hospital
+                          BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
                         </h2>
                         <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
                           1, Ramkrishna Road, Burdwan, West Bengal - 713101
@@ -1198,10 +1198,10 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                         <div className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl space-y-1 font-mono">
                           <div className="flex items-center text-3xs text-slate-500 font-bold uppercase gap-1">
                             <span className="text-xs text-emerald-600 font-black">℞</span>
-                            <span>Homeopathic Prescription</span>
+                            <span>Homoeopathic Prescription</span>
                           </div>
                           <div className="text-xs font-black text-emerald-700">
-                            {printingPatient.homeopathicRemedy || 'Nux Vomica'}{' '}
+                            {printingPatient.homoeopathicRemedy || 'Nux Vomica'}{' '}
                             <span className="text-2xs text-slate-500 font-bold">{printingPatient.potency || '30C'}</span>
                           </div>
                           <p className="text-[8px] text-emerald-600 font-bold tracking-wider uppercase mt-1">
@@ -1364,7 +1364,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                 {/* 4. RESEARCH BY DEPARTMENT */}
                 <CustomBarChart
                   id="cht_research"
-                  title="Research Publications by homeopathic Speciality chairs"
+                  title="Research Publications by homoeopathic Speciality chairs"
                   data={RESEARCH_BY_DEPT.map(rd => ({ label: rd.department.split(' ').pop() || '', value: rd.publications }))}
                   yLabel="Scientific Papers"
                 />

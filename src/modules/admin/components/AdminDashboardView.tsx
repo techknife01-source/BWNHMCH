@@ -38,7 +38,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             Institutional Administration & HR Portal
           </span>
           <h2 className="text-xl sm:text-2xl font-black mt-2">
-            Smart Homeopathic Medical College & Hospital ERP
+            BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL ERP
           </h2>
           <p className="text-xs text-blue-200 mt-1 max-w-2xl">
             Real-time management of college faculty, hospital medical staff, non-teaching personnel, department budgets, payroll, attendance, regulatory filings & committees.

@@ -56,7 +56,7 @@ export const INITIAL_FULL_FACULTY_PROFILE: FullFacultyProfileData = {
     },
     {
       id: 'aq-3',
-      degree: 'Ph.D. (AYUSH)',
+      degree: 'MD (Organon of Medicine)',
       specialization: 'Chronic Disease Miasmatics & Constitutional Homoeopathy',
       institution: 'Ministry of AYUSH Research Fellowship Centre',
       university: 'WBUHS Kolkata',
@@ -81,7 +81,7 @@ export const INITIAL_FULL_FACULTY_PROFILE: FullFacultyProfileData = {
   teachingExperience: [
     {
       id: 'te-1',
-      institution: 'Burdwan Homoeopathic Medical College & Hospital',
+      institution: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
       designation: 'Associate Professor',
       department: 'Organon of Medicine',
       startDate: '2021-04-01',
@@ -92,7 +92,7 @@ export const INITIAL_FULL_FACULTY_PROFILE: FullFacultyProfileData = {
     },
     {
       id: 'te-2',
-      institution: 'Burdwan Homoeopathic Medical College & Hospital',
+      institution: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
       designation: 'Assistant Professor / Senior Lecturer',
       department: 'Organon of Medicine',
       startDate: '2018-08-01',

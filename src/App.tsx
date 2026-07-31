@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
 
 export const App: React.FC = () => {
   React.useEffect(() => {
-    document.title = "Burdwan Homeopathic Medical College & Hospital";
+    document.title = "BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL";
   }, []);
 
   return (

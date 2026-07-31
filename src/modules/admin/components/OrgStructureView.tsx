@@ -26,9 +26,9 @@ export const OrgStructureView: React.FC = () => {
         <div className="flex flex-col items-center text-center space-y-2 relative">
           <div className="p-5 bg-[#002147] text-white rounded-2xl shadow-xl border-2 border-amber-400 w-80 space-y-1">
             <Crown className="w-6 h-6 text-amber-300 mx-auto" />
-            <h3 className="font-black text-base">Dr. Samarjit Chaudhuri</h3>
+            <h3 className="font-black text-base">Prof. (Dr.) Susmita Chatterjee</h3>
             <p className="text-xs text-amber-300 font-bold">Principal & Medical Superintendent</p>
-            <p className="text-[10px] text-blue-200">BHMS, MD (Hom), Ph.D (NCH)</p>
+            <p className="text-[10px] text-blue-200">DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)</p>
           </div>
           <div className="w-0.5 h-8 bg-slate-300 dark:bg-slate-700"></div>
         </div>

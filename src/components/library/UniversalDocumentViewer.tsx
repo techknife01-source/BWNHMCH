@@ -256,7 +256,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
             {/* Watermark */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 overflow-hidden">
               <span className="text-4xl font-black text-slate-900 -rotate-45 uppercase tracking-widest whitespace-nowrap">
-                BURDWAN HOMEOPATHIC MEDICAL COLLEGE
+                BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
               </span>
             </div>
 
@@ -297,8 +297,8 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
                       </h3>
                       <p className="text-xs text-slate-300 leading-relaxed font-sans">
                         {currentPage === 1
-                          ? `Presented by ${book.author} (${book.department || 'Academic Dept'}). Subject: ${book.subject || 'Homeopathic Philosophy'}. Target Batch: ${book.semester || 'All BHMS'}.`
-                          : `Keynote symptom breakdown for high-potency prescribing. Systematic analysis of mental generals, physical generals, and modalities in constitutional homeopathic prescribing.`}
+                          ? `Presented by ${book.author} (${book.department || 'Academic Dept'}). Subject: ${book.subject || 'Homoeopathic Philosophy'}. Target Batch: ${book.semester || 'All BHMS'}.`
+                          : `Keynote symptom breakdown for high-potency prescribing. Systematic analysis of mental generals, physical generals, and modalities in constitutional homoeopathic prescribing.`}
                       </p>
                     </div>
 
@@ -368,10 +368,10 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
                 /* Standard PDF / DOCX Document View */
                 <div className="space-y-4 text-xs sm:text-sm text-slate-800 font-serif leading-relaxed my-4">
                   <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-[#002147] first-letter:mr-1">
-                    Page {currentPage}: {book.description || `Comprehensive academic resource for ${book.subject || 'Homeopathy Studies'}. Published for Burdwan Homeopathic Medical College & Hospital students and faculty.`}
+                    Page {currentPage}: {book.description || `Comprehensive academic resource for ${book.subject || 'Homeopathy Studies'}. Published for BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL students and faculty.`}
                   </p>
                   <p className="text-slate-600">
-                    Detailed analysis of classical homeopathic literature, clinical posology rules, and case taking methodology. Approved for academic archival under NCH syllabus guidelines.
+                    Detailed analysis of classical homoeopathic literature, clinical posology rules, and case taking methodology. Approved for academic archival under NCH syllabus guidelines.
                   </p>
                   <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-sans text-emerald-900 my-4">
                     <strong>Department:</strong> {book.department || 'Central Academic'} • <strong>Semester:</strong> {book.semester || 'All BHMS Years'}

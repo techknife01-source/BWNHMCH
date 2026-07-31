@@ -211,7 +211,7 @@ const mockNoticeStore: any[] = [
     noticeNo: 'BHMCH/ACAD/2026/089',
     title: 'BHMS 1st Professional WBUHS Supplementary Examination Routine 2026',
     summary: 'Official routine and guidelines for upcoming supplementary theory and practical examinations.',
-    content: '<h2>BHMS 1st Professional Supplementary Examination Roster</h2><p>All eligible BHMS 1st Professional candidates of Burdwan Homoeopathic Medical College & Hospital are hereby notified that WBUHS exams commence August 12, 2026.</p>',
+    content: '<h2>BHMS 1st Professional Supplementary Examination Roster</h2><p>All eligible BHMS 1st Professional candidates of BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL are hereby notified that WBUHS exams commence August 12, 2026.</p>',
     category: 'EXAM',
     department: 'Practice of Medicine',
     author: 'Prof. Dr. S. K. Banerjea',

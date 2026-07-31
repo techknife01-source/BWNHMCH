@@ -54,7 +54,7 @@ export const HomePage: React.FC = () => {
               </div>
               <div className="pt-6 grid grid-cols-3 gap-4 border-t border-slate-800/80">
                 <div>
-                  <p className="text-2xl font-black text-white">45+</p>
+                  <p className="text-2xl font-black text-white">{new Date().getFullYear() - 1978}+</p>
                   <p className="text-xs text-slate-400 font-medium">Years Legacy</p>
                 </div>
                 <div>
@@ -162,7 +162,7 @@ export const HomePage: React.FC = () => {
           <div className="text-center space-y-2 max-w-2xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-600">Curriculum & Faculties</span>
             <h2 className="text-2xl font-black text-slate-900 dark:text-white">Core Academic Departments</h2>
-            <p className="text-xs text-slate-500">Excellence across preclinical, paraclinical and clinical homeopathic subjects.</p>
+            <p className="text-xs text-slate-500">Excellence across preclinical, paraclinical and clinical homoeopathic subjects.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -197,7 +197,7 @@ export const HomePage: React.FC = () => {
             <Badge variant="accent" className="bg-emerald-500/20 text-emerald-300 border-none">24x7 Clinical Services</Badge>
             <h2 className="text-2xl sm:text-3xl font-black">Homoeopathic Medical College Hospital</h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Providing compassionate, low-cost homeopathic healthcare to thousands of patients annually. Features dedicated IPD beds, daily specialized OPD clinics, pathology diagnostic laboratory, and emergency response desk.
+              Providing compassionate, low-cost homoeopathic healthcare to thousands of patients annually. Features dedicated IPD beds, daily specialized OPD clinics, pathology diagnostic laboratory, and emergency response desk.
             </p>
           </div>
           <div className="flex flex-col space-y-3 shrink-0">
