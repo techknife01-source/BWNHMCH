@@ -23,6 +23,7 @@ import { EventsPage } from '../pages/public/EventsPage';
 import { DownloadsPage } from '../pages/public/DownloadsPage';
 import { LibraryPage } from '../pages/public/LibraryPage';
 import { AcademicActivityPage } from '../pages/public/AcademicActivityPage';
+import { FacultyDirectoryPage } from '../pages/public/FacultyDirectoryPage';
 
 // Auth Pages
 import { LoginPage } from '../pages/auth/LoginPage';
@@ -99,6 +100,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/academic-activity" element={<AcademicActivityPage />} />
         <Route path="/academic-activities" element={<AcademicActivityPage />} />
+        <Route path="/faculty-directory" element={<FacultyDirectoryPage />} />
       </Route>
 
       {/* Auth Pages (Guest Only) */}
