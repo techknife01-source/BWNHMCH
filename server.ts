@@ -31,6 +31,9 @@ const CLIENT_URL = process.env.CLIENT_URL || '';
 
 const app = express();
 
+// Enable trust proxy for reverse proxy environments (e.g. Cloud Run, Nginx)
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(
   helmet({
