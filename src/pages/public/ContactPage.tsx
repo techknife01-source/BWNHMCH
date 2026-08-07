@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
@@ -16,16 +16,27 @@ import {
   Navigation,
   UserCheck,
   Stethoscope,
-  ExternalLink
+  ExternalLink,
+  HeartPulse
 } from 'lucide-react';
+import { institutionSettingsService, InstitutionSettings } from '../../services/institutionSettingsService';
 
 export const ContactPage: React.FC = () => {
+  const [settings, setSettings] = useState<InstitutionSettings>(() => institutionSettingsService.getSettings());
   const [submitted, setSubmitted] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [department, setDepartment] = useState('General Enquiry');
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const handleSettingsUpdate = () => {
+      setSettings(institutionSettingsService.getSettings());
+    };
+    window.addEventListener('bhmch_institution_settings_updated', handleSettingsUpdate);
+    return () => window.removeEventListener('bhmch_institution_settings_updated', handleSettingsUpdate);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +59,7 @@ export const ContactPage: React.FC = () => {
             Official Institution Desk
           </span>
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-            BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
+            {settings.collegeName}
           </h1>
           <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
             Get in touch with the principal’s secretariat, college administrative office, hospital OPD registration, or emergency helpline for general inquiries, admissions, and hospital services.
@@ -65,7 +76,7 @@ export const ContactPage: React.FC = () => {
           </div>
           <div>
             <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">College Office</h4>
-            <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">0342-2530601</p>
+            <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">{settings.collegePhone}</p>
             <p className="text-2xs text-slate-500 mt-1">General Office & Academic Inquiry</p>
           </div>
         </Card>
@@ -77,7 +88,7 @@ export const ContactPage: React.FC = () => {
           </div>
           <div>
             <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">Hospital Desk</h4>
-            <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">0342-2530507</p>
+            <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">{settings.hospitalPhone}</p>
             <p className="text-2xs text-slate-500 mt-1">OPD, IPD Wards & Emergency</p>
           </div>
         </Card>
@@ -90,9 +101,10 @@ export const ContactPage: React.FC = () => {
           <div>
             <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">Principal Contact</h4>
             <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 font-mono">
-              9434360399 / 9153888075
+              {settings.principalName}
             </p>
-            <p className="text-2xs text-slate-500 mt-1">Principal’s Secretariat Desk</p>
+            <p className="text-2xs text-slate-700 dark:text-slate-300 font-bold">Tel: {settings.principalMobile}</p>
+            <p className="text-3xs text-slate-500 font-mono truncate">{settings.principalEmail}</p>
           </div>
         </Card>
 
@@ -103,10 +115,10 @@ export const ContactPage: React.FC = () => {
           </div>
           <div>
             <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">Official Email</h4>
-            <a href="mailto:bhmchospital78@gmail.com" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline block truncate mt-0.5">
-              bhmchospital78@gmail.com
+            <a href={`mailto:${settings.collegeEmail}`} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline block truncate mt-0.5">
+              {settings.collegeEmail}
             </a>
-            <p className="text-2xs text-slate-500 mt-1">Website: www.bwnhmch.com</p>
+            <p className="text-2xs text-slate-500 mt-1">Website: www.bhnmch.com</p>
           </div>
         </Card>
       </div>
@@ -217,11 +229,11 @@ export const ContactPage: React.FC = () => {
             <div className="space-y-4 text-xs text-slate-600 dark:text-slate-300">
               <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-1">
                 <p className="font-extrabold text-slate-900 dark:text-white text-sm">
-                  BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL
+                  {settings.collegeName}
                 </p>
-                <p>Nimbark Bhaban</p>
-                <p>Rajganj, P.O. Nutanganj</p>
-                <p>Purba Bardhaman, West Bengal - 713102</p>
+                <p>{settings.addressLine1}</p>
+                <p>{settings.addressLine2}</p>
+                <p>{settings.district}, {settings.city}, {settings.state} - {settings.pincode}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -288,11 +300,11 @@ export const ContactPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
               <div>
                 <span className="text-slate-300 block text-2xs">Hospital Emergency Desk:</span>
-                <span className="font-extrabold text-white font-mono text-sm">0342-2530507</span>
+                <span className="font-extrabold text-white font-mono text-sm">{settings.hospitalPhone}</span>
               </div>
               <div>
                 <span className="text-slate-300 block text-2xs">Principal Hotline:</span>
-                <span className="font-extrabold text-white font-mono text-sm">9434360399 / 9153888075</span>
+                <span className="font-extrabold text-white font-mono text-sm">{settings.principalMobile}</span>
               </div>
             </div>
 

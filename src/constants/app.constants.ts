@@ -3,10 +3,14 @@ export const APP_CONSTANTS = {
   SHORT_NAME: "BHMCH",
   ESTD_YEAR: "1978",
   AFFILIATION: "Affiliated to West Bengal University of Health Sciences (WBUHS) & Recognized by National Commission for Homoeopathy (NCH)",
-  CONTACT_PHONE: "+91 342 263 4567",
-  EMERGENCY_HELPLINE: "+91 342 263 9999",
-  CONTACT_EMAIL: "principal@bhmch.ac.in",
-  LOCATION: "Rajbati, Baburbag, Purba Bardhaman, West Bengal 713104",
+  CONTACT_PHONE: "+91-342-2530601",
+  HOSPITAL_PHONE: "+91-342-2530507",
+  EMERGENCY_HELPLINE: "+91-342-2530507",
+  CONTACT_EMAIL: "bhmchospital78@gmail.com",
+  PRINCIPAL_NAME: "Dr. Susmita Chatterjee",
+  PRINCIPAL_MOBILE: "9434238508",
+  PRINCIPAL_EMAIL: "drsusmita01@gmail.com",
+  LOCATION: "NIMBARK BHABAN, Rajganj, P.O. - Nutanganj, Purba Bardhaman, Bardhaman, West Bengal, PIN - 713102",
   WORKING_HOURS: "Mon - Sat: 9:00 AM - 5:00 PM | Hospital: 24x7 Emergency",
 };
 

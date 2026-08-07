@@ -234,16 +234,17 @@ class GalleryService {
   public addMultiple(newItems: Array<Partial<GalleryItem>>, uploaderName = 'Admin'): GalleryItem[] {
     const added: GalleryItem[] = [];
     let maxOrder = this.items.reduce((max, i) => Math.max(max, i.displayOrder || 0), 0);
+    const formattedTimestamp = `${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
     newItems.forEach((item, index) => {
       maxOrder += 1;
       const created: GalleryItem = {
         id: `gal-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`,
-        title: item.title || `Gallery Upload ${maxOrder}`,
-        description: item.description || 'Campus gallery photograph.',
+        title: item.title || `Campus Gallery Photograph ${maxOrder}`,
+        description: item.description || 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL campus gallery photograph.',
         category: item.category || 'Hospital & OPD',
         imageUrl: item.imageUrl || 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
-        uploadDate: new Date().toISOString().split('T')[0],
+        uploadDate: item.uploadDate || formattedTimestamp,
         uploader: item.uploader || uploaderName,
         status: item.status || 'PUBLISHED',
         displayOrder: item.displayOrder || maxOrder,
@@ -259,11 +260,15 @@ class GalleryService {
 
   public updateItem(id: string, updates: Partial<GalleryItem>): GalleryItem | undefined {
     const index = this.items.findIndex((i) => i.id === id);
-    if (index === -1) return undefined;
+    if (index === -1) {
+      toast.error('Gallery image not found.');
+      return undefined;
+    }
 
     this.items[index] = {
       ...this.items[index],
       ...updates,
+      uploadDate: `${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (Updated)`,
     };
 
     this.saveToStorage();

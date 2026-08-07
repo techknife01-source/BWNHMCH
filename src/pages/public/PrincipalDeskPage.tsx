@@ -26,8 +26,8 @@ We invite aspiring scholars to join our vibrant academic community and embrace t
       'Best Homoeopathic Academic Administrator Award - WBUHS',
       'Life Member of Homoeopathic Medical Association of India (HMAI)'
     ],
-    contactEmail: 'principal@bhmc.ac.in',
-    phone: '+91 342 2634123',
+    contactEmail: 'drsusmita01@gmail.com',
+    phone: '9434238508',
   });
 
   const [loading, setLoading] = useState(false);

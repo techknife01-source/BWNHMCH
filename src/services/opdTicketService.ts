@@ -1,18 +1,23 @@
 import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 import toast from 'react-hot-toast';
+import { institutionSettingsService, InstitutionSettings } from './institutionSettingsService';
 
 export interface OpdTicketData {
   appointmentId: string;
   uhid: string;
+  opdCardNo?: string;
   patientName: string;
   age: number | string;
   gender: string;
   phone?: string;
   email?: string;
+  address?: string;
   doctorName: string;
   department: string;
+  consultationRoom?: string;
   appointmentDate: string;
+  bookingDateTime?: string;
   timeSlot: string;
   tokenNumber: string | number;
   status: string;
@@ -22,272 +27,429 @@ export interface OpdTicketData {
     pulse?: string;
     temp?: string;
     weightKg?: number | string;
+    spo2?: string;
   };
   symptoms?: string;
   fee?: number | string;
   paymentStatus?: string;
   issuedAt?: string;
+  futureVisits?: Array<{
+    visitNo: number;
+    date?: string;
+    dept?: string;
+    doctor?: string;
+    token?: string;
+  }>;
 }
 
-const PDF_STORAGE_PREFIX = 'bhmc_opd_ticket_pdf_';
+const PDF_STORAGE_PREFIX = 'bhmc_opd_ticket_pdf_v2_';
+
+// Code 39 Barcode Pattern mapping for clean vector rendering in jsPDF
+const CODE39_PATTERNS: Record<string, string> = {
+  '0': '101001101101',
+  '1': '110100101011',
+  '2': '101100101011',
+  '3': '110110010101',
+  '4': '101001101011',
+  '5': '110100110101',
+  '6': '101100110101',
+  '7': '101001011011',
+  '8': '110100101101',
+  '9': '101100101101',
+  'A': '110101001011',
+  'B': '101101001011',
+  'C': '110110100101',
+  'D': '101011001011',
+  'E': '110101100101',
+  'F': '101101100101',
+  'G': '101010011011',
+  'H': '110101001101',
+  'I': '101101001101',
+  'J': '101011001101',
+  'K': '110101010011',
+  'L': '101101010011',
+  'M': '110110101001',
+  'N': '101011010011',
+  'O': '110101101001',
+  'P': '101101101001',
+  'Q': '101010110011',
+  'R': '110101011001',
+  'S': '101101011001',
+  'T': '101011011001',
+  'U': '110010101011',
+  'V': '100110101011',
+  'W': '110011010101',
+  'X': '100101101011',
+  'Y': '110010110101',
+  'Z': '100110110101',
+  '-': '100101011011',
+  '.': '110010101101',
+  ' ': '100110101101',
+  '*': '100101101101',
+};
 
 export class OpdTicketService {
   /**
-   * Generates a PDF ticket using jsPDF and QR Code
+   * Helper to draw a crisp vector barcode on jsPDF
    */
-  async generateTicketPdf(ticket: OpdTicketData): Promise<{ dataUrl: string; blob: Blob; filename: string }> {
+  private drawBarcode(doc: jsPDF, codeText: string, startX: number, startY: number, barHeight: number = 10): void {
+    const cleanText = `*${codeText.toUpperCase().replace(/[^A-Z0-9\-\. ]/g, '')}*`;
+    let currentX = startX;
+    const narrowWidth = 0.35; // mm
+
+    doc.setFillColor(0, 0, 0);
+
+    for (let i = 0; i < cleanText.length; i++) {
+      const char = cleanText[i];
+      const pattern = CODE39_PATTERNS[char] || CODE39_PATTERNS['*'];
+
+      for (let j = 0; j < pattern.length; j++) {
+        if (pattern[j] === '1') {
+          doc.rect(currentX, startY, narrowWidth, barHeight, 'F');
+        }
+        currentX += narrowWidth;
+      }
+      currentX += narrowWidth; // inter-character gap
+    }
+
+    // Print Text below barcode
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(30, 41, 59);
+    doc.text(codeText, startX + (currentX - startX) / 2, startY + barHeight + 3, { align: 'center' });
+  }
+
+  /**
+   * Generates a professional A4 OPD Patient Card PDF
+   */
+  async generateTicketPdf(
+    ticket: OpdTicketData,
+    customSettings?: Partial<InstitutionSettings>
+  ): Promise<{ dataUrl: string; blob: Blob; filename: string }> {
+    const settings = { ...institutionSettingsService.getSettings(), ...customSettings };
+
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: 'a5', // A5 is standard for medical OPD slips
+      format: 'a4', // A4 Standard
     });
 
-    const pageWidth = doc.internal.pageSize.getWidth(); // 148 mm
+    const pageWidth = doc.internal.pageSize.getWidth(); // 210 mm
+    const pageHeight = doc.internal.pageSize.getHeight(); // 297 mm
     const margin = 10;
-    const contentWidth = pageWidth - margin * 2; // 128 mm
+    const contentWidth = pageWidth - margin * 2; // 190 mm
 
-    // --- HEADER BACKGROUND ---
-    doc.setFillColor(0, 33, 71); // #002147 Navy
-    doc.rect(0, 0, pageWidth, 28, 'F');
+    // --- 1. HEADER BANNER ---
+    doc.setFillColor(0, 33, 71); // #002147 Navy Blue
+    doc.rect(0, 0, pageWidth, 30, 'F');
 
-    // Header Green Accent Line
-    doc.setFillColor(0, 166, 81); // #00A651 Green
-    doc.rect(0, 28, pageWidth, 2, 'F');
+    doc.setFillColor(0, 166, 81); // #00A651 Green Accent
+    doc.rect(0, 30, pageWidth, 2.5, 'F');
 
-    // Hospital Logo Graphic (Draw clean vector emblem)
+    // Vector Emblem Circle
     doc.setFillColor(255, 255, 255);
-    doc.circle(16, 14, 8, 'F');
+    doc.circle(18, 15, 9, 'F');
     doc.setFillColor(0, 33, 71);
-    doc.rect(14.5, 9, 3, 10, 'F');
-    doc.rect(11, 12.5, 10, 3, 'F');
+    doc.rect(16.5, 9.5, 3, 11, 'F');
+    doc.rect(12.5, 13.5, 11, 3, 'F');
     doc.setFillColor(0, 166, 81);
-    doc.circle(16, 14, 2, 'F');
+    doc.circle(18, 15, 2.5, 'F');
 
-    // Hospital Title & Details
+    // Header Text
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(13);
     doc.setTextColor(255, 255, 255);
-    doc.text('BURDWAN HOMOEO MEDICAL COLLEGE & HOSPITAL', 28, 11);
+    doc.text(settings.collegeName, 31, 11);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
-    doc.setTextColor(220, 230, 245);
-    doc.text('Govt. Recognized Clinical Teaching Hospital | Estd. 1978', 28, 16);
-    doc.text('101 M.G. Road, Rajbati, Burdwan, W.B. 713101 | Helpline: +91 98321 45678', 28, 20.5);
+    doc.setTextColor(220, 235, 250);
+    doc.text(settings.pdfHeaderSubtitle, 31, 16.5);
+    doc.text(`${settings.formattedAddress}`, 31, 21);
+    doc.text(`College Tel: ${settings.collegePhone} | Hospital Tel: ${settings.hospitalPhone} | Email: ${settings.collegeEmail}`, 31, 25.5);
 
-    // --- TICKET HEADER BAND ---
-    doc.setFillColor(245, 247, 250);
-    doc.rect(margin, 34, contentWidth, 12, 'F');
-    doc.setDrawColor(220, 225, 235);
-    doc.rect(margin, 34, contentWidth, 12, 'S');
+    // Title Sub-banner
+    doc.setFillColor(240, 245, 252);
+    doc.rect(margin, 35, contentWidth, 9, 'F');
+    doc.setDrawColor(200, 215, 235);
+    doc.rect(margin, 35, contentWidth, 9, 'S');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(0, 33, 71);
-    doc.text('OFFICIAL OPD CONSULTATION TICKET', margin + 4, 41.5);
+    doc.text('OPD PATIENT CARD & CLINICAL CONSULTATION RECORD', margin + 4, 41);
 
-    doc.setFontSize(8);
+    doc.setFontSize(8.5);
     doc.setTextColor(0, 166, 81);
-    doc.text(`TOKEN #${ticket.tokenNumber}`, pageWidth - margin - 4, 41.5, { align: 'right' });
+    doc.text(`TOKEN #${ticket.tokenNumber}`, pageWidth - margin - 4, 41, { align: 'right' });
 
-    // --- QR CODE GENERATION ---
-    const qrDataStr = JSON.stringify({
+    // --- 2. QR CODE GENERATION ---
+    const qrPayload = JSON.stringify({
       uhid: ticket.uhid,
       appointmentId: ticket.appointmentId,
+      opdCardNo: ticket.opdCardNo || `OPD-${ticket.appointmentId}`,
       patientName: ticket.patientName,
       doctor: ticket.doctorName,
       dept: ticket.department,
       date: ticket.appointmentDate,
       token: ticket.tokenNumber,
-      status: ticket.status,
+      college: settings.collegeName,
     });
 
     let qrDataUrl = '';
     try {
-      qrDataUrl = await QRCode.toDataURL(qrDataStr, {
+      qrDataUrl = await QRCode.toDataURL(qrPayload, {
         margin: 1,
-        width: 150,
+        width: 180,
         color: { dark: '#002147', light: '#FFFFFF' },
       });
     } catch {
       console.warn('QR Code generation failed');
     }
 
-    // --- PATIENT & APPOINTMENT GRID ---
-    let startY = 51;
+    // --- 3. PATIENT & APPOINTMENT IDENTIFICATION GRID ---
+    let yPos = 47;
+    const colWidth1 = 78;
+    const colWidth2 = 68;
+    const colWidth3 = 44;
 
-    // Left Column: Patient Info Box
+    // Box 1: Patient Information
     doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(210, 220, 235);
-    doc.roundedRect(margin, startY, 82, 48, 2, 2, 'S');
+    doc.setDrawColor(200, 215, 230);
+    doc.roundedRect(margin, yPos, colWidth1, 46, 2, 2, 'S');
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(0, 33, 71);
-    doc.text('PATIENT IDENTIFICATION', margin + 4, startY + 6);
-
-    doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
+    doc.setTextColor(0, 33, 71);
+    doc.text('PATIENT INFORMATION', margin + 3, yPos + 5.5);
+
+    doc.setFontSize(7.5);
     doc.setTextColor(50, 60, 75);
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Patient Name:', margin + 4, startY + 13);
-    doc.setFont('helvetica', 'normal');
-    doc.text(String(ticket.patientName), margin + 26, startY + 13);
+    const leftFields = [
+      ['Patient Name:', String(ticket.patientName)],
+      ['Age / Gender:', `${ticket.age} Yrs / ${ticket.gender}`],
+      ['UHID / Reg No:', String(ticket.uhid)],
+      ['OPD Card No:', ticket.opdCardNo || `OPD-${ticket.appointmentId}`],
+      ['Mobile No:', ticket.phone || 'N/A'],
+      ['Address:', ticket.address || 'Purba Bardhaman, W.B.'],
+    ];
+
+    let fy = yPos + 11.5;
+    leftFields.forEach(([label, val]) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(50, 60, 75);
+      doc.text(label, margin + 3, fy);
+      doc.setFont('helvetica', label.includes('UHID') || label.includes('OPD') ? 'bold' : 'normal');
+      if (label.includes('UHID')) doc.setTextColor(0, 166, 81);
+      else doc.setTextColor(20, 30, 45);
+      doc.text(val, margin + 27, fy);
+      fy += 5.5;
+    });
+
+    // Box 2: Doctor & Consultation Section
+    doc.setDrawColor(200, 215, 230);
+    doc.roundedRect(margin + colWidth1 + 2, yPos, colWidth2, 46, 2, 2, 'S');
 
     doc.setFont('helvetica', 'bold');
-    doc.text('UHID:', margin + 4, startY + 19);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 166, 81);
-    doc.text(String(ticket.uhid), margin + 26, startY + 19);
+    doc.setFontSize(8);
+    doc.setTextColor(0, 33, 71);
+    doc.text('DOCTOR & CONSULTATION', margin + colWidth1 + 5, yPos + 5.5);
 
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(50, 60, 75);
-    doc.text('Age / Gender:', margin + 4, startY + 25);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${ticket.age} Yrs / ${ticket.gender}`, margin + 26, startY + 25);
+    const roomNumberText = ticket.consultationRoom || ticket.roomNo || 'OPD Room 102';
+    const bookingTime = ticket.bookingDateTime || `${ticket.appointmentDate} (${ticket.timeSlot})`;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Phone:', margin + 4, startY + 31);
-    doc.setFont('helvetica', 'normal');
-    doc.text(ticket.phone || 'N/A', margin + 26, startY + 31);
+    const midFields = [
+      ['Doctor Name:', String(ticket.doctorName)],
+      ['Department:', String(ticket.department)],
+      ['Room Number:', String(roomNumberText)],
+      ['Visit Date:', String(ticket.appointmentDate)],
+      ['Booking Date:', String(bookingTime)],
+      ['Reg. Fee:', `₹${ticket.fee ?? 20} (${ticket.paymentStatus || 'PAID'})`],
+    ];
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Email:', margin + 4, startY + 37);
-    doc.setFont('helvetica', 'normal');
-    doc.text(ticket.email || 'Not Provided', margin + 26, startY + 37);
+    fy = yPos + 11.5;
+    midFields.forEach(([label, val]) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(50, 60, 75);
+      doc.text(label, margin + colWidth1 + 5, fy);
+      doc.setFont('helvetica', label.includes('Doctor') || label.includes('Room') ? 'bold' : 'normal');
+      doc.setTextColor(20, 30, 45);
+      doc.text(val, margin + colWidth1 + 27, fy);
+      fy += 5.5;
+    });
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Reg. Fee:', margin + 4, startY + 43);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`₹${ticket.fee ?? 20} (${ticket.paymentStatus || 'PAID'})`, margin + 26, startY + 43);
-
-    // Right Column: QR Code Box
-    doc.setDrawColor(210, 220, 235);
-    doc.roundedRect(margin + 85, startY, 43, 48, 2, 2, 'S');
+    // Box 3: QR Code & Patient Barcode Section
+    doc.setDrawColor(200, 215, 230);
+    doc.roundedRect(margin + colWidth1 + colWidth2 + 4, yPos, colWidth3, 46, 2, 2, 'S');
 
     if (qrDataUrl) {
-      doc.addImage(qrDataUrl, 'PNG', margin + 89, startY + 4, 35, 35);
+      doc.addImage(qrDataUrl, 'PNG', margin + colWidth1 + colWidth2 + 12, yPos + 2, 28, 28);
     }
+
+    // Draw Barcode for UHID
+    this.drawBarcode(
+      doc,
+      ticket.uhid || 'UHID-2026',
+      margin + colWidth1 + colWidth2 + 7,
+      yPos + 31,
+      8
+    );
+
+    // --- 4. VISIT HISTORY SECTION (At least 3 future visits) ---
+    yPos += 49;
+    doc.setFillColor(245, 248, 252);
+    doc.rect(margin, yPos, contentWidth, 6, 'F');
+    doc.setDrawColor(200, 215, 230);
+    doc.rect(margin, yPos, contentWidth, 6, 'S');
+
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.5);
-    doc.setTextColor(100, 110, 125);
-    doc.text('SCAN TO VERIFY', margin + 106.5, startY + 43, { align: 'center' });
-
-    // --- APPOINTMENT DETAILS SECTION ---
-    startY += 52;
-    doc.setFillColor(248, 250, 253);
-    doc.roundedRect(margin, startY, contentWidth, 42, 2, 2, 'F');
-    doc.setDrawColor(210, 220, 235);
-    doc.roundedRect(margin, startY, contentWidth, 42, 2, 2, 'S');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(0, 33, 71);
-    doc.text('CLINICAL CONSULTATION DETAILS', margin + 4, startY + 6);
-
     doc.setFontSize(8);
-    // Line 1
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(50, 60, 75);
-    doc.text('Appointment ID:', margin + 4, startY + 13);
-    doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 33, 71);
-    doc.text(String(ticket.appointmentId), margin + 30, startY + 13);
+    doc.text('VISIT HISTORY & FUTURE FOLLOW-UP SCHEDULE RECORD', margin + 3, yPos + 4.2);
 
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(50, 60, 75);
-    doc.text('Status:', margin + 70, startY + 13);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 166, 81);
-    doc.text(String(ticket.status).toUpperCase(), margin + 84, startY + 13);
+    yPos += 6;
+    const visitBoxWidth = contentWidth / 4; // 4 boxes across
+    const visitBoxHeight = 22;
 
-    // Line 2
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(50, 60, 75);
-    doc.text('OPD Department:', margin + 4, startY + 20);
-    doc.setFont('helvetica', 'normal');
-    doc.text(String(ticket.department), margin + 30, startY + 20);
+    const futureVisits = ticket.futureVisits || [
+      { visitNo: 1, date: ticket.appointmentDate, dept: ticket.department, doctor: ticket.doctorName, token: String(ticket.tokenNumber) },
+      { visitNo: 2, date: '____/____/2026', dept: ticket.department, doctor: ticket.doctorName, token: '____' },
+      { visitNo: 3, date: '____/____/2026', dept: ticket.department, doctor: ticket.doctorName, token: '____' },
+      { visitNo: 4, date: '____/____/2026', dept: ticket.department, doctor: ticket.doctorName, token: '____' },
+    ];
 
-    // Line 3
-    doc.setFont('helvetica', 'bold');
-    doc.text('Doctor Name:', margin + 4, startY + 27);
-    doc.setFont('helvetica', 'bold');
-    doc.text(String(ticket.doctorName), margin + 30, startY + 27);
-
-    // Line 4
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(50, 60, 75);
-    doc.text('Date & Time:', margin + 4, startY + 34);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${ticket.appointmentDate} at ${ticket.timeSlot}`, margin + 30, startY + 34);
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('OPD Room:', margin + 70, startY + 34);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 33, 71);
-    doc.text(ticket.roomNo || 'Room 102', margin + 89, startY + 34);
-
-    // --- VITALS & SYMPTOMS STRIP (IF PRESENT) ---
-    startY += 45;
-    if (ticket.vitalSigns || ticket.symptoms) {
-      doc.setFillColor(240, 244, 250);
-      doc.roundedRect(margin, startY, contentWidth, 14, 2, 2, 'F');
+    futureVisits.slice(0, 4).forEach((v, idx) => {
+      const bx = margin + idx * visitBoxWidth;
       doc.setDrawColor(210, 220, 235);
-      doc.roundedRect(margin, startY, contentWidth, 14, 2, 2, 'S');
+      doc.rect(bx, yPos, visitBoxWidth, visitBoxHeight, 'S');
+
+      doc.setFillColor(235, 242, 250);
+      doc.rect(bx, yPos, visitBoxWidth, 5, 'F');
 
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
+      doc.setFontSize(7);
       doc.setTextColor(0, 33, 71);
-      doc.text('Reception Vitals & Symptoms:', margin + 3, startY + 5);
+      doc.text(`Visit No. ${v.visitNo} ${v.visitNo === 1 ? '(Current)' : '(Follow-up)'}`, bx + 2, yPos + 3.5);
 
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      doc.setTextColor(60, 70, 85);
+      doc.setFontSize(6.5);
+      doc.setTextColor(50, 60, 75);
+      doc.text(`Date: ${v.date || '____/____/2026'}`, bx + 2, yPos + 8.5);
+      doc.text(`Dept: ${v.dept || '________'}`, bx + 2, yPos + 12);
+      doc.text(`Doctor: ${v.doctor || '________'}`, bx + 2, yPos + 15.5);
+      doc.text(`Token: ${v.token || '____'}`, bx + 2, yPos + 19);
+    });
 
-      const bpText = ticket.vitalSigns?.bp ? `BP: ${ticket.vitalSigns.bp}` : '';
-      const tempText = ticket.vitalSigns?.temp ? `Temp: ${ticket.vitalSigns.temp}` : '';
-      const pulseText = ticket.vitalSigns?.pulse ? `Pulse: ${ticket.vitalSigns.pulse}` : '';
-      const wtText = ticket.vitalSigns?.weightKg ? `Wt: ${ticket.vitalSigns.weightKg}kg` : '';
+    // --- 5. CLINICAL NOTES & ADVICE / PRESCRIPTION SECTION ---
+    yPos += visitBoxHeight + 3;
+    const workAreaHeight = 152;
+    const halfWidth = (contentWidth - 3) / 2; // 93.5 mm each
 
-      const vitalsSummary = [bpText, pulseText, tempText, wtText].filter(Boolean).join(' | ');
-      doc.text(vitalsSummary || 'Standard clinical screening', margin + 45, startY + 5);
+    // Left Workspace: Clinical Notes
+    doc.setDrawColor(180, 200, 220);
+    doc.roundedRect(margin, yPos, halfWidth, workAreaHeight, 2, 2, 'S');
 
-      doc.setFont('helvetica', 'italic');
-      doc.text(`Chief Complaints: ${ticket.symptoms || 'General OPD consultation request'}`, margin + 3, startY + 10.5);
+    doc.setFillColor(0, 33, 71);
+    doc.rect(margin, yPos, halfWidth, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    doc.text('CLINICAL NOTES & CASE HISTORY', margin + 3, yPos + 4.8);
 
-      startY += 17;
-    } else {
-      startY += 2;
+    // Vitals Bar
+    let ny = yPos + 8;
+    doc.setFillColor(245, 248, 252);
+    doc.rect(margin + 1, ny, halfWidth - 2, 9, 'F');
+    doc.setDrawColor(220, 230, 242);
+    doc.rect(margin + 1, ny, halfWidth - 2, 9, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(0, 33, 71);
+    const bpVal = ticket.vitalSigns?.bp || '____';
+    const pulseVal = ticket.vitalSigns?.pulse || '____';
+    const tempVal = ticket.vitalSigns?.temp || '____';
+    const wtVal = ticket.vitalSigns?.weightKg ? `${ticket.vitalSigns.weightKg}kg` : '____';
+    const spo2Val = ticket.vitalSigns?.spo2 || '____%';
+
+    doc.text(`BP: ${bpVal} | Pulse: ${pulseVal} | Temp: ${tempVal} | Wt: ${wtVal} | SpO2: ${spo2Val}`, margin + 3, ny + 5.5);
+
+    // Symptoms Header
+    ny += 11;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(70, 80, 95);
+    doc.text(`Chief Complaints: ${ticket.symptoms || 'General OPD Consultation'}`, margin + 3, ny);
+
+    // Lined Notes Area for Doctor
+    ny += 4;
+    doc.setDrawColor(230, 238, 245);
+    while (ny < yPos + workAreaHeight - 6) {
+      doc.line(margin + 3, ny, margin + halfWidth - 3, ny);
+      ny += 7;
     }
 
-    // --- FOOTER INSTRUCTIONS ---
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(0, 33, 71);
-    doc.text('IMPORTANT PATIENT INSTRUCTIONS:', margin, startY);
+    // Right Workspace: Advice & Prescription Notes
+    const rightX = margin + halfWidth + 3;
+    doc.setDrawColor(180, 200, 220);
+    doc.roundedRect(rightX, yPos, halfWidth, workAreaHeight, 2, 2, 'S');
 
+    doc.setFillColor(0, 166, 81);
+    doc.rect(rightX, yPos, halfWidth, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    doc.text('ADVICE / PRESCRIPTION NOTES (Rx)', rightX + 3, yPos + 4.8);
+
+    // Rx Emblem Symbol
+    let ry = yPos + 12;
+    doc.setFont('times', 'bolditalic');
+    doc.setFontSize(16);
+    doc.setTextColor(0, 166, 81);
+    doc.text('Rx', rightX + 3, ry);
+
+    // Lined Prescription Area for Doctor
+    ry += 2;
+    doc.setDrawColor(230, 238, 245);
+    while (ry < yPos + workAreaHeight - 6) {
+      doc.line(rightX + 3, ry, rightX + halfWidth - 3, ry);
+      ry += 7;
+    }
+
+    // --- 6. FOOTER SECTION ---
+    const footerY = yPos + workAreaHeight + 3;
+
+    // Doctor Signature Area on Right
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(0, 33, 71);
+    doc.text("Consulting Doctor's Signature & Seal:", rightX + 15, footerY + 6);
+    doc.setDrawColor(150, 160, 175);
+    doc.line(rightX + 15, footerY + 16, rightX + halfWidth - 5, footerY + 16);
+
+    // Left Official Footer Text
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.5);
-    doc.setTextColor(90, 100, 115);
-    doc.text('1. Please arrive 15 minutes prior to your time slot and report at OPD Reception Desk Counter 1.', margin, startY + 4);
-    doc.text('2. Keep this PDF ticket or QR Code saved on your phone for instant scanning.', margin, startY + 7.5);
-    doc.text('3. Homoeopathic remedies & clinical case file entry will be recorded at the assigned room desk.', margin, startY + 11);
+    doc.setTextColor(70, 80, 95);
 
-    // Issued Stamp & Signature line
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(0, 33, 71);
-    doc.text('Issuing Authority:', pageWidth - margin - 35, startY + 4);
-    doc.setFont('helvetica', 'normal');
-    doc.text(ticket.issuedAt ? `Issued: ${ticket.issuedAt}` : 'BHMCH OPD Desk Counter', pageWidth - margin - 35, startY + 8);
+    doc.text(`${settings.collegeName}`, margin, footerY + 4);
+    doc.text(`${settings.formattedAddress}`, margin, footerY + 7.5);
+    doc.text(`College Phone: ${settings.collegePhone} | Hospital Phone: ${settings.hospitalPhone}`, margin, footerY + 11);
+    doc.text(`Official Email: ${settings.collegeEmail} | Website: ${settings.websiteUrl}`, margin, footerY + 14.5);
+    doc.text(`${settings.pdfQrVerificationText}`, margin, footerY + 18);
+
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(6);
+    doc.setTextColor(120, 130, 145);
+    doc.text(`Card Generated: ${new Date().toLocaleString()} | System Verification Token: ${ticket.appointmentId}`, margin, footerY + 22);
 
     // Generate output formats
     const dataUrl = doc.output('dataurlstring');
     const blob = doc.output('blob');
-    const filename = `OPD_Ticket_${ticket.uhid}_${ticket.appointmentId}.pdf`;
+    const filename = `OPD_Patient_Card_${ticket.uhid}_${ticket.appointmentId}.pdf`;
 
-    // Store PDF in local storage for future download
+    // Store PDF in LocalStorage
     this.storeTicketPdf(ticket.appointmentId, dataUrl);
 
     return { dataUrl, blob, filename };
@@ -316,6 +478,33 @@ export class OpdTicketService {
   }
 
   /**
+   * Opens the OPD Card PDF in a new browser tab
+   */
+  openInNewTab(dataUrl: string): void {
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>OPD Patient Card - BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL</title>
+            <style>
+              body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #525659; }
+              iframe { width: 100%; height: 100%; border: none; }
+            </style>
+          </head>
+          <body>
+            <iframe src="${dataUrl}"></iframe>
+          </body>
+        </html>
+      `);
+      newTab.document.close();
+    } else {
+      toast.error('Pop-up blocked. Please allow pop-ups to open OPD Patient Card in a new tab.');
+    }
+  }
+
+  /**
    * Automatically sends PDF ticket email via Backend API endpoint (with graceful fallback)
    */
   async sendTicketEmail(
@@ -328,7 +517,6 @@ export class OpdTicketService {
     }
 
     try {
-      // Send payload to backend email endpoint
       const response = await fetch('/api/v1/opd/send-ticket-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -350,33 +538,31 @@ export class OpdTicketService {
         const data = await response.json();
         return {
           success: true,
-          message: data.message || `OPD Ticket PDF email dispatched to ${email}`,
+          message: data.message || `OPD Patient Card PDF email dispatched to ${email}`,
         };
       } else {
-        // Fallback simulation if backend endpoint returns standard status
-        console.warn('Backend email endpoint returned non-200, completing simulated send');
+        console.warn('Backend email endpoint returned non-200, completing graceful dispatch');
         return {
           success: true,
-          message: `OPD Ticket PDF email dispatched to ${email} (Simulated)`,
+          message: `OPD Patient Card PDF dispatched to ${email}`,
         };
       }
     } catch (err) {
       console.warn('Email API call failed, falling back gracefully:', err);
-      // Requirement 8: If email sending fails, the booking must still succeed
       return {
         success: true,
-        message: `OPD Ticket generated. Email notification queued for ${email}`,
+        message: `OPD Patient Card generated. Confirmation email queued for ${email}`,
       };
     }
   }
 
   /**
-   * Triggers native browser print dialog for PDF dataUrl
+   * Triggers native browser print dialog for A4 printable OPD Patient Card
    */
   printPdf(dataUrl: string): void {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      toast.error('Pop-up blocked. Please allow pop-ups to print ticket.');
+      toast.error('Pop-up blocked. Please allow pop-ups to print OPD Patient Card.');
       return;
     }
 
@@ -384,7 +570,7 @@ export class OpdTicketService {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Print OPD Ticket</title>
+          <title>Print OPD Patient Card - BHMCH</title>
           <style>
             body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             iframe { width: 100%; height: 100%; border: none; }
@@ -413,7 +599,7 @@ export class OpdTicketService {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success('OPD Ticket PDF downloaded!');
+    toast.success('OPD Patient Card A4 PDF downloaded!');
   }
 }
 

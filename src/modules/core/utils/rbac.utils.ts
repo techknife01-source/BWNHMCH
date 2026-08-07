@@ -18,21 +18,34 @@ export const getUserRoleCodes = (user: any): string[] => {
   if (!user) return [];
   const roleSet = new Set<string>();
 
-  // Add userType if present
-  if (user.userType && typeof user.userType === 'string') {
-    const rawType = user.userType.trim().toUpperCase();
-    roleSet.add(rawType);
-    roleSet.add(normalizeRole(rawType));
-  }
+  // Check single string role properties (e.g. role, userRole, roleName, userType)
+  ['role', 'userRole', 'roleName', 'userType'].forEach((prop) => {
+    if (user[prop] && typeof user[prop] === 'string') {
+      const raw = user[prop].trim().toUpperCase();
+      roleSet.add(raw);
+      roleSet.add(normalizeRole(raw));
+    }
+  });
 
-  // Add roles from user.roles
-  if (Array.isArray(user.roles)) {
-    user.roles.forEach((r: any) => {
+  // Add roles from user.roles or user.authorities
+  const roleList = Array.isArray(user.roles)
+    ? user.roles
+    : Array.isArray(user.authorities)
+    ? user.authorities
+    : [];
+
+  if (roleList.length > 0) {
+    roleList.forEach((r: any) => {
       if (typeof r === 'string') {
         const trimmed = r.trim().toUpperCase();
         roleSet.add(trimmed);
         roleSet.add(normalizeRole(trimmed));
       } else if (r && typeof r === 'object') {
+        if (r.authority && typeof r.authority === 'string') {
+          const authTrimmed = r.authority.trim().toUpperCase();
+          roleSet.add(authTrimmed);
+          roleSet.add(normalizeRole(authTrimmed));
+        }
         if (r.name && typeof r.name === 'string') {
           const nameTrimmed = r.name.trim().toUpperCase();
           roleSet.add(nameTrimmed);

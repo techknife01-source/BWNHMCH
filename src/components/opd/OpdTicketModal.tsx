@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { opdTicketService, OpdTicketData } from '../../services/opdTicketService';
+import { institutionSettingsService, InstitutionSettings } from '../../services/institutionSettingsService';
 import {
   Download,
   Printer,
@@ -16,6 +17,7 @@ import {
   UserCheck,
   QrCode as QrIcon,
   Send,
+  ExternalLink,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -32,11 +34,20 @@ export const OpdTicketModal: React.FC<OpdTicketModalProps> = ({
   ticketData,
   onRegenerate,
 }) => {
+  const [settings, setSettings] = useState<InstitutionSettings>(() => institutionSettingsService.getSettings());
   const [pdfDataUrl, setPdfDataUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailStatus, setEmailStatus] = useState<string | null>(null);
   const [recipientEmail, setRecipientEmail] = useState('');
+
+  useEffect(() => {
+    const handleSettingsUpdate = () => {
+      setSettings(institutionSettingsService.getSettings());
+    };
+    window.addEventListener('bhmch_institution_settings_updated', handleSettingsUpdate);
+    return () => window.removeEventListener('bhmch_institution_settings_updated', handleSettingsUpdate);
+  }, []);
 
   useEffect(() => {
     if (!isOpen || !ticketData) return;
@@ -195,6 +206,16 @@ export const OpdTicketModal: React.FC<OpdTicketModalProps> = ({
               Print Ticket
             </Button>
 
+            <Button
+              variant="outline"
+              onClick={() => pdfDataUrl && opdTicketService.openInNewTab(pdfDataUrl)}
+              disabled={isGenerating || !pdfDataUrl}
+              className="text-xs font-bold"
+            >
+              <ExternalLink className="w-4 h-4 mr-1.5" />
+              Open in New Tab
+            </Button>
+
             {onRegenerate && (
               <button
                 type="button"
@@ -220,10 +241,10 @@ export const OpdTicketModal: React.FC<OpdTicketModalProps> = ({
               </div>
               <div>
                 <h3 className="font-black text-sm text-[#002147] dark:text-emerald-400 uppercase tracking-tight">
-                  BURDWAN HOMOEO MEDICAL COLLEGE & HOSPITAL
+                  {settings.collegeName}
                 </h3>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                  101 M.G. Road, Rajbati, Burdwan, W.B. - 713101 | Phone: +91 98321 45678
+                  {settings.formattedAddress} | Tel: {settings.collegePhone}
                 </p>
               </div>
             </div>

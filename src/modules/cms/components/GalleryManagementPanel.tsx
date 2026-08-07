@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { galleryService, GalleryItem } from '../../../services/galleryService';
 import { Card } from '../../../components/common/Card';
 import { useAuth } from '../../../contexts/AuthContext';
-import { isSuperAdmin, isAdmin, isPrincipal, isVicePrincipal, getUserDisplayDesignation } from '../../../utils/permissionHelper';
+import {
+  canManageGallery,
+  isSuperAdmin,
+  isAdmin,
+  isPrincipal,
+  isVicePrincipal,
+  getUserDisplayDesignation,
+} from '../../../utils/permissionHelper';
 import {
   Image as ImageIcon,
   Plus,
@@ -31,7 +38,7 @@ import toast from 'react-hot-toast';
 
 export const GalleryManagementPanel: React.FC = () => {
   const { user } = useAuth();
-  const isAuthorized = isSuperAdmin(user) || isAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
+  const isAuthorized = canManageGallery(user);
 
   // Filter & Search states
   const [search, setSearch] = useState('');
@@ -73,9 +80,9 @@ export const GalleryManagementPanel: React.FC = () => {
   });
 
   // Multiple upload state
-  const [batchUploadItems, setBatchUploadItems] = useState<Array<{ title: string; description: string; category: string; imageUrl: string }>>([
-    { title: '', description: '', category: 'Hospital & OPD', imageUrl: '' },
-  ]);
+  const [batchUploadItems, setBatchUploadItems] = useState<
+    Array<{ title: string; description: string; category: string; imageUrl: string }>
+  >([{ title: '', description: '', category: 'Hospital & OPD', imageUrl: '' }]);
 
   const loadData = () => {
     const res = galleryService.getItems({
@@ -116,72 +123,150 @@ export const GalleryManagementPanel: React.FC = () => {
     }
   };
 
-  // Image Upload File Converter
+  const getUploaderInfo = () => {
+    const name = user?.fullName || user?.username || 'Authorized Admin';
+    const des = getUserDisplayDesignation(user);
+    return `${name} (${des})`;
+  };
+
+  // Image Upload File Converter with Validation & Multi-File Support
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, index?: number) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    (Array.from(files) as File[]).forEach((file: File) => {
+    const fileList = Array.from(files) as File[];
+    const validFiles: File[] = [];
+
+    // Validate size and format
+    fileList.forEach((file: File) => {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`File "${file.name}" exceeds 10MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please select a smaller photo.`);
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast.error(`File "${file.name}" is not a valid image format. Please select JPEG, PNG, WEBP, GIF, or SVG.`);
+        return;
+      }
+      validFiles.push(file);
+    });
+
+    if (validFiles.length === 0) {
+      e.target.value = '';
+      return;
+    }
+
+    let processed = 0;
+    const newItems: Array<{ title: string; description: string; category: string; imageUrl: string }> = [];
+
+    validFiles.forEach((file: File) => {
       const reader = new FileReader();
+      reader.onerror = () => {
+        toast.error(`Failed to read file "${file.name}". Storage or filesystem error.`);
+      };
+
       reader.onload = (event) => {
         const url = event.target?.result as string;
+        const autoTitle = file.name
+          .replace(/\.[^/.]+$/, '')
+          .replace(/[-_]/g, ' ')
+          .replace(/\b\w/g, (l) => l.toUpperCase());
+
         if (typeof index === 'number') {
-          const list = [...batchUploadItems];
-          if (list[index]) {
-            list[index].imageUrl = url;
-            if (!list[index].title) list[index].title = file.name.replace(/\.[^/.]+$/, '');
-          }
-          setBatchUploadItems(list);
-        } else {
+          // Specific slot replace/upload
+          setBatchUploadItems((prev) => {
+            const list = [...prev];
+            if (list[index]) {
+              list[index] = {
+                ...list[index],
+                imageUrl: url,
+                title: list[index].title || autoTitle,
+              };
+            }
+            return list;
+          });
+        } else if (validFiles.length === 1 && !isUploadModalOpen) {
+          // Single Edit Modal
           setCurrentItem((prev) => ({
             ...prev,
             imageUrl: url,
-            title: prev.title || file.name.replace(/\.[^/.]+$/, ''),
+            title: prev.title || autoTitle,
           }));
+        } else {
+          // Batch upload multiple photos
+          newItems.push({
+            title: autoTitle,
+            description: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL campus photograph.',
+            category: 'Hospital & OPD',
+            imageUrl: url,
+          });
+
+          processed++;
+          if (processed === validFiles.length) {
+            setBatchUploadItems((prev) => {
+              const existingFilled = prev.filter((i) => i.imageUrl.trim() || i.title.trim());
+              return [...existingFilled, ...newItems];
+            });
+            toast.success(`${newItems.length} photo(s) selected and processed!`);
+          }
         }
       };
       reader.readAsDataURL(file);
     });
+
+    e.target.value = '';
   };
 
   // Handlers
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthorized) {
-      toast.error('Permission denied: Authorized admin role required.');
+      toast.error('Permission denied: Only Super Admin, Admin, Principal, and Vice Principal can manage gallery photos.');
       return;
     }
     if (!currentItem.imageUrl || !currentItem.title) {
-      toast.error('Please provide image URL/file and title.');
+      toast.error('Please provide image file/URL and title.');
       return;
     }
 
+    const uploader = getUploaderInfo();
+
     if (currentItem.id) {
-      galleryService.updateItem(currentItem.id, currentItem);
+      galleryService.updateItem(currentItem.id, {
+        ...currentItem,
+        uploader,
+      });
     } else {
       galleryService.addMultiple(
-        [currentItem],
-        user?.fullName || getUserDisplayDesignation(user)
+        [{ ...currentItem, uploader }],
+        uploader
       );
     }
     setIsEditModalOpen(false);
-    setCurrentItem({});
+    setCurrentItem({ title: '', description: '', category: 'Hospital & OPD', imageUrl: '', status: 'PUBLISHED' });
     loadData();
   };
 
   const handleBatchSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthorized) {
-      toast.error('Permission denied.');
-      return;
-    }
-    const valid = batchUploadItems.filter((i) => i.imageUrl.trim() && i.title.trim());
-    if (valid.length === 0) {
-      toast.error('Please complete at least one valid image with title and image.');
+      toast.error('Permission denied: Only Super Admin, Admin, Principal, and Vice Principal can upload gallery photos.');
       return;
     }
 
-    galleryService.addMultiple(valid, user?.fullName || getUserDisplayDesignation(user));
+    const valid = batchUploadItems.filter((i) => i.imageUrl.trim() && i.title.trim());
+    if (valid.length === 0) {
+      toast.error('Please complete at least one photo with a title and valid image file/URL.');
+      return;
+    }
+
+    const uploader = getUploaderInfo();
+    const itemsToSave = valid.map((i) => ({
+      ...i,
+      uploader,
+      status: 'PUBLISHED' as const,
+    }));
+
+    galleryService.addMultiple(itemsToSave, uploader);
     setIsUploadModalOpen(false);
     setBatchUploadItems([{ title: '', description: '', category: 'Hospital & OPD', imageUrl: '' }]);
     loadData();
@@ -545,12 +630,27 @@ export const GalleryManagementPanel: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full my-8 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-              <h3 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <Upload className="w-5 h-5 text-emerald-600" /> Upload Campus Gallery Photos
-              </h3>
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-emerald-600" /> Upload Campus Gallery Photos
+                </h3>
+                <p className="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Authorized Role: Super Admin, Admin, Principal & Vice Principal (Max 10MB per image)
+                </p>
+              </div>
               <button onClick={() => setIsUploadModalOpen(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center justify-between">
+              <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                Select one or multiple photos from your device:
+              </span>
+              <label className="px-3.5 py-1.5 bg-[#00A651] hover:bg-emerald-600 text-white text-xs font-extrabold rounded-xl cursor-pointer transition shadow-xs flex items-center gap-1.5">
+                <Upload className="w-4 h-4" /> Select Image File(s)
+                <input type="file" accept="image/*" multiple onChange={(e) => handleFileUpload(e)} className="hidden" />
+              </label>
             </div>
 
             <form onSubmit={handleBatchSave} className="space-y-4">

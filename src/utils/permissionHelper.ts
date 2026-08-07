@@ -48,18 +48,17 @@ export const FACULTY_ROLE_CODES = [
 export const isSuperAdmin = (user: any): boolean => {
   if (!user) return false;
   const roles = coreGetUserRoleCodes(user);
-  return roles.includes('ROLE_SUPER_ADMIN') || roles.includes('ROLE_SUPERADMIN') || roles.includes('SUPER_ADMIN');
-};
-
-export const isPrincipal = (user: any): boolean => {
-  if (!user) return false;
-  const roles = coreGetUserRoleCodes(user);
   const identifier = (user.email || user.username || '').toLowerCase();
   const des = (user.designation || '').toLowerCase();
+  const userType = (user.userType || user.role || user.userRole || '').toLowerCase();
   return (
-    roles.includes('ROLE_PRINCIPAL') ||
-    (des.includes('principal') && !des.includes('vice')) ||
-    (identifier.includes('principal') && !identifier.includes('vice'))
+    roles.includes('ROLE_SUPER_ADMIN') ||
+    roles.includes('ROLE_SUPERADMIN') ||
+    roles.includes('SUPER_ADMIN') ||
+    roles.includes('SUPERADMIN') ||
+    userType.includes('superadmin') ||
+    des.includes('super admin') ||
+    identifier.includes('superadmin')
   );
 };
 
@@ -68,17 +67,54 @@ export const isVicePrincipal = (user: any): boolean => {
   const roles = coreGetUserRoleCodes(user);
   const identifier = (user.email || user.username || '').toLowerCase();
   const des = (user.designation || '').toLowerCase();
+  const userType = (user.userType || user.role || user.userRole || '').toLowerCase();
   return (
     roles.includes('ROLE_VICE_PRINCIPAL') ||
+    roles.includes('VICE_PRINCIPAL') ||
+    roles.includes('ROLE_VICEPRINCIPAL') ||
+    userType.includes('vice') ||
     des.includes('vice principal') ||
+    des.includes('vice-principal') ||
     identifier.includes('vice')
+  );
+};
+
+export const isPrincipal = (user: any): boolean => {
+  if (!user) return false;
+  if (isSuperAdmin(user)) return true;
+  if (isVicePrincipal(user)) return false; // Vice Principal is distinct
+  const roles = coreGetUserRoleCodes(user);
+  const identifier = (user.email || user.username || '').toLowerCase();
+  const des = (user.designation || '').toLowerCase();
+  const userType = (user.userType || user.role || user.userRole || '').toLowerCase();
+  return (
+    roles.includes('ROLE_PRINCIPAL') ||
+    roles.includes('PRINCIPAL') ||
+    userType.includes('principal') ||
+    des.includes('principal') ||
+    identifier.includes('principal')
   );
 };
 
 export const isAdmin = (user: any): boolean => {
   if (!user) return false;
+  if (isSuperAdmin(user)) return true;
   const roles = coreGetUserRoleCodes(user);
-  return roles.includes('ROLE_ADMIN') || roles.includes('ADMIN');
+  const identifier = (user.email || user.username || '').toLowerCase();
+  const des = (user.designation || '').toLowerCase();
+  const userType = (user.userType || user.role || user.userRole || '').toLowerCase();
+  return (
+    roles.includes('ROLE_ADMIN') ||
+    roles.includes('ADMIN') ||
+    userType.includes('admin') ||
+    des.includes('admin') ||
+    identifier.includes('admin')
+  );
+};
+
+export const canManageGallery = (user: any): boolean => {
+  if (!user) return false;
+  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
 };
 
 export const isHOD = (user: any): boolean => {

@@ -334,9 +334,187 @@ app.delete('/api/v1/notices/:id', (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'Notice deleted successfully' });
 });
 
+// Gallery Store & API Endpoints
+const mockGalleryStore: any[] = [
+  {
+    id: 'g1',
+    title: '50-Bed Attached Teaching Hospital & OPD Building',
+    category: 'Hospital & OPD',
+    imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
+    description: 'Front facade of the hospital housing daily outpatient departments, casualty, and inpatient wards.',
+    uploadDate: '2026-07-01 10:00:00',
+    uploader: 'Dr. Susmita Chatterjee (Principal)',
+    status: 'PUBLISHED',
+    displayOrder: 1,
+  },
+  {
+    id: 'g2',
+    title: 'Homoeopathic Pharmacy & HPLC Drug Standardization Lab',
+    category: 'Labs & Classrooms',
+    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
+    description: 'Students performing potentization and vehicle testing under senior pharmacy professors.',
+    uploadDate: '2026-07-02 11:30:00',
+    uploader: 'Dr. R. N. Mukherjee (Vice Principal)',
+    status: 'PUBLISHED',
+    displayOrder: 2,
+  },
+  {
+    id: 'g3',
+    title: 'Annual Hahnemannian Oath Ceremony & Induction 2026',
+    category: 'Events & Seminars',
+    imageUrl: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&q=80&w=800',
+    description: 'Fresh BHMS 2026 scholars taking the Hahnemannian Oath at the 250-seater air-conditioned auditorium.',
+    uploadDate: '2026-07-05 09:15:00',
+    uploader: 'System Administrator (Admin)',
+    status: 'PUBLISHED',
+    displayOrder: 3,
+  },
+  {
+    id: 'g4',
+    title: 'Botanical Herbal Garden & Medicinal Flora Reserve',
+    category: 'Herbal Garden',
+    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=800',
+    description: '250+ species of medicinal herbs preserved for practical drug identification and pharmacognosy study.',
+    uploadDate: '2026-07-10 14:00:00',
+    uploader: 'Dr. Susmita Chatterjee (Principal)',
+    status: 'PUBLISHED',
+    displayOrder: 4,
+  },
+];
+
+const handleGetGallery = (req: Request, res: Response) => {
+  const { category, search, status } = req.query;
+  let list = [...mockGalleryStore];
+
+  if (category && category !== 'All' && category !== 'ALL') {
+    list = list.filter((i) => i.category === category);
+  }
+  if (status && status !== 'ALL') {
+    list = list.filter((i) => i.status === status);
+  }
+  if (search) {
+    const q = String(search).toLowerCase();
+    list = list.filter(
+      (i) =>
+        i.title.toLowerCase().includes(q) ||
+        i.description.toLowerCase().includes(q) ||
+        i.category.toLowerCase().includes(q) ||
+        i.uploader.toLowerCase().includes(q)
+    );
+  }
+
+  res.status(200).json({
+    success: true,
+    data: list,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+app.get('/api/v1/gallery', handleGetGallery);
+app.get('/api/gallery', handleGetGallery);
+
+app.post('/api/v1/gallery/upload', (req: Request, res: Response) => {
+  const { fileData, fileName, mimeType, fileSize } = req.body;
+  if (fileSize && fileSize > 10 * 1024 * 1024) {
+    return res.status(400).json({ success: false, message: 'File size exceeds maximum 10MB limit.' });
+  }
+  if (mimeType && !mimeType.startsWith('image/')) {
+    return res.status(400).json({ success: false, message: 'Invalid file format. Only JPEG, PNG, WEBP, GIF, and SVG images are allowed.' });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      url: fileData || 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
+      fileName: fileName || 'uploaded_image.jpg',
+      fileSize: fileSize || 1024000,
+    },
+    message: 'File upload processed successfully',
+  });
+});
+
+app.post('/api/v1/gallery', (req: Request, res: Response) => {
+  const { items, title, imageUrl, category, description, uploader } = req.body;
+  const newItemsToAdd = Array.isArray(items) ? items : [{ title, imageUrl, category, description, uploader }];
+  const addedList: any[] = [];
+
+  newItemsToAdd.forEach((item: any, idx: number) => {
+    if (!item.imageUrl || !item.title) return;
+    const newItem = {
+      id: `g-${Date.now()}-${idx}`,
+      title: item.title,
+      description: item.description || 'Campus gallery photograph.',
+      category: item.category || 'Hospital & OPD',
+      imageUrl: item.imageUrl,
+      uploadDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      uploader: item.uploader || uploader || 'Authorized Admin',
+      status: item.status || 'PUBLISHED',
+      displayOrder: mockGalleryStore.length + 1,
+    };
+    mockGalleryStore.unshift(newItem);
+    addedList.push(newItem);
+  });
+
+  res.status(201).json({
+    success: true,
+    data: addedList,
+    message: `${addedList.length} image(s) published successfully.`,
+  });
+});
+
+app.put('/api/v1/gallery/:id', (req: Request, res: Response) => {
+  const index = mockGalleryStore.findIndex((i) => i.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Gallery item not found' });
+  }
+  mockGalleryStore[index] = { ...mockGalleryStore[index], ...req.body };
+  res.status(200).json({ success: true, data: mockGalleryStore[index], message: 'Gallery item updated successfully' });
+});
+
+app.delete('/api/v1/gallery/:id', (req: Request, res: Response) => {
+  const index = mockGalleryStore.findIndex((i) => i.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Gallery item not found' });
+  }
+  mockGalleryStore.splice(index, 1);
+  res.status(200).json({ success: true, message: 'Gallery item deleted successfully' });
+});
+
+app.post('/api/v1/gallery/bulk-delete', (req: Request, res: Response) => {
+  const { ids } = req.body;
+  if (Array.isArray(ids)) {
+    for (let i = mockGalleryStore.length - 1; i >= 0; i--) {
+      if (ids.includes(mockGalleryStore[i].id)) {
+        mockGalleryStore.splice(i, 1);
+      }
+    }
+  }
+  res.status(200).json({ success: true, message: 'Selected images deleted successfully' });
+});
+
+app.post('/api/v1/gallery/bulk-category', (req: Request, res: Response) => {
+  const { ids, category } = req.body;
+  if (Array.isArray(ids) && category) {
+    mockGalleryStore.forEach((item) => {
+      if (ids.includes(item.id)) item.category = category;
+    });
+  }
+  res.status(200).json({ success: true, message: 'Category updated for selected images' });
+});
+
+app.post('/api/v1/gallery/bulk-status', (req: Request, res: Response) => {
+  const { ids, status } = req.body;
+  if (Array.isArray(ids) && status) {
+    mockGalleryStore.forEach((item) => {
+      if (ids.includes(item.id)) item.status = status;
+    });
+  }
+  res.status(200).json({ success: true, message: 'Status updated for selected images' });
+});
+
 // API Routes Placeholder / Proxy Handler
 app.use('/api/v1', (req: Request, res: Response, next: NextFunction) => {
-  if (req.path === '/health' || req.path === '/actuator/health' || req.path.startsWith('/opd') || req.path.startsWith('/notices')) return next();
+  if (req.path === '/health' || req.path === '/actuator/health' || req.path.startsWith('/opd') || req.path.startsWith('/notices') || req.path.startsWith('/gallery')) return next();
   res.status(200).json({
     message: 'BHMCH API Service operational',
     path: req.path,

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Phone, Mail, Award, Search, Building2, Globe, Shield, GraduationCap, Users, Stethoscope, ChevronDown, HeartPulse, UserPlus, FileText } from 'lucide-react';
 import { APP_CONSTANTS } from '../../constants/app.constants';
+import { institutionSettingsService, InstitutionSettings } from '../../services/institutionSettingsService';
 import { ThemeToggle } from './ThemeToggle';
 import { Notifications } from './Notifications';
 import { ProfileMenu } from './ProfileMenu';
@@ -10,6 +11,15 @@ export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<'academics' | 'hospital' | 'logins' | null>(null);
   const [lang, setLang] = useState<'EN' | 'BN' | 'HI'>('EN');
+  const [settings, setSettings] = useState<InstitutionSettings>(() => institutionSettingsService.getSettings());
+
+  useEffect(() => {
+    const handleSettingsUpdate = () => {
+      setSettings(institutionSettingsService.getSettings());
+    };
+    window.addEventListener('bhmch_institution_settings_updated', handleSettingsUpdate);
+    return () => window.removeEventListener('bhmch_institution_settings_updated', handleSettingsUpdate);
+  }, []);
 
   const navItems = [
     { label: 'Home', href: '/' },
@@ -34,10 +44,10 @@ export const Header: React.FC = () => {
       {/* Top Bar Info Banner */}
       <div className="bg-[#002147] px-4 py-1 text-slate-200 text-[11px] font-medium hidden lg:flex items-center justify-between border-b border-white/10">
         <div className="flex items-center space-x-5">
-          <span className="flex items-center gap-1"><Phone className="h-3 w-3 text-emerald-400" /> Helpline: {APP_CONSTANTS.CONTACT_PHONE}</span>
-          <span className="flex items-center gap-1 text-rose-300 font-bold"><HeartPulse className="h-3 w-3 text-rose-400" /> Hospital Emergency: +91 98321 45678</span>
-          <span className="flex items-center gap-1"><Mail className="h-3 w-3 text-blue-300" /> {APP_CONSTANTS.CONTACT_EMAIL}</span>
-          <span className="flex items-center gap-1 text-amber-300"><Award className="h-3 w-3" /> ESTD {APP_CONSTANTS.ESTD_YEAR}</span>
+          <span className="flex items-center gap-1"><Phone className="h-3 w-3 text-emerald-400" /> College: {settings.collegePhone}</span>
+          <span className="flex items-center gap-1 text-rose-300 font-bold"><HeartPulse className="h-3 w-3 text-rose-400" /> Hospital Phone: {settings.hospitalPhone}</span>
+          <span className="flex items-center gap-1"><Mail className="h-3 w-3 text-blue-300" /> {settings.collegeEmail}</span>
+          <span className="flex items-center gap-1 text-amber-300"><Award className="h-3 w-3" /> ESTD {settings.establishedYear}</span>
         </div>
 
         <div className="flex items-center space-x-4">
