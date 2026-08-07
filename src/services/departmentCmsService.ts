@@ -13,76 +13,84 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
       badge: 'NCH Recognized Core Faculty',
       bgImageUrl: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=1200'
     },
-    description: 'The Department of Organon of Medicine & Homoeopathic Philosophy at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL imparts rigorous, classical training in the philosophy of Dr. Samuel Hahnemann (§1-§294), holistic disease evaluation, miasmatic analysis, and psychological understanding integral to clinical case handling.',
-    hod: 'Prof. (Dr.) A. K. Roy, M.D. (Hom.)',
+    description: 'This department deals with the teaching and learning of the subject heartedly more seriously and sincerely to practice the Hahnemannian Homoeopathy. The subject Organon of Medicine is also integrated with all the allied subjects. The teachers of department of Organon of Medicine explain theoretical knowledge of Fundamental principles of homoeopathy and demonstrate those magnificently in clinical practices, so that students can easily understand and co-relate with other clinical subjects. Our main motto is to reap the seeds of holistic approach to Homoeopathy in student\'s nation of learning. On the other hand, the subject Psychology is included with the subject of Organon of Medicine. Study of Psychology is an essential subject for understanding Homoeopathy and Homoeopathic Philosophy.',
+    hod: 'Dr. Swapan Kundu, D.H.M.S., B.H.M.S., M.D. (Organon)',
     yearsCovered: 'BHMS 1st Year to 4th Year',
     methodology: [
-      'Classroom teaching & structured aphorism breakdown (§1 to §294)',
-      'Hahnemannian philosophy & miasmatic disease theory seminars',
-      'Psychology integration in medical case evaluation and mental rubrics',
-      'PowerPoint presentations (PPT) & audiovisual smart classroom modules',
-      'Educational charts & structural flow diagrams for logic analysis',
-      'Clinical demonstrations in OPD/IPD settings & bedside rounds',
-      'Periodic assessments, viva voce, quizzes & remedial coaching'
+      'Lectures in the form of classroom teaching and inpatient and outpatient department exposure',
+      'Classroom teaching includes blackboard writing, power-point presentation and clinical demonstration',
+      'Academic performance of each and every student is closely monitored by conducting periodical assessments with maintenance of all records',
+      'Extra attention for below average students by way of individual counseling and remedial classes',
+      'Assessment examinations are taken as per the norms of The West Bengal University of Health Sciences'
     ],
     practical: [
-      'Direct OPD/IPD clinical exposure & bedside patient rounds',
-      'Detailed individual case taking & patient interview techniques',
-      'Analysis of fundamental Hahnemannian philosophy in active cases',
-      'Miasmatic diagnosis & symptom classification (Psoric, Sycotic, Syphilitic, Tubercular)',
-      'Application of posology, potency selection & repetition principles (§245-§285)',
-      'Long-term case follow-up & curative outcome evaluation'
+      'Demonstrate qualities, duties and roles of the physician in both indoor and outdoor patients',
+      'Interpret a case according to the Hahnemannian classification of diseases',
+      'Demonstrate case taking, case analysis and evaluation of case to form totality of symptoms of the patient',
+      'Interpretation of miasms in the background of the case of the disease',
+      'Maintenance of practical exercise or clinical notebooks'
     ],
     teachingAids: [
-      'Interactive smart classroom display panels',
-      'Educational philosophy flowcharts & aphorism breakdown diagrams',
-      'Audiovisual case presentation archives',
-      'Rare German translation archives & historical homoeopathic literature',
-      'Clinical case study worksheets & evaluation protocols'
+      'Books & Reference Literature',
+      'Study materials & Lecture Handouts',
+      'Charts & Flow diagrams',
+      'Pioneer\'s pictures & Historical portraits',
+      'Seminars & Group discussions',
+      'Case presentations & Clinical cases',
+      'Tutorials & Interactive sessions',
+      'Computer & CDs'
     ],
     facultyList: [
       {
         id: 'f-org-1',
-        name: 'Prof. (Dr.) A. K. Roy',
-        designation: 'Professor & Head of Department (HOD)',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Organon & Hahnemannian Philosophy',
-        email: 'akroy.org@bwnhmch.com',
-        phone: '+91 94343 11101'
+        name: 'Dr. Swapan Kundu',
+        designation: 'Professor & H.O.D.',
+        qualification: 'D.H.M.S.; B.H.M.S., PG Dip. Counseling Psychology (C.U.), M.D. (Organon of Medicine) DR B.R.A.U.',
+        specialization: 'Organon of Medicine & Counseling Psychology',
+        email: 'kunduswapan46@gmail.com',
+        phone: '+91 9836166528',
+        registrationNumber: '23330 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2010-07-02'
       },
       {
         id: 'f-org-2',
-        name: 'Dr. S. K. Mukherjee',
-        designation: 'Associate Professor',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Miasmatic Analysis & Chronic Diseases',
-        email: 'skmukherjee@bwnhmch.com',
-        phone: '+91 94343 11102'
+        name: 'Dr. Dhananjaya Chatterjee',
+        designation: 'Professor',
+        qualification: 'DHMS; Dip NIH; MD (Organon of Medicine)',
+        specialization: 'Organon of Medicine & Classical Philosophy',
+        email: 'dr.d.chatt@gmail.com',
+        phone: '+91 9433402533',
+        registrationNumber: '17496 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2026-02-18'
       },
       {
         id: 'f-org-3',
-        name: 'Dr. R. N. Dutta',
+        name: 'Dr. Suhisna Das',
         designation: 'Assistant Professor',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Psychology in Homoeopathic Practice',
-        email: 'rndutta@bwnhmch.com',
-        phone: '+91 94343 11103'
+        qualification: 'B.H.M.S. (W.B.U.H.S.); M.D. (Organon of Medicine)',
+        specialization: 'Organon & Homoeopathic Philosophy',
+        email: 'suhisna.das@gmail.com',
+        phone: '+91 8670602660',
+        registrationNumber: '32177 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2024-05-15'
       },
       {
         id: 'f-org-4',
-        name: 'Dr. P. B. Maiti',
-        designation: 'Lecturer / Clinical Tutor',
-        qualification: 'B.H.M.S., M.D. (Hom.)',
-        specialization: 'Clinical Organon & Case Taking',
-        email: 'pbmaiti@bwnhmch.com',
-        phone: '+91 94343 11104'
+        name: 'Susmita Dey',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S.; M.D. (Organon of Medicine)',
+        specialization: 'Organon of Medicine',
+        email: 'susmitadey712@gmail.com',
+        phone: '+91 7602798561',
+        registrationNumber: '33511 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2026-05-07'
       }
     ],
     gallery: [
       {
         id: 'g-org-1',
         url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
-        caption: 'Organon Philosophy Seminar Room & Interactive Lecture Session',
+        caption: 'Organon Philosophy Class & Lecture Hall',
         category: 'Classroom'
       },
       {
@@ -90,155 +98,863 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
         url: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800',
         caption: 'Bedside Clinical Demonstration in Hospital Ward',
         category: 'Clinical'
-      },
-      {
-        id: 'g-org-3',
-        url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800',
-        caption: 'Rare Historical Books Archive & German Translation Reference Desk',
-        category: 'Library'
       }
-    ],
-    research: [
-      'Miasmatic Analysis of Chronic Autoimmune Disorders in Rural Bengal Population',
-      'Posology Protocols in High Potency Prescribing for Psychiatric Conditions',
-      'Psychological Profiling and Mental Symptom Evaluation in Homoeopathic Therapeutics',
-      'Comparative Efficacy of LM Potencies vs Centesimal Potencies in Chronic Cases'
-    ],
-    achievements: [
-      'Awarded Best Academic Department in Hahnemannian Studies by WBUHS (2025)',
-      'Published 14 peer-reviewed research papers in national and international AYUSH journals',
-      'Hosted National Seminar on Miasms & Chronic Diseases with over 400 delegates'
-    ],
-    downloads: [
-      '/documents/bhmch_organon_syllabus.pdf',
-      '/documents/bhmch_organon_miasmatic_worksheet.pdf',
-      '/documents/bhmch_organon_aphorisms_summary.pdf'
-    ].map((fileUrl, idx) => {
-      const titles = [
-        'BHMS Organon of Medicine Syllabus & Curriculum Breakdown (NCH 2026)',
-        'Miasmatic Symptom Evaluation Worksheet & Case Logbook Template',
-        'Organon Aphorism Quick Reference Guide (§1 - §294 Summary)'
-      ];
-      return {
-        id: `d-org-${idx + 1}`,
-        title: titles[idx],
-        url: fileUrl,
-        fileType: 'PDF Document',
-        fileSize: '1.8 MB',
-        uploadDate: '2026-01-15'
-      };
-    }),
-    laboratories: ['Organon Philosophy Seminar Room', 'Computerized Logic & Case Analysis Lab'],
-    facilities: ['Audio-Visual Smart Classroom', 'Historical Rare Books Archive', 'Miasmatic Case Repository']
+    ]
   },
   {
-    id: 'mm',
-    code: 'DEPT-MM',
-    name: 'Homoeopathic Materia Medica',
+    id: 'ana',
+    code: 'DEPT-ANA',
+    name: 'Anatomy & Histology',
     banner: {
-      title: 'Department of Homoeopathic Materia Medica',
-      subtitle: 'Comprehensive study of drug proving, pathogenetic action, and remedy pictures spanning BHMS 1st to 4th year.',
-      badge: 'Core Clinical Department',
-      bgImageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=1200'
+      title: 'Department of Anatomy & Histology',
+      subtitle: 'Comprehensive study of human structure, cadaveric dissection, histology, and radiological anatomy.',
+      badge: 'Spacious Dissection Hall & Museum',
+      bgImageUrl: 'https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=1200'
     },
-    description: 'The Department of Homoeopathic Materia Medica provides in-depth education across BHMS 1st, 2nd, 3rd, and 4th years. It focuses on the origin, proving, sphere of action, pathogenetic effects, modality dynamics, and comprehensive clinical drug pictures of homoeopathic remedies.',
-    hod: 'Prof. (Dr.) S. N. Bhattacharya, M.D. (Hom.)',
-    yearsCovered: 'BHMS 1st Year to 4th Year',
+    description: 'A very spacious & well equipped Anatomy museum has been established with an aim to make students perfect in understanding the subject of Anatomy. Various specimens of different organs & models are present in the department besides charts, bones and skeletons, histological slides, audio/video C.D. that the faculty members avail to impart qualitative theoretical & practical teaching. Spacious Dissection Hall possess cadavers, maceration chamber, etc. There is a Demonstration room fitted with audio-visual aids. X-Ray studies are done with the help of x-Ray viewing Box. Duration of Anatomy in the curriculum of BHMS is in the first 1 ½ years. Studies comprised of complete study of human Anatomy with the help of dissection of dead bodies. University Examination at the end of one and half years and every six months average/semester examination are conducted. "Rational Knowledge of Anatomy is essential to practice Homoeopathy. - J.T. Kent"',
+    hod: 'Dr. Prasenjit Biswas, B.H.M.S., M.D. (Hom)',
+    yearsCovered: '1st BHMS (1 Year & 6 Months)',
     methodology: [
-      'Drug picture methodology & remedy profiling across all system systems',
-      'Systematic teaching from BHMS 1st to 4th year covering over 200 remedies',
-      'Comparative Materia Medica studies and remedy differentiation',
-      'Clinical demonstrations in hospital OPD and IPD wards',
-      'Guest lectures by eminent homoeopaths and national experts',
-      'Interactive workshops, journal clubs & scientific symposia',
-      'Practical classes & herbarium specimen study sessions'
+      'Special efforts are taken to make the student aware of each and every nuance of the human body',
+      'The lectures are in the form of diagrammatic presentations and also demonstrations',
+      'When teaching a specific topic special attention is given to the clinical importance so as to prepare a solid foundation for clinical subjects',
+      'Academic performance of each and every student is closely monitored by conducting periodical tests, records are duly maintained',
+      'Extra attention for below average students by way of individual counseling and extra coaching classes',
+      'Assessment examinations are taken as per the norms of W.B. University of Health Sciences'
     ],
     practical: [
-      'Practical classes & plant, mineral, animal specimen identification',
-      'Bedside clinical demonstrations in OPD/IPD with live prescription verification',
-      'Symptom synthesis & remedy differentiation exercises',
-      'Drug proving observation & recording methodologies',
-      'Clinical verification of rare remedies in inpatient care'
+      'Complete systematic dissection of human cadaver',
+      'CD Demonstration of various anatomical structures',
+      'Demonstration of human bones & visceral organs',
+      'Demonstration of various artificial models of anatomical structures',
+      'Demonstration of the modeled visceral parts extracted during dissection',
+      'Demonstration of X-Ray films for the basic knowledge of Radiology'
     ],
     teachingAids: [
-      'Anatomical & pharmaceutical specimen models',
-      'Educational drug charts & comparison tables',
-      'Authentic plant, mineral & animal specimens display',
-      'Drug museum artifacts & botanical herbarium sheets',
-      'Multimedia presentations & video lecture archives'
+      'Computer & Audio-visual CDs',
+      'Charts display & Diagrammatic boards',
+      'Models & Viscera specimen jars',
+      'Transparencies & Histological Slides',
+      'X-Rays & X-Ray Viewing Boxes',
+      'Bones sets & Skeletons',
+      'Cadaver mummified & Maceration chamber',
+      'Seminars, Workshops & Guest Lectures'
     ],
     facultyList: [
       {
-        id: 'f-mm-1',
-        name: 'Prof. (Dr.) S. N. Bhattacharya',
-        designation: 'Professor & Head of Department (HOD)',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Clinical Materia Medica & Drug Proving',
-        email: 'snbhattacharya@bwnhmch.com',
-        phone: '+91 94343 22201'
+        id: 'f-ana-1',
+        name: 'Dr. Prasenjit Biswas',
+        designation: 'Associate Professor & Departmental In-charge',
+        qualification: 'B.H.M.S., M.D. (Hom)',
+        specialization: 'Human Anatomy & Dissection',
+        email: 'drprasenjit@gmail.com',
+        phone: '+91 7276574384',
+        registrationNumber: '30590 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2020-03-13'
       },
       {
-        id: 'f-mm-2',
-        name: 'Dr. M. K. Ghosh',
-        designation: 'Associate Professor',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Comparative Materia Medica',
-        email: 'mkghosh@bwnhmch.com',
-        phone: '+91 94343 22202'
-      },
-      {
-        id: 'f-mm-3',
-        name: 'Dr. P. S. Roy',
+        id: 'f-ana-2',
+        name: 'Dr. Nipa Sardar',
         designation: 'Assistant Professor',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Botanical & Mineral Drug Proving',
-        email: 'psroy@bwnhmch.com',
-        phone: '+91 94343 22203'
+        qualification: 'B.H.M.S.; M.D. (Materia Medica)',
+        specialization: 'Anatomy & Histology',
+        email: 'dr.nipasardar@gmail.com',
+        phone: '+91 9831222450',
+        registrationNumber: '32327 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2025-08-01'
+      },
+      {
+        id: 'f-ana-3',
+        name: 'Dr. Ayon Das',
+        designation: 'Assist. Professor',
+        qualification: 'B.H.M.S., M.D. (Hom)',
+        specialization: 'Human Anatomy',
+        email: 'ayondasnic@gmail.com',
+        phone: '+91 9735606804',
+        registrationNumber: '31180 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2022-01-06'
       }
     ],
     gallery: [
       {
-        id: 'g-mm-1',
-        url: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&q=80&w=800',
-        caption: 'Materia Medica Botanical Specimen Display Museum',
-        category: 'Museum'
-      },
-      {
-        id: 'g-mm-2',
-        url: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
-        caption: 'Herbarium Sheet Cataloging & Identification Lab',
+        id: 'g-ana-1',
+        url: 'https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=800',
+        caption: 'Anatomy Dissection Laboratory & Bone Sets',
         category: 'Laboratory'
       }
+    ]
+  },
+  {
+    id: 'phy',
+    code: 'DEPT-PHY',
+    name: 'Physiology including Biochemistry',
+    banner: {
+      title: 'Department of Physiology including Biochemistry',
+      subtitle: 'Understanding human physiological systems, hematology, metabolic pathways, and clinical biochemistry.',
+      badge: 'Well-Equipped Practical Physiology Lab',
+      bgImageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'In medical science, physiology is the study of how the human body works, looking at the physical and chemical processes that take place within cells, organs, and organ systems in a balance way or a stable internal environment. Physiology and Biochemistry plays an important role to form a strong foundation for the students of medical science. The department provides a very substantial and well equipped lab and demonstration room. Various reagents, model, instruments, charts; blood films are present in the department. The instruments provided are as per the instructions of NCH, according to the CBDC curriculum. Beside that the department also provides Audio visual CD, PPt files for qualitative theoretical and practical slides. Bedside demonstrations, clinical class and direct interaction with OPD and IPD patient, Bedside examination provide the 1st year BHMS student the clear vision about their knowledge. The entire faculty members are post graduate and well experienced.',
+    hod: 'Dr. Santosh Kumar, B.H.M.S., M.D. (Hom)',
+    yearsCovered: '1st BHMS (1 Year)',
+    methodology: [
+      'Special efforts are taken to make the students aware of each and every physiological function of the body',
+      'Special emphasize on the deviated condition of normal function of each system with practical explanation',
+      'Emphasize mostly on applied physiology to build-up the foundation of physiological basis of medical practice',
+      'Lectures are in the form of diagrammatic presentations and demonstrations',
+      'Academic performance monitored by conducting MCQ, Quiz, Periodical Test, Terminal Test and Class projects',
+      'Extra attention for below average students by extra coaching class and Remedial class',
+      'Inter departmental and inter class Seminars and group discussion held on time to time',
+      'Assessment examinations as per norms of W.B. University of Health Sciences'
     ],
-    research: [
-      'Indigenous Indian Plant Drug Standardization & Proving Verification',
-      'Comparative Materia Medica of Nosodes in Treatment of Resistant Skin Conditions',
-      'Clinical Verification of Carduus Marianus in Hepatic Disorders'
+    practical: [
+      'Demonstration of different types haematological tests',
+      'Demonstration of measurement of blood pressure dealing with OPD patients',
+      'Demonstration of ECG with proper leaded machines',
+      'Demonstration of various biochemical lab investigations',
+      'Bedside demonstration of Different systems like respiratory system, Digestive system, nerve system by proper equipment of IPD patients'
     ],
-    achievements: [
-      'Established State-of-the-Art Botanical Specimen Museum with 350+ rare samples',
-      'Published textbook: "Comprehensive Clinical Materia Medica for BHMS"'
+    teachingAids: [
+      'Computer & PPT Presentation Files',
+      'CDs & Audio-visual Aids',
+      'Charts & Anatomical Diagrams',
+      'Models & Physiological Systems',
+      'ECG Machine & Lead Attachments',
+      'Instruments & Hematological Sets',
+      'Reagents & Biochemical Testing Kits',
+      'Seminars, Workshops & Guest Lectures'
     ],
-    downloads: [
+    facultyList: [
       {
-        id: 'd-mm-1',
-        title: 'BHMS Materia Medica Course Curriculum & Drug List (1st-4th Year)',
-        url: '/documents/bhmch_materia_medica_syllabus.pdf',
-        fileType: 'PDF Document',
-        fileSize: '2.4 MB',
-        uploadDate: '2026-02-01'
+        id: 'f-phy-1',
+        name: 'Dr. Santosh Kumar',
+        designation: 'Associate Professor & Departmental In-charge',
+        qualification: 'B.H.M.S.; M.D. (Hom)',
+        specialization: 'Human Physiology & Clinical Biochemistry',
+        email: 'santoshkumarmdhom@gmail.com',
+        phone: '+91 8617270770',
+        registrationNumber: '29289 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2017-01-09'
       },
       {
-        id: 'd-mm-2',
-        title: 'Comparative Materia Medica Study Chart & Remedy Profiles',
-        url: '/documents/bhmch_materia_medica_study_chart.pdf',
-        fileType: 'PDF Document',
-        fileSize: '1.2 MB',
-        uploadDate: '2026-02-10'
+        id: 'f-phy-2',
+        name: 'Dr. Mansur Habibullah Gazi',
+        designation: 'Professor',
+        qualification: 'B.H.M.S. (C.U.); M.D. (Hom)',
+        specialization: 'Physiology & Metabolic Studies',
+        email: 'mansurhabibullahgazi@gmail.com',
+        phone: '+91 6290786992',
+        registrationNumber: '16113 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2023-06-05'
+      },
+      {
+        id: 'f-phy-3',
+        name: 'Dr. Kousttav Sarkar',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S.; M.D. (Materia Medica)',
+        specialization: 'Applied Physiology',
+        email: 'kousttavsarkar@gmail.com',
+        phone: '+91 8617000530',
+        registrationNumber: '32712 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2026-01-21'
       }
     ],
-    laboratories: ['Drug Proving Laboratory', 'Botanical & Mineral Specimen Display Museum'],
-    facilities: ['Herbal Garden Access', 'Interactive Drug Proving Database', 'Specimen Cataloging Center']
+    gallery: [
+      {
+        id: 'g-phy-1',
+        url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',
+        caption: 'Physiology & Biochemistry Testing Laboratory',
+        category: 'Laboratory'
+      }
+    ]
+  },
+  {
+    id: 'pha',
+    code: 'DEPT-PHA',
+    name: 'Homoeopathic Pharmacy',
+    banner: {
+      title: 'Department of Homoeopathic Pharmacy',
+      subtitle: 'Principles of pharmacognosy, pharmacodynamics, drug potentization, trituration, and GMP standardization.',
+      badge: 'HPLC & Pharmacognosy Standardization Lab',
+      bgImageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'A well equipped, spacious and generous Homoeopathic Pharmacy Laboratory has been set up with a goal to make it easy for students to understand this subject. The laboratory is designed to provide students with a comprehensive understanding of homoeopathic pharmacy principles, practices, and regulations. Duration of Pharmacy in the curriculum of BHMS is in the first 1 and a half years. Studies comprises of the importance of Homoeopathic Pharmacy with the help of preparation of different types of homoeopathic medicine and herbarium preparation. University examination at the end of 1 and a half years and every 3 months a periodical assessment i.e., PA1, PA2, PA3 & every 6 months a terminal test i.e., TT1 and TT2 is conducted as per NCH guidelines. "The true power of homoeopathic pharmacy lies not in the medicines, but in the understanding of the human being." — James Tyler Kent',
+    hod: 'Dr. Arindam Roy, B.H.M.S., M.D. (Hom)',
+    yearsCovered: '1st BHMS (1 Year & 6 Months)',
+    methodology: [
+      'Care and efforts are taken to assure that each student has gained a complete and overall knowledge of homoeopathic pharmacy',
+      'The lectures are in the form of presentations accompanying with study materials provided to the students',
+      'When teaching a specific topic special attention is given to the practical aspect of that topic and its correlation with Materia Medica, Organon, Anatomy, Physiology',
+      'Academic performance of every student is closely monitored and extra attention is given to below average students through various periodical tests',
+      'Arranging yearly educational tours to GMP certified Homoeopathic Manufactories'
+    ],
+    practical: [
+      'Hands-on training in homoeopathic medicinal product preparation, with dispensing and packaging practice',
+      'Demonstration of the various instruments essential in homoeopathic pharmacy',
+      'Demonstration by various charts and models',
+      'Herbarium sheet preparation and plant specimen collection',
+      'Clinical training at OPD and IPD classes'
+    ],
+    teachingAids: [
+      'Charts display & Drug sources boards',
+      'Models & Pharmacognosy specimens',
+      'Seminars & Workshops',
+      'Class group discussion & Flip classroom',
+      'Projects on various pharmacy topics',
+      'Arranging Guest Lecturers of the experts in Pharmacy'
+    ],
+    facultyList: [
+      {
+        id: 'f-pha-1',
+        name: 'Dr. Arindam Roy',
+        designation: 'Asst. Professor & Department Incharge',
+        qualification: 'B.H.M.S., M.D. (Hom)',
+        specialization: 'Homoeopathic Pharmacy & Posology',
+        email: 'arindomroydr@gmail.com',
+        phone: '+91 7384294141',
+        registrationNumber: '27249 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2020-11-01'
+      },
+      {
+        id: 'f-pha-2',
+        name: 'Dr. Soumalya Golder',
+        designation: 'Asst. Professor',
+        qualification: 'B.H.M.S.; M.D. (Pharmacy); Ph.D (Scholar); DIACH (Greece); P.G.Hom (London); MBA (HA); PGDC (1st Cl, C.U.)',
+        specialization: 'Homoeopathic Pharmacy, Quality Control & Pharmacognosy',
+        email: 'dr.soumalyagolder@gmail.com',
+        phone: '+91 9733408687',
+        registrationNumber: '30845 (CHMWB) / 6347 (CCH)',
+        joiningDate: '2021-05-11'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-pha-1',
+        url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
+        caption: 'Homoeopathic Pharmacy Laboratory & Potentization Apparatus',
+        category: 'Laboratory'
+      }
+    ]
+  },
+  {
+    id: 'pat',
+    code: 'DEPT-PAT',
+    name: 'Pathology, Microbiology & Parasitology',
+    banner: {
+      title: 'Department of Pathology, Microbiology, Parasitology & Histopathology',
+      subtitle: 'Clinical pathology, bacteriology, parasitology, histopathology slides, and diagnostic evaluation.',
+      badge: 'Advanced Histopathology & Micro-Lab',
+      bgImageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'Pathology is defined as the study of suffering. Pathology and Microbiology plays an important role to form a strong foundation for the students of medical science. The department provides a decently equipped lab and demonstration room. Various reagents, model, instruments, charts and histopathological slides are present in the department. The instruments provided are as per the instructions of NCH, according to the CBDC curriculum. Beside that the department also provides Audio visual CD, PPt files for qualitative theoretical and practical slides. Bedside demonstrations, clinical class and direct interaction with OPD and IPD patient, Bedside examination provide the 2nd year BHMS student the clear vision about their knowledge.',
+    hod: 'Dr. Santanu Mukherjee, D.H.M.S., B.H.M.S., M.D. (Psychiatry), Ph.D. (Pharmacy)',
+    yearsCovered: '2nd BHMS (1 Year)',
+    methodology: [
+      'Special efforts are taken to make the students aware of each and every pathological condition of the body',
+      'Special emphasize on the pathological condition and functioning of each system with practical explanation',
+      'Emphasize mostly on bacteriological and pathological basis of medical practice',
+      'The lectures are in the form of diagrammatic presentations, also demonstrations',
+      'When teaching a specific topic special attention is given to the clinical importance',
+      'Academic performance closely monitored by conducting MCQ, Quiz, Periodical Test, Terminal Test and Class projects',
+      'Extra attention for below average students by extra coaching class and Remedial class'
+    ],
+    practical: [
+      'Demonstration of different types histopathological slides',
+      'Demonstration of various pathological and bacteriological lab investigations',
+      'Bedside demonstration of Different systems like respiratory system, Digestive system, nerve system by proper equipment of patients',
+      'Demonstration of laboratory reports with relation to various clinical cases'
+    ],
+    teachingAids: [
+      'Computer & PPT files',
+      'Charts & Diagnostic diagrams',
+      'Models & Disease specimens',
+      'Instruments & Microscopes',
+      'Reagents & Staining materials',
+      'Seminars & Workshops'
+    ],
+    facultyList: [
+      {
+        id: 'f-pat-1',
+        name: 'Dr. Santanu Mukherjee',
+        designation: 'Professor',
+        qualification: 'D.H.M.S.; B.H.M.S., M.D. (Psychiatry); Ph.D. (Pharmacy)',
+        specialization: 'Pathology, Microbiology & Neuro-Psychiatry',
+        email: 'mukherjeesantanu10@gmail.com',
+        phone: '+91 7595884187',
+        registrationNumber: '23433 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2026-07-08'
+      },
+      {
+        id: 'f-pat-2',
+        name: 'Dr. Debasish Sarker',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S.; M.D. (M.M.)',
+        specialization: 'Pathology & Diagnostic Laboratory',
+        email: 'drdsarker3005@gmail.com',
+        phone: '+91 9163818256',
+        registrationNumber: '30216 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2023-07-27'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-pat-1',
+        url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',
+        caption: 'Pathology & Microbiology Microscope Laboratory',
+        category: 'Laboratory'
+      }
+    ]
+  },
+  {
+    id: 'fmt',
+    code: 'DEPT-FMT',
+    name: 'Forensic Medicine & Toxicology',
+    banner: {
+      title: 'Department of Forensic Medicine & Toxicology (FMT)',
+      subtitle: 'Medical jurisprudence, legal procedures, toxicology specimens, court duties, and post-mortem autopsy training.',
+      badge: 'Toxicology Specimen & Weapon Museum',
+      bgImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'The subject is about medical jurisprudence also termed as legal medicine. This branch of medical science deals with application of the principles, knowledge of medicine to the purpose of law both civil and criminal. It includes the study of Legal procedures, Medical ethics, Forensic medicine. The department has demonstrative materials like Weapons, bones, wet specimens, that are beautifully displayed over a wooden frame, Organic and Inorganic medico-legal specimens; Poisonous plants preserved in attractive containers for demonstration, Charts, diagrams, models, various legislations including H.C.C. Act, different types of oaths, Mental health Act etc. Students witness minimum 10 Post mortem autopsy cases at Burdwan Medical College.',
+    hod: 'Dr. Enamul Haque, B.H.M.S. (B.U.), M.D. (Hom)',
+    yearsCovered: '2nd BHMS (1 Year)',
+    methodology: [
+      'In theory classes, example and incidence from daily life, newspapers, television are used for easy comprehension',
+      'Practical consists of visit to Government Medical College (Burdwan Medical College) for attending post mortem as observers',
+      'A minimum of 10 autopsy cases are witnessed and recorded by each student and authenticated by Prof. of F.M.T. of Burdwan Medical College & Hospital',
+      'Study visit to forensic lab and finger print bureau conducted time to time',
+      'Internees are given 15 days training in the forensic Department',
+      'Ethical behaviour as self-imposed duty upon each Physician'
+    ],
+    practical: [
+      'Post mortem examination & autopsy procedures observation',
+      'Classification of injury & medico-legal aspects identification',
+      'Rape, natural and unnatural sexual offences medico-legal reporting',
+      'Toxicology: poisoning general symptoms & treatment (corrosive, metallic, organic, pesticides)',
+      'Court attendance & witness procedure simulation'
+    ],
+    teachingAids: [
+      'Collection of weapons (about 100+ including blunt, sharp, firearms)',
+      'Poisons: Organic & Inorganic poisons, mechanical, chemical, vegetable, animals, metals in glass jars',
+      'Models: Burns, finger prints, occupational hazards, injuries',
+      'Charts: Sex determination, homoeopathic forensic act 1974, mental health act',
+      'Transparencies for audiovisual demonstration'
+    ],
+    facultyList: [
+      {
+        id: 'f-fmt-1',
+        name: 'Dr. Enamul Haque',
+        designation: 'Professor & H.O.D.',
+        qualification: 'B.H.M.S. (B.U.), M.D. (Hom) DR B.R.A.U.',
+        specialization: 'Forensic Medicine & Medical Jurisprudence',
+        email: 'drenamul786@gmail.com',
+        phone: '+91 9432817751',
+        registrationNumber: '27191 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2015-02-01'
+      },
+      {
+        id: 'f-fmt-2',
+        name: 'Dr. Abdul Gaffar',
+        designation: 'Assist. Professor',
+        qualification: 'B.H.M.S.; M.D. (Hom)',
+        specialization: 'Toxicology & Medico-Legal Reporting',
+        email: 'agaffar572@gmail.com',
+        phone: '+91 9734574949',
+        registrationNumber: '30673 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2021-08-05'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-fmt-1',
+        url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800',
+        caption: 'Forensic Medicine & Toxicology Specimen Museum',
+        category: 'Museum'
+      }
+    ]
+  },
+  {
+    id: 'gyn',
+    code: 'DEPT-GYN',
+    name: 'Obstetrics, Gynecology & Neonatology',
+    banner: {
+      title: 'Department of Obstetrics, Gynecology & Neonatology',
+      subtitle: 'Antenatal care, maternal-child health, labor room clinical protocols, and homoeopathic therapeutics.',
+      badge: 'Equipped Labor Room & Antenatal OPD',
+      bgImageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'The department deals with the study of Obstetrics which is a branch of medicine that specializes in the care of woman during pregnancy, childbirth, and the postpartum period; And Gynaecology is a branch of medicine that focuses on the health of the female reproductive system. Lectures are conducted with the aim of making each & every student well versed with the subject. Female pelvic bone, fetal skull bone, dummies, surgical instruments, contraceptives etc. are used to explain the topics with live demonstration. Department is well organized with charts, models & specimen. Obstetrics & Gynaecology is taught in the curriculum of B.H.M.S. in the second & third year.',
+    hod: 'Prof. (Dr.) Pronab Bhattacherjee, D.M.S., Dip N.I.H. (Vice Principal)',
+    yearsCovered: 'BHMS 2nd Year & 3rd Year',
+    methodology: [
+      'The lectures are in the form of classroom teaching and in patient & out patient department exposure',
+      'Classroom teaching includes diagrammatic presentations and demonstrations',
+      'Academic performance of each and every student is closely monitored by conducting periodical tests',
+      'Extra attention for below average students by way of individual counseling and extra coaching classes',
+      'Assessment examinations are taken as per the norms of W.B. University of Health Sciences'
+    ],
+    practical: [
+      'Obstetrics & Gynaecological case taking of both indoor & outdoor patients',
+      'Demonstration of general & systemic examination of the patients',
+      'Demonstration of Gynaecological examination',
+      'Antenatal care checkups in case pregnant female'
+    ],
+    teachingAids: [
+      'Computer & CDs',
+      'Charts & Diagrams',
+      'Models & Specimen jars',
+      'Dummies & Pelvic models',
+      'Bones (Female pelvic bone, Fetal skull bone)',
+      'Slides & Surgical instruments',
+      'Contraceptives & Family planning devices',
+      'Books, Seminars & Workshops',
+      'Guest lectures of experts in Obstetrics & Gynaecology'
+    ],
+    facultyList: [
+      {
+        id: 'f-gyn-1',
+        name: 'Prof. (Dr.) Pronab Bhattacherjee',
+        designation: 'Professor & H.O.D., Vice Principal',
+        qualification: 'D.M.S., Dip N.I.H.',
+        specialization: 'Obstetrics, Gynecology & Clinical Academics',
+        email: 'drpronabb@gmail.com',
+        phone: '+91 9932783143 / +91 7001539036',
+        registrationNumber: '11307 (Council of Homoeopathic Medicine West Bengal)',
+        joiningDate: '1998-11-02'
+      },
+      {
+        id: 'f-gyn-2',
+        name: 'Dr. Debasish Chakraborty',
+        designation: 'Professor',
+        qualification: 'B.H.M.S. (C.U.), M.D. (Hom.) WBUHS',
+        specialization: 'Gynecology & Homoeopathic Therapeutics',
+        email: 'drdebasish78@gmail.com',
+        phone: '+91 9433311889',
+        registrationNumber: '25937 (Council of Homoeopathic Medicine West Bengal)',
+        joiningDate: '2011-09-14'
+      },
+      {
+        id: 'f-gyn-3',
+        name: 'Dr. Sharmistha Nandi',
+        designation: 'Associate Professor',
+        qualification: 'B.H.M.S. (MUHS), M.D. (Hom.)',
+        specialization: 'Obstetrics & Neonatology',
+        email: 'sharmishthan93@gmail.com',
+        phone: '+91 8329668180',
+        registrationNumber: '33886 (Council of Homoeopathic Medicine. W.B.)',
+        joiningDate: '2020-03-11'
+      },
+      {
+        id: 'f-gyn-4',
+        name: 'Dr. Tapan Kumar Bandyopadhyay',
+        designation: 'Guest Professor',
+        qualification: 'M.B.B.S., M.D. (Gyn & Obs.)',
+        specialization: 'Obstetrics & Surgical Gynaecology',
+        email: 'dr.tapan57@gmail.com',
+        phone: '+91 9647960457',
+        registrationNumber: '46081 (W.B.M.C.)',
+        joiningDate: '2022-02-14'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-gyn-1',
+        url: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800',
+        caption: 'Obstetrics & Gynecology Clinical Demonstration',
+        category: 'Clinical'
+      }
+    ]
+  },
+  {
+    id: 'sur',
+    code: 'DEPT-SUR',
+    name: 'Surgery & Allied Specialties',
+    banner: {
+      title: 'Department of Surgery & Allied Specialties',
+      subtitle: 'General surgery, systemic surgery, orthopaedics, dental surgery, ophthalmology, OT protocols, and surgical care.',
+      badge: 'Modernized Operation Theater & Surgical OPD',
+      bgImageUrl: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'The department is a well-equipped modernized department dealing with the study of Surgery, which is a branch of medical science to save the life from emergency. There are different branches in that department, like General Surgery, Systemic Surgery, Orthopaedics, Dental Surgery, Ophthalmology, Plastic Surgery etc. Lectures are conducted with the aim of making each & every student well versed with the subject. The bones, fracture articles, X-ray plates, specimens, models, slides etc. are used to explain the topics with live demonstration. Both theory, practical & clinical classes are taught in the curriculum of B.H.M.S. in the second & third year.',
+    hod: 'Dr. Sushil Murmu, M.B.B.S., M.S. General Surgery',
+    yearsCovered: 'BHMS 2nd Year & 3rd Year',
+    methodology: [
+      'Lectures in the form of classroom teaching and in patient & outpatient department exposure',
+      'Classroom teaching includes diagrammatic presentations and demonstrations',
+      'Academic performance closely monitored by conducting periodical tests, records duly maintained'
+    ],
+    practical: [
+      'Surgical case taking of patients both in O.P.D & I.P.D.',
+      'Demonstration of general & systemic examination of the patients',
+      'Observation of minor surgical procedures, dressing, and OT sterilisation'
+    ],
+    teachingAids: [
+      'Computer & CDs',
+      'Charts & Surgical diagrams',
+      'Models & Specimen jars',
+      'Bones & Fracture articles',
+      'Slides & X-ray plates',
+      'Surgical instruments sets',
+      'Seminars, Workshops & Guest lectures of experts in Surgical cases'
+    ],
+    facultyList: [
+      {
+        id: 'f-sur-1',
+        name: 'Dr. Sushil Murmu',
+        designation: 'Professor & H.O.D.',
+        qualification: 'M.B.B.S. , M.S. General Surgery',
+        specialization: 'General Surgery & Operative Protocols',
+        email: 'sushilmurmu@bwnhmch.com',
+        phone: '+91 9382311107',
+        registrationNumber: '52723 (West Bengal Medical Council)',
+        joiningDate: '2019-05-10'
+      },
+      {
+        id: 'f-sur-2',
+        name: 'Prof. (Dr.) Susmita Chatterjee',
+        designation: 'Professor & Principal',
+        qualification: 'B.Sc., D.H.M.S. (Gold Medalist), M.D. (Hom) BRAU',
+        specialization: 'Clinical Surgery & Homoeopathic Management',
+        email: 'drsusmita01@gmail.com',
+        phone: '+91 9434238508',
+        registrationNumber: '18020 (Council of Homoeopathic Medicine West Bengal)',
+        joiningDate: '2013-06-04'
+      },
+      {
+        id: 'f-sur-3',
+        name: 'Dr. Chinmoy Sarkar',
+        designation: 'Professor',
+        qualification: 'M.B.B.S. (Madras University), M.D. (AIIMS)',
+        specialization: 'Systemic Surgery & General Medicine',
+        email: 'chinmoysarkar@bwnhmch.com',
+        phone: '+91 9474490423',
+        registrationNumber: '70290 (West Bengal Medical Council)',
+        joiningDate: '2002-02-07'
+      },
+      {
+        id: 'f-sur-4',
+        name: 'Dr. Prithish Mukherjee',
+        designation: 'Guest Associate Professor',
+        qualification: 'B.D.S.',
+        specialization: 'Dental Surgery & Oral Medicine',
+        email: 'dr.prithwish4u@gmail.com',
+        phone: '+91 7276772047',
+        registrationNumber: '3304 (West Bengal Dental Council)',
+        joiningDate: '2019-05-02'
+      },
+      {
+        id: 'f-sur-5',
+        name: 'Dr. Kazi Toufik Ali',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S ; M.D. (Materia Medica)',
+        specialization: 'Surgical Therapeutics',
+        email: 'kazitoufik50@gmail.com',
+        phone: '+91 9875430811',
+        registrationNumber: '33155 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2026-05-08'
+      },
+      {
+        id: 'f-sur-6',
+        name: 'Dr. Sk. Gousul Azam',
+        designation: 'Assist. Professor',
+        qualification: 'BHMS, MD(HOM.)',
+        specialization: 'Surgical Case Evaluation',
+        email: 'skgousul@gmail.com',
+        phone: '+91 09932169874',
+        registrationNumber: '26775 (Council of Homoeopathic Medicine. W.B.)',
+        joiningDate: '2020-03-16'
+      },
+      {
+        id: 'f-sur-7',
+        name: 'Dr. Asim Kumar Das',
+        designation: 'Professor',
+        qualification: 'B.H.M.S. ; M.D. (Organon of Medicine)',
+        specialization: 'Emergency & Surgical Therapeutics',
+        email: 'drakd64@gmail.com',
+        phone: '+91 9433132147',
+        registrationNumber: '18067 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2025-07-01'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-sur-1',
+        url: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=800',
+        caption: 'Surgical Instrument Gallery & OT Sterilisation Room',
+        category: 'Clinical'
+      }
+    ]
+  },
+  {
+    id: 'med',
+    code: 'DEPT-MED',
+    name: 'Practice of Medicine',
+    banner: {
+      title: 'Department of Practice of Medicine & Homoeopathic Therapeutics',
+      subtitle: 'Clinical diagnosis, differential diagnosis, systemic pathology, and individualized homoeopathic treatment.',
+      badge: '250+ Daily Patient OPD Clinical Training',
+      bgImageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'Medicine is an enormously expanding subject with no leaps and bounds. Practice of medicine with Homoeopathic therapeutics is concerned with study of clinical methods, clinical presentations of systemic diseases, differential diagnosis, prognosis, general management & integration of Homoeopathic principles to evolve Homoeopathic Therapeutics. Homoeopathy has a distinct approach to the concept of disease. It recognizes the ailing individual by studying him as a whole rather than in terms of sick parts & emphasizes the study of the man, his state of health, state of illness. Practice of Medicine is able to correlate the disease conditions with the basis of Anatomy, Physiology, Biochemistry & Pathology.',
+    hod: 'Dr. Soumitra De, BHMS, MD(HOM)',
+    yearsCovered: 'BHMS 3rd Year & 4th Year',
+    methodology: [
+      'Special efforts are taken to make the students aware of each & every disease',
+      'The lectures are in the form of diagrammatic presentations & also demonstrations',
+      'When teaching on a specific topic special attention is given to the clinical importance & prognosis of the patient',
+      'Academic performance of each & every student is closely monitored by conducting periodical tests',
+      'Seminars held on time to time on different topics and remedial classes taken properly',
+      'Assessment examinations as per norms of University'
+    ],
+    practical: [
+      'Bedside clinical case taking in OPD & IPD wards',
+      'Demonstration of various charts, models, x-ray films, CT scan, reports, instruments, E.C.G. etc.',
+      'Differential diagnosis and homoeopathic prescription synthesis'
+    ],
+    teachingAids: [
+      'Charts & Clinical flowcharts',
+      'Models & Diagnostic tools',
+      'ECG Machine & Lead tracings',
+      'Instruments & Diagnostic sets',
+      'X-rays & CT scan viewing illuminators',
+      'Reports & Laboratory case records'
+    ],
+    facultyList: [
+      {
+        id: 'f-med-1',
+        name: 'Dr. Soumitra De',
+        designation: 'Associate Professor & Departmental In-charge',
+        qualification: 'BHMS, MD(HOM)',
+        specialization: 'Practice of Medicine & Clinical Therapeutics',
+        email: 'drsoumitrade81@gmail.com',
+        phone: '+91 9732098732',
+        registrationNumber: '26345 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2011-08-11'
+      },
+      {
+        id: 'f-med-2',
+        name: 'Shilpa Mondal',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S. ; M.D. (Practice of Medicine)',
+        specialization: 'Internal Medicine & Differential Diagnosis',
+        email: 'shilpa.bhmh@gmail.com',
+        phone: '+91 6297780121',
+        registrationNumber: '33512 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2026-05-08'
+      },
+      {
+        id: 'f-med-3',
+        name: 'Dr. Kousick Mati',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S. ; M.D. (Psychiatry)',
+        specialization: 'Psychiatry & Internal Medicine',
+        email: 'drkousickmati@gmail.com',
+        phone: '+91 9903097262',
+        registrationNumber: '29266 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2025-07-01'
+      },
+      {
+        id: 'f-med-4',
+        name: 'Dr. Ashis Biswas',
+        designation: 'Assist. Professor',
+        qualification: 'B.H.M.S.(WBUHS), M.D.(HOM) DR BRAUHS',
+        specialization: 'Clinical Medicine',
+        email: 'biswas.asashish@gmail.com',
+        phone: '+91 8918297412',
+        registrationNumber: '32025 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2022-06-01'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-med-1',
+        url: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800',
+        caption: 'General Medicine Clinical Ward Rounds',
+        category: 'Clinical'
+      }
+    ]
+  },
+  {
+    id: 'cm',
+    code: 'DEPT-CM',
+    name: 'Community Medicine',
+    banner: {
+      title: 'Department of Community Medicine & Public Health',
+      subtitle: 'Epidemiology, preventive medicine, health awareness camps, immunization, and rural health surveys.',
+      badge: 'School & Rural Health Camp Extension',
+      bgImageUrl: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'The Subject Community Medicine is the Successor of what has been previously known as PUBLIC HEALTH, PREVENTIVE MEDICINE, SOCIAL MEDICINE and COMMUNITY HEALTH. Previously the name of this Subject was "HYGIENE" - then PREVENTIVE & SOCIAL MEDICINE then COMMUNITY MEDICINE. The Todd Commission in 1968 recommended that every Medical School should have a Dept. of Community Medicine. Diagnosis of the state of health of a Community is an important foundation of Community Medicine. Dictum: "PREVENTION IS BETTER THAN CURE".',
+    hod: 'Dr. Sourav Kr. Sarkar, B.H.M.S. (Hons), M.D. (Hom), MBA',
+    yearsCovered: 'BHMS 3rd Year & 4th Year',
+    methodology: [
+      'At first class demonstrations then group discussions then tutorial class then practical',
+      'Practical work noted in the practical note book',
+      'Conducting health awareness programmes, school health camps, and public health sanitization visits'
+    ],
+    practical: [
+      'Water treatment plant & Milk pasteurization plant visits',
+      'Primary health centre & Sub-centre/anganwadi centre visits',
+      'Old age home, Industrial units & Infectious disease hospital study tours',
+      'Health mela / health check-up camps organization',
+      'Rehab center for physical/mental disabilities & Mental health facility visits'
+    ],
+    teachingAids: [
+      'Models: Slow sand, Rapid sand, Sanitary well, Insanitary well, Rca latrine, Septic tank latrine, Mosquito 4 types, Malaria parasite, Filarial model, Smokeless chullah, Helminthes',
+      'Charts and Diagrams: Concept of health/disease, Epidemiology of communicable diseases, Immunization schedule, Homoeoprophylaxis, Demography & family planning, Health information & biostatistics, Non-communicable disease, IEC & counselling, Diet & nutrition, National health programmes'
+    ],
+    facultyList: [
+      {
+        id: 'f-cm-1',
+        name: 'Dr. Sourav Kr. Sarkar',
+        designation: 'Professor & HOD',
+        qualification: 'B.H.M.S (HONS), M.D. (HOM) ; MBA (HOSPITAL MANAGEMENT)',
+        specialization: 'Community Medicine & Public Health Administration',
+        email: 'drsourav.2013@rediffmail.com',
+        phone: '+91 9434015868',
+        registrationNumber: '26409 (Council of Homoeopathic Medicine, W.B)',
+        joiningDate: '2011-11-08'
+      },
+      {
+        id: 'f-cm-2',
+        name: 'Prof. (Dr.) Asim Kumar Samanta',
+        designation: 'Guest Professor, Director',
+        qualification: 'B.SC. D.M.S., M.D. (HOM) DR. B.R. A. U.',
+        specialization: 'Preventive & Social Medicine, Public Health',
+        email: 'asimkumarsamanta@gmail.com',
+        phone: '+91 9832159528 / +91 9434360399',
+        registrationNumber: '11118 (Council of Homoeopathic Medicine, W.B)',
+        joiningDate: '1986-07-01'
+      },
+      {
+        id: 'f-cm-3',
+        name: 'Dr. Ashish Sarkar',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S. ; M.D.(M.M)',
+        specialization: 'Epidemiology & Biostatistics',
+        email: 'ashish.dtk@gmail.com',
+        phone: '+91 9804120328',
+        registrationNumber: '31153 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2023-07-25'
+      },
+      {
+        id: 'f-cm-4',
+        name: 'Dr. Anisa Afroz',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S.; M.P.H. (Master in Public Health)',
+        specialization: 'Master in Public Health & Community Medicine',
+        email: 'anisaafroz@gmail.com',
+        phone: '+91 8582813028',
+        registrationNumber: '32169 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2025-07-18'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-cm-1',
+        url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800',
+        caption: 'Community Health Camp & Immunization Outreach',
+        category: 'Field Visit'
+      }
+    ]
+  },
+  {
+    id: 'mat',
+    code: 'DEPT-MAT',
+    name: 'Homoeopathic Materia Medica',
+    banner: {
+      title: 'Department of Homoeopathic Materia Medica',
+      subtitle: 'Comprehensive study of pharmacodynamics, drug proving, drug pictures, nosodes, sarcodes, and clinical application.',
+      badge: 'Creative Drug Picture Museum',
+      bgImageUrl: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=1200'
+    },
+    description: 'A very capacious and well equipped Materia Medica department has been set up with an aim to make students easy to understand this subject. Numerous specimens of different kingdoms, models & charts (spider group, nosodes, sarcodes, ophidia) and other creative charts are present in the department which helps to provide knowledge in both theoretical and practical aspects. Duration of Materia Medica in the curriculum of BHMS is from 1st to 4th year. University examination at the end of every year of BHMS and a semester examination is held every six months for each year. Homoeopathic Materia Medica is the study of the action of drugs on healthy human being as a whole taking into consideration individual susceptibility and its reaction to various circumstances and time. "While the Materia Medica, in the books, is a simple record of observed facts, in the mind of practitioners it becomes the subject of the reflection, of comparison & of hypothetical reasoning." --- Carroll Dunham.',
+    hod: 'Dr. Priyanka Maji, BHMS, MD(HOM.)',
+    yearsCovered: 'BHMS 1st Year to 4th Year',
+    methodology: [
+      'Efforts are being taken to make students understand each and every drug in the best possible way',
+      'The lectures are in the form of presentations and a drug picture is always given beforehand',
+      'While teaching a specific drug, importance is given to the drug picture or pen picture to build a deep understanding',
+      'Academic performance closely monitored by conducting periodical tests, records duly maintained',
+      'Strict attention given to all students. Assessment examinations taken as per norms of NCH'
+    ],
+    practical: [
+      'Demonstration by various artificial models and charts',
+      'Clinical classes through OPD & IPD',
+      'Visit to the Hospital section'
+    ],
+    teachingAids: [
+      'Charts display (Spider group, Nosodes, Sarcodes, Ophidia)',
+      'Models & Drug source illustrations',
+      'Specimen jars',
+      'Seminars & Workshops',
+      'Arranging Guest lectures of the experts in Materia Medica'
+    ],
+    facultyList: [
+      {
+        id: 'f-mat-1',
+        name: 'Dr. Priyanka Maji',
+        designation: 'Associate Professor & Department Incharge',
+        qualification: 'BHMS, MD(HOM.)',
+        specialization: 'Materia Medica & Clinical Drug Pictures',
+        email: 'priyanka.maji2013@gmail.com',
+        phone: '+91 7980400014',
+        registrationNumber: '30439 (Council of Homoeopathic Medicine. W.B.)',
+        joiningDate: '2020-01-13'
+      },
+      {
+        id: 'f-mat-2',
+        name: 'Dr. Aditi Biswas',
+        designation: 'Asst. Professor',
+        qualification: 'B.H.M.S.(C.U.), M.D. (HOM)',
+        specialization: 'Materia Medica & Keynotes',
+        email: 'biswas.aditirs@gmail.com',
+        phone: '+91 8902228988',
+        registrationNumber: '32032 (Council of Homoeopathic Medicine, W.B.)',
+        joiningDate: '2022-06-01'
+      },
+      {
+        id: 'f-mat-3',
+        name: 'Dr. Nabanita Kundu',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S ; M.D. (MATERIA MEDICA)',
+        specialization: 'Materia Medica & Comparative Therapeutics',
+        email: 'kundunabanitanih25@gmail.com',
+        phone: '+91 7908659741',
+        registrationNumber: '32635 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2024-05-15'
+      },
+      {
+        id: 'f-mat-4',
+        name: 'Dr. Dipa Kundu',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S ; M.D. (MATERIA MEDICA)',
+        specialization: 'Materia Medica & Pharmacodynamics',
+        email: 'dipakundu226@gmail.com',
+        phone: '+91 7908186940',
+        registrationNumber: '32831 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2026-01-29'
+      },
+      {
+        id: 'f-mat-5',
+        name: 'Dr. Abhijit Chatterjee',
+        designation: 'Lecturer / Asst. Professor (Research Lead)',
+        qualification: 'B.H.M.S., M.D. (Hom)',
+        specialization: 'Materia Medica & Diagnostic Triangle Research (IMPS / ICMR)',
+        email: 'abhijitchatterjee@bwnhmch.com',
+        phone: '+91 9434238508',
+        registrationNumber: '28910 (Council of Homoeopathic Medicine W.B.)',
+        joiningDate: '2013-07-01'
+      }
+    ],
+    gallery: [
+      {
+        id: 'g-mat-1',
+        url: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=800',
+        caption: 'Materia Medica Drug Proving & Specimen Hall',
+        category: 'Classroom'
+      }
+    ]
   },
   {
     id: 'rep',
@@ -246,804 +962,154 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
     name: 'Case Taking & Repertory',
     banner: {
       title: 'Department of Case Taking & Repertory',
-      subtitle: 'Art and science of case taking, rubric analysis, manual repertorization, and state-of-the-art computer software suites.',
-      badge: 'Advanced Computing & Clinical Hub',
+      subtitle: 'Techniques of case taking, symptom evaluation, repertorization methods, and computer software integration.',
+      badge: 'Computer Repertorization Lab',
       bgImageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200'
     },
-    description: 'The Department of Case Taking & Repertory provides thorough grounding in patient interviewing, symptom grading, rubric identification, manual repertorization (Kent, Boenninghausen, Boger), and computer-assisted repertory software (RADAR Opus, Hompath Zomeo, MacRepertory) to accurately identify the simillimum.',
-    hod: 'Dr. M. Ghosh, M.D. (Hom.)',
+    description: 'Case taking is the stepping stone of repertorization. A repertory which is complete is an important tool not only to select the similimum but also recollect and culture Materia medica. It is unfortunate but hard truth that no repertory recognized as "complete". There are so many repertories constructed considering various aspect like clinical, general, particular etc to serve the purpose. The department of Homoeopathic Repertory & Case Taking helps the neophytes to learn, understand and application of different repertories according to demands of the case.',
+    hod: 'Dr. Ashok Kr. Bhattacherjee, B.Sc, D.M.S, Dip N.H., M.D.(HOM)',
     yearsCovered: 'BHMS 3rd Year & 4th Year',
     methodology: [
-      'Classroom lectures on case taking methodology and symptom hierarchy',
-      'Systematic symptom classification (General, Particular, Modalities, Mind)',
-      'Hands-on training on computer repertory software workstations',
-      'OPD/IPD practical case taking with live patient interaction',
-      'Rubric flowcharts & decision tree exercises',
-      'Interactive departmental case presentation seminars'
+      'Lectures are in the forms of classroom teaching and clinical teaching in OPD/IPD',
+      'Hand on practices is available to the students to use the different computer software related to Homoeopathic Repertory and Repertorization',
+      'Regular class test/unit test conducted to evaluate students\' progress and special attention given to underperformed students'
     ],
     practical: [
-      'OPD/IPD practical case taking & clinical recording',
-      'Symptom analysis, evaluation, & hierarchy mapping',
-      'Manual repertorization using Kent, Boger, & Boenninghausen repertories',
-      'Computerized repertorization using RADAR Opus and Hompath Zomeo',
-      'Practical case verification & remedy outcome tracking'
+      'Practical classes conducted on regular basis in OPD, computer lab and IPD'
     ],
     teachingAids: [
-      'Rubric classification wall charts',
-      'Repertorial flow charts & decision trees',
-      '20-Workstation computer lab with RADAR Opus & Hompath software',
-      'Digital case record archives & worksheets'
+      'Different book repertory (Kent, Boenninghausen, Boger, Synthesis, Radar)',
+      'Computer software (RadarOpus, Hompath, Cara)',
+      'Charts Flow',
+      'Charts',
+      'Seminar',
+      'Power point presentation'
     ],
     facultyList: [
       {
         id: 'f-rep-1',
-        name: 'Dr. M. Ghosh',
-        designation: 'Associate Professor & HOD',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Computerized Repertorization & RADAR Opus',
-        email: 'mghosh@bwnhmch.com',
-        phone: '+91 94343 33301'
+        name: 'Dr. Ashok Kr. Bhattacherjee',
+        designation: 'Guest Professor',
+        qualification: 'B.SC,D.M.S,DIP N.H., M.D.(HOM) DR BRAU',
+        specialization: 'Repertory & Classical Case Analysis',
+        email: 'drakb1958@gmail.com',
+        phone: '+91 9933430740',
+        registrationNumber: '8424 (West Bengal Medical Council)',
+        joiningDate: '1988-03-01'
       },
       {
         id: 'f-rep-2',
-        name: 'Dr. A. Banerjee',
+        name: 'Dr. Shimul Das',
         designation: 'Assistant Professor',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Boenninghausen & Boger Synoptic Key',
-        email: 'abanerjee@bwnhmch.com',
-        phone: '+91 94343 33302'
+        qualification: 'B.H.M.S. ; M.D. (HOM)',
+        specialization: 'Case Taking & Repertorization',
+        email: 'dr.shimuldas@gmail.com',
+        phone: '+91 9735169435',
+        registrationNumber: '29965 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2023-06-05'
+      },
+      {
+        id: 'f-rep-3',
+        name: 'Dr. Soumyadip Pal',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S. ; M.D. (REPERTORY)',
+        specialization: 'Computer Repertorization & RadarOpus',
+        email: 'soumyapal545@gmail.com',
+        phone: '+91 9088072359',
+        registrationNumber: '32947 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2025-07-01'
+      },
+      {
+        id: 'f-rep-4',
+        name: 'Dr. Abdul Hakim Sk.',
+        designation: 'Assistant Professor',
+        qualification: 'B.H.M.S ; M.D. (REPERTORY)',
+        specialization: 'Repertory & Symptom Totality',
+        email: 'hakimsk95@gmail.com',
+        phone: '+91 9083550360',
+        registrationNumber: '33036 (West Bengal Council of Homoeopathic Medicine)',
+        joiningDate: '2025-07-01'
       }
     ],
     gallery: [
       {
         id: 'g-rep-1',
-        url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800',
-        caption: '20-Workstation Computer-Assisted Repertory Software Laboratory',
+        url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
+        caption: 'Computer Repertorization Laboratory & RadarOpus Training',
         category: 'Laboratory'
       }
-    ],
-    research: [
-      'Comparative Repertorial Analysis in Pediatric Asthma & Allergic Disorders',
-      'Synthesis of Boger Synoptic Key in Rapid OPD Prescribing',
-      'Accuracy Metrics of Digital Rubric Search vs Manual Kentian Repertorization'
-    ],
-    achievements: [
-      'Equipped 20 high-end workstations with licensed RADAR Opus and Hompath Zomeo',
-      '100% Pass Rate in University Clinical Practical Exams'
-    ],
-    downloads: [
-      {
-        id: 'd-rep-1',
-        title: 'BHMS Case Taking Format & Rubric Analysis Sheet (Official Printable)',
-        url: '/documents/bhmch_repertory_case_taking_format.pdf',
-        fileType: 'PDF Document',
-        fileSize: '950 KB',
-        uploadDate: '2026-01-20'
-      }
-    ],
-    software: ['RADAR Opus (Synthesis Repertory)', 'Hompath Zomeo / Classic', 'MacRepertory & ReferenceWorks'],
-    laboratories: ['Computer-Assisted Repertorization Lab'],
-    facilities: ['Digital Case Record Archive', '20 Workstation Computer Lab', 'Repertory Software Library']
+    ]
   },
   {
-    id: 'yoga',
-    code: 'DEPT-YOGA',
-    name: 'Department of Yoga',
+    id: 'yog',
+    code: 'DEPT-YOG',
+    name: 'Yoga & Naturopathy',
     banner: {
-      title: 'Department of Yoga & Holistic Lifestyle Medicine',
-      subtitle: 'Integration of classical yogic science with homoeopathic clinical healthcare, therapeutic asanas, and pranayama.',
-      badge: 'Integrative Health Wing',
+      title: 'Department of Yoga & Naturopathy',
+      subtitle: 'Practical training in Yoga, Asanas, Pranayama, and Naturopathic principles in accordance with AYUSH and NCH guidelines.',
+      badge: 'AYUSH Certified Yoga Center',
       bgImageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200'
     },
-    description: 'The Department of Yoga at BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL integrates classical yogic philosophy and practices with modern medical sciences to promote physical health, mental wellbeing, stress management, and holistic lifestyle correction.',
-    hod: 'Dr. P. K. Samanta, M.D. (Hom.), Dip. Yoga',
-    yearsCovered: 'BHMS Curriculum & OPD Lifestyle Clinic',
+    description: 'Department of Yoga & Naturopathy provides practical training in Yoga, Asanas, Pranayama, and Naturopathic principles to BHMS scholars, promoting holistic health and mind-body equilibrium in accordance with AYUSH and NCH guidelines.',
+    hod: 'Moumita Maji, Yoga Expert (RYT01124)',
+    yearsCovered: 'BHMS All Years & Hospital OPD/IPD Patients',
     methodology: [
-      'Classroom lectures on yogic anatomy and physiology',
-      'Practical demonstration of Therapeutic Yoga & Asanas',
-      'Pranayama, Meditation & Relaxation Techniques',
-      'Lifestyle & Dietary Counselling for chronic metabolic disorders',
-      'Audiovisual guidance & posture correction workshops'
+      'Practical demonstration of Yogic Asanas and Pranayama techniques',
+      'Integration of Yoga & Naturopathy in clinical OPD/IPD patient recovery',
+      'Awareness workshops on stress management and holistic wellness'
     ],
     practical: [
-      'Daily morning Yoga practice for students and IPD patients',
-      'Therapeutic Yoga protocols for Hypertension, Diabetes, and Spondylosis',
-      'Pranayama & Shatkarma Kriya clinical sessions',
-      'Stress reduction & Guided Meditation workshops'
+      'Daily practical sessions in Yoga and Meditation',
+      'Patient counseling on therapeutic Yoga for chronic diseases'
     ],
     teachingAids: [
-      'Anatomical posture charts & Yoga alignment guides',
-      'Therapeutic Yoga mats, blocks, & resistance props',
-      'Audiovisual smart studio equipment',
-      'Demonstration videos & wellness literature'
+      'Yoga mats & Demonstration Hall',
+      'Charts on Yogic Postures & Asanas',
+      'Audio-visual relaxation modules'
     ],
     facultyList: [
       {
-        id: 'f-yoga-1',
-        name: 'Dr. P. K. Samanta',
-        designation: 'HOD & Yoga Medical Officer',
-        qualification: 'M.D. (Hom.), Diploma in Yoga Science',
-        specialization: 'Therapeutic Yoga & Lifestyle Medicine',
-        email: 'pksamanta@bwnhmch.com',
-        phone: '+91 94343 44401'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-yoga-1',
-        url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800',
-        caption: 'State-of-the-Art Yoga & Meditation Practice Hall',
-        category: 'Practice Hall'
-      }
-    ],
-    research: [
-      'Synergistic Effect of Yoga & Homoeopathy in Essential Hypertension',
-      'Pranayama Kriyas in Managing Chronic Respiratory Allergic Conditions'
-    ],
-    achievements: [
-      'Organized International Yoga Day Celebration with over 600 participants',
-      'Operates dedicated Yoga OPD serving 40+ patients daily'
-    ],
-    downloads: [
-      {
-        id: 'd-yoga-1',
-        title: 'Therapeutic Yoga Protocol Chart for Common Lifestyle Disorders',
-        url: '/documents/bhmch_yoga_protocol_chart.pdf',
-        fileType: 'PDF Document',
-        fileSize: '1.5 MB',
-        uploadDate: '2026-02-15'
-      }
-    ],
-    laboratories: ['Yoga & Meditation Practice Hall'],
-    facilities: ['Therapeutic Yoga Mats & Props', 'Audio-Visual Meditation Studio', 'Lifestyle Counselling Cell']
-  },
-  {
-    id: 'pharm',
-    code: 'DEPT-PHARM',
-    name: 'Homoeopathic Pharmacy',
-    banner: {
-      title: 'Department of Homoeopathic Pharmacy',
-      subtitle: 'Pharmacognosy, potentization, vehicle testing, drug standardization, and HPI pharmacopoeial compliance.',
-      badge: 'NCH Certified Lab Facility',
-      bgImageUrl: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Homoeopathic Pharmacy provides systematic training in pharmacognosy, vehicle preparation, scale of potentization (Centesimal, Decimal, 50-Millesimal), mother tincture extraction, quality assurance, and compliance with Homoeopathic Pharmacopoeia of India (HPI).',
-    hod: 'Dr. R. Bannerjee, M.D. (Hom.)',
-    yearsCovered: 'BHMS 1st Year',
-    methodology: [
-      'Classroom lectures on pharmacopoeial principles and legal requirements',
-      'Laboratory practical sessions on trituration and succussion',
-      'Industrial exposure visits to GMP-certified Homoeopathic manufacturing units',
-      'Pharmacognosy herbarium identification & standardization drills'
-    ],
-    practical: [
-      'Trituration (Decimal & Centesimal scales) and succussion practicals',
-      'Purity testing of vehicles (Alcohol, Sugar of Milk, Globules)',
-      'Mother tincture preparation by maceration & percolation',
-      'Prescription writing, abbreviation decoding, and dispensing techniques'
-    ],
-    teachingAids: [
-      'Pharmacognosy herbarium display & botanical charts',
-      'Extraction & Soxhlet distillation apparatus',
-      'Multimedia slides & drug standardization manuals',
-      'Mortar-pestle workstations & precision digital balances'
-    ],
-    facultyList: [
-      {
-        id: 'f-pharm-1',
-        name: 'Dr. R. Bannerjee',
-        designation: 'Associate Professor & HOD',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Homoeopathic Pharmacopoeia & Quality Control',
-        email: 'rbanerjee@bwnhmch.com',
-        phone: '+91 94343 55501'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-pharm-1',
-        url: 'https://images.unsplash.com/photo-1579165466741-7f35e4755660?auto=format&fit=crop&q=80&w=800',
-        caption: 'Pharmacy Practical Laboratory & Trituration Workstations',
-        category: 'Laboratory'
-      }
-    ],
-    research: [
-      'Quality Control Metrics for Mother Tinctures using Spectrophotometry',
-      'Standardization & Shelf-Life Assessment of Bio-Chemic Remedies'
-    ],
-    achievements: [
-      'GMP Compliant Student Laboratory recognized by State Health Department',
-      'Annual Industrial Visit Partnership with leading GMP Manufacturers'
-    ],
-    downloads: [
-      {
-        id: 'd-pharm-1',
-        title: 'BHMS Homoeopathic Pharmacy Practical Manual & Lab Logbook',
-        url: '/documents/bhmch_pharmacy_practical_manual.pdf',
-        fileType: 'PDF Document',
-        fileSize: '3.1 MB',
-        uploadDate: '2026-01-25'
-      }
-    ],
-    laboratories: ['HPLC & Spectrophotometry Lab', 'Vehicle Preparation & Trituration Hall'],
-    facilities: ['Pharmacognosy Herbarium', 'Distillation & Extraction Apparatus']
-  },
-  {
-    id: 'anat',
-    code: 'DEPT-ANAT',
-    name: 'Anatomy',
-    banner: {
-      title: 'Department of Anatomy',
-      subtitle: 'Gross human anatomy dissection, microscopic histology, embryology, and neuroanatomy education.',
-      badge: 'Foundational Medical Science',
-      bgImageUrl: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Anatomy lays the foundational structural understanding of human body systems through cadaveric dissection, microscopic histology, surface marking, and radiological anatomy.',
-    hod: 'Dr. P. Das, M.S. (Anatomy)',
-    yearsCovered: 'BHMS 1st Year',
-    methodology: [
-      'Classroom lectures with 3D anatomical projections',
-      'Cadaveric dissection classes in specialized dissection hall',
-      'Histology practical sessions with high-power binocular microscopes',
-      'Anatomical museum demonstration sessions'
-    ],
-    practical: [
-      'Full human cadaveric dissection across all anatomical regions',
-      'Microscopic histology slide identification & drawing',
-      'Surface bone marking & osteology demonstration',
-      'Radiological image analysis (X-ray, CT, MRI scans)'
-    ],
-    teachingAids: [
-      'Human cadaveric dissection tables with cold storage unit',
-      '3D life-size anatomical models & articulated skeletons',
-      'Histology slides & binocular student microscopes',
-      'X-ray illuminator viewing boxes'
-    ],
-    facultyList: [
-      {
-        id: 'f-anat-1',
-        name: 'Dr. P. Das',
-        designation: 'Professor & HOD',
-        qualification: 'M.S. (Anatomy)',
-        specialization: 'Gross Dissection & Neuroanatomy',
-        email: 'pdas@bwnhmch.com',
-        phone: '+91 94343 66601'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-anat-1',
-        url: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
-        caption: 'Modern Human Cadaveric Dissection Hall',
-        category: 'Dissection Hall'
-      }
-    ],
-    research: [
-      'Clinical Neuroanatomy Correlations in Cranial Nerve Disorders',
-      'Morphometric Analysis of Anatomical Variants in Eastern Indian Population'
-    ],
-    achievements: [
-      'State-of-the-Art Mortuary and Cold Storage Unit with 100% Safety Clearance',
-      'Anatomy Museum housing 250+ preserved organ specimens'
-    ],
-    downloads: [
-      {
-        id: 'd-anat-1',
-        title: 'Anatomy Osteology & Dissection Guide for BHMS 1st Year',
-        url: '/documents/bhmch_anatomy_dissection_guide.pdf',
-        fileType: 'PDF Document',
-        fileSize: '4.2 MB',
-        uploadDate: '2026-01-10'
-      }
-    ],
-    laboratories: ['Human Cadaveric Dissection Hall', 'Histology Microscopy Lab', 'Anatomy Embryology Museum'],
-    facilities: ['3D Anatomical Models Gallery', 'Cold Storage Mortuary Unit']
-  },
-  {
-    id: 'phys',
-    code: 'DEPT-PHYS',
-    name: 'Physiology & Biochemistry',
-    banner: {
-      title: 'Department of Physiology & Biochemistry',
-      subtitle: 'Human bodily functions, hematology, cardiovascular dynamics, spirometry, and metabolic biochemistry.',
-      badge: 'Foundational Clinical Science',
-      bgImageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Physiology & Biochemistry provides comprehensive understanding of normal human functional mechanisms, homeostatic balance, hematology, cardiovascular dynamics, spirometry, and clinical biochemistry.',
-    hod: 'Dr. S. Chatterjee, M.D. (Physiology)',
-    yearsCovered: 'BHMS 1st Year',
-    methodology: [
-      'Classroom lectures on human organ systems & homeostatic feedback loops',
-      'Hematology laboratory practical sessions',
-      'Biochemical analysis demonstrations and qualitative tests',
-      'Interactive group discussions & physiological case correlation'
-    ],
-    practical: [
-      'Blood grouping, hemoglobin estimation & ESR determination',
-      'RBC & WBC total counting using Hemocytometer',
-      'ECG recording, interpretation & Spirometry lung function tests',
-      'Biochemical qualitative tests for carbohydrates, proteins & enzymes'
-    ],
-    teachingAids: [
-      'Hematology microscopes & Hemocytometers',
-      'Spirometers & 12-lead ECG machines',
-      'Biochemical reaction charts & metabolic pathways displays',
-      'Multimedia slide projection system'
-    ],
-    facultyList: [
-      {
-        id: 'f-phys-1',
-        name: 'Dr. S. Chatterjee',
-        designation: 'Professor & HOD',
-        qualification: 'M.D. (Physiology)',
-        specialization: 'Cardiovascular Physiology & Hematology',
-        email: 'schatterjee@bwnhmch.com',
-        phone: '+91 94343 77701'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-phys-1',
-        url: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800',
-        caption: 'Hematology & Clinical Biochemistry Student Laboratory',
-        category: 'Laboratory'
-      }
-    ],
-    research: [
-      'Autonomic Nervous System Function Response in High Potency Homoeopathic Provings',
-      'Erythrocyte Sedimentation Rate Variations in Chronic Allergic Rhinitis Patients'
-    ],
-    achievements: [
-      'Fully functional 60-microscope Hematology Workstation Laboratory',
-      'Regular Spirometry & ECG Screening Camps in Hospital OPD'
-    ],
-    downloads: [
-      {
-        id: 'd-phys-1',
-        title: 'Physiology & Biochemistry Practical Lab Manual (BHMS 1st Year)',
-        url: '/documents/bhmch_physiology_lab_manual.pdf',
-        fileType: 'PDF Document',
-        fileSize: '2.8 MB',
-        uploadDate: '2026-01-18'
-      }
-    ],
-    laboratories: ['Hematology Practical Lab', 'Clinical Biochemistry Analysis Room'],
-    facilities: ['ECG & Spirometry Testing Workstations', 'Microscope Bay for 60 Students']
-  },
-  {
-    id: 'path',
-    code: 'DEPT-PATH',
-    name: 'Pathology & Microbiology',
-    banner: {
-      title: 'Department of Pathology & Microbiology',
-      subtitle: 'Etiopathology, clinical microbiology, parasitology, hematology, histopathology, and diagnostic lab procedures.',
-      badge: 'Diagnostic & Research Wing',
-      bgImageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Pathology & Microbiology educates students on disease etiopathology, cellular tissue reactions, bacterial and viral cultures, parasitology, diagnostic hematology, and clinical lab procedures.',
-    hod: 'Dr. D. Sen, M.D. (Pathology)',
-    yearsCovered: 'BHMS 2nd Year',
-    methodology: [
-      'Classroom lectures on general pathology and systemic tissue pathology',
-      'Microscopic slide demonstrations of disease tissues',
-      'Bacterial culture & Gram/AFB staining practicals',
-      'Pathological museum jar specimen studies'
-    ],
-    practical: [
-      'Urine routine & microscopic examination',
-      'Staining techniques (Gram staining, Acid Fast AFB staining)',
-      'Tissue specimen identification & gross lesion examination',
-      'Diagnostic hematology & blood grouping tests'
-    ],
-    teachingAids: [
-      'Binocular student microscopes & oil immersion lenses',
-      'Autoclaves, hot air ovens, & culture incubation units',
-      'Pathological jar specimens & mounted slide collections',
-      'Diagnostic culture plates & media preparation bays'
-    ],
-    facultyList: [
-      {
-        id: 'f-path-1',
-        name: 'Dr. D. Sen',
-        designation: 'Professor & HOD',
-        qualification: 'M.D. (Pathology)',
-        specialization: 'Clinical Pathology & Histopathology',
-        email: 'dsen@bwnhmch.com',
-        phone: '+91 94343 88801'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-path-1',
-        url: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800',
-        caption: 'Microbiology Culture & Diagnostic Pathology Bay',
-        category: 'Laboratory'
-      }
-    ],
-    research: [
-      'In-vitro Antimicrobial Susceptibility Testing under High Homoeopathic Dilutions',
-      'In-vitro Inhibitory Effects of Syzygium Jambolanum on Bacterial Cultures'
-    ],
-    achievements: [
-      'Provides diagnostic laboratory support to 200+ hospital patients daily',
-      'Published 8 research papers in Pathological Microbiology journals'
-    ],
-    downloads: [
-      {
-        id: 'd-path-1',
-        title: 'BHMS Pathology & Microbiology Practical Staining Guide',
-        url: '/documents/bhmch_pathology_staining_guide.pdf',
-        fileType: 'PDF Document',
-        fileSize: '3.5 MB',
-        uploadDate: '2026-02-05'
-      }
-    ],
-    laboratories: ['Microbiology Culture Lab', 'Clinical Diagnostic Hematology Lab'],
-    facilities: ['Autoclave & Incubation Units', 'Blood Grouping & Serology Bay']
-  },
-  {
-    id: 'fmt',
-    code: 'DEPT-FMT',
-    name: 'Forensic Medicine & Toxicology',
-    banner: {
-      title: 'Department of Forensic Medicine & Toxicology',
-      subtitle: 'Medical jurisprudence, toxicology identification, forensic post-mortem protocols, and medico-legal ethics.',
-      badge: 'Medico-Legal Academic Wing',
-      bgImageUrl: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of FMT trains medical students in legal medicine, medical ethics, forensic pathology, toxicology identification, age estimation, and court witness procedures.',
-    hod: 'Dr. K. Nandi, M.D. (FMT)',
-    yearsCovered: 'BHMS 2nd Year',
-    methodology: [
-      'Classroom lectures on medical jurisprudence & consumer protection acts',
-      'Toxicology museum demonstrations of plant and chemical poisons',
-      'Moot courtroom trial simulations & medico-legal drafting',
-      'Post-mortem reporting & injury classification studies'
-    ],
-    practical: [
-      'Poisons, venom & weapon specimen identification',
-      'Forensic report drafting & medical certificate issuing protocols',
-      'Age estimation through x-ray & ossification center analysis',
-      'Courtroom testimony simulation drills'
-    ],
-    teachingAids: [
-      'Toxicology specimens gallery with 150+ genuine poison samples',
-      'Weapons & injury models museum',
-      'Medical jurisprudence flow charts & legal codes',
-      'Court trial simulation hall'
-    ],
-    facultyList: [
-      {
-        id: 'f-fmt-1',
-        name: 'Dr. K. Nandi',
-        designation: 'Associate Professor & HOD',
-        qualification: 'M.D. (FMT)',
-        specialization: 'Medical Jurisprudence & Clinical Toxicology',
-        email: 'knandi@bwnhmch.com',
-        phone: '+91 94343 99901'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-fmt-1',
-        url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800',
-        caption: 'Toxicology & Medico-Legal Specimen Display Museum',
-        category: 'Museum'
-      }
-    ],
-    research: [
-      'Heavy Metal Toxicities & Homoeopathic Antidote Protocols',
-      'Legal Documentation Standards in AYUSH Hospital Practice'
-    ],
-    achievements: [
-      'Established Moot Courtroom Facility for student medico-legal training',
-      'Conducted Medico-Legal Awareness Workshops for doctors'
-    ],
-    downloads: [
-      {
-        id: 'd-fmt-1',
-        title: 'Forensic Medicine & Medico-Legal Certificate Drafting Format',
-        url: '/documents/bhmch_fmt_drafting_format.pdf',
-        fileType: 'PDF Document',
-        fileSize: '1.1 MB',
-        uploadDate: '2026-01-28'
-      }
-    ],
-    laboratories: ['Toxicology Specimen & Weapon Museum'],
-    facilities: ['Poisons & Venom Identification Displays', 'Court Trial Simulation Setup']
-  },
-  {
-    id: 'med',
-    code: 'DEPT-MED',
-    name: 'Practice of Medicine',
-    banner: {
-      title: 'Department of Practice of Medicine',
-      subtitle: 'Internal medicine, cardiology, neurology, gastroenterology, and targeted Homoeopathic therapeutics.',
-      badge: 'Major Clinical Department',
-      bgImageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Practice of Medicine delivers comprehensive clinical instruction in systemic disorders (cardiovascular, respiratory, gastrointestinal, neurological) combined with targeted homoeopathic therapeutic protocols.',
-    hod: 'Dr. T. K. Maiti, M.D. (Hom.)',
-    yearsCovered: 'BHMS 3rd Year & 4th Year',
-    methodology: [
-      'Bedside clinical teaching in hospital inpatient wards',
-      'OPD consultation demonstrations & real-time prescribing',
-      'Systemic disease seminars & differential diagnosis workshops',
-      'Therapeutic prescribing clinics & long-term follow-up studies'
-    ],
-    practical: [
-      'Systemic physical examination (Cardiovascular, Respiratory, CNS, Abdomen)',
-      'Clinical diagnosis formulation & investigation order drafting',
-      'Prescription of constitutional homoeopathic therapeutics',
-      'Inpatient ward care rounds & emergency management'
-    ],
-    teachingAids: [
-      'Diagnostic equipment (ECG, Stethoscopes, BP Apparatus, Ophthalmoscope)',
-      'Medical system chart displays & clinical algorithms',
-      'Audio-visual case study projections',
-      'Clinical protocol manuals & therapeutic guidelines'
-    ],
-    facultyList: [
-      {
-        id: 'f-med-1',
-        name: 'Dr. T. K. Maiti',
-        designation: 'Professor & HOD',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Internal Medicine & Gastrointestinal Disorders',
-        email: 'tkmaiti@bwnhmch.com',
-        phone: '+91 94343 10001'
+        id: 'f-yog-1',
+        name: 'Moumita Maji',
+        designation: 'Yoga Instructor / Expert',
+        qualification: 'Yoga Expert (RYT01124)',
+        specialization: 'Therapeutic Yoga & Asanas',
+        email: 'moumita18589@gmail.com',
+        phone: '+91 9614632475',
+        registrationNumber: 'RYT01124 (West Bengal Council of Yoga)',
+        joiningDate: '2025-06-06'
       },
       {
-        id: 'f-med-2',
-        name: 'Dr. S. K. Pal',
-        designation: 'Associate Professor',
-        qualification: 'M.D. (Hom.)',
-        specialization: 'Cardiology & Respiratory Medicine',
-        email: 'skpal@bwnhmch.com',
-        phone: '+91 94343 10002'
+        id: 'f-yog-2',
+        name: 'Dr. Shah Alam',
+        designation: 'Assistant Professor',
+        qualification: 'B.N.Y.S.',
+        specialization: 'Yoga & Naturopathic Medicine',
+        email: 'drshahalam@bwnhmch.com',
+        phone: '+91 9834718527',
+        registrationNumber: '303 (Central Council for Research in Yoga & Naturopathy)',
+        joiningDate: '2025-07-02'
+      },
+      {
+        id: 'f-yog-3',
+        name: 'Dr. Sunil Kumar Shaw',
+        designation: 'Yoga Expert',
+        qualification: 'Diploma in Yoga & Naturopathy',
+        specialization: 'Naturopathy & Yogic Therapy',
+        email: 'sunilyoga12@gmail.com',
+        phone: '+91 8759708724',
+        registrationNumber: 'B00003 (West Bengal Council of Yoga & Naturopathy)',
+        joiningDate: '2014-09-22'
       }
     ],
     gallery: [
       {
-        id: 'g-med-1',
-        url: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800',
-        caption: 'IPD Clinical Ward Bedside Teaching & Patient Rounds',
-        category: 'Clinical Ward'
+        id: 'g-yog-1',
+        url: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=800',
+        caption: 'Yoga & Naturopathy Demonstration Center',
+        category: 'Clinical'
       }
-    ],
-    research: [
-      'Homoeopathic Management of Non-Alcoholic Fatty Liver Disease (NAFLD)',
-      'Long-Term Observational Study of Rhus Tox in Osteoarthritis'
-    ],
-    achievements: [
-      'Manages 150+ OPD consultations daily across specialized clinical units',
-      'Conducted 12 Rural Health Camps providing free medical care'
-    ],
-    downloads: [
-      {
-        id: 'd-med-1',
-        title: 'Clinical Case Examination Record & Physical Diagnosis Worksheet',
-        url: '/documents/bhmch_medicine_clinical_worksheet.pdf',
-        fileType: 'PDF Document',
-        fileSize: '2.1 MB',
-        uploadDate: '2026-02-12'
-      }
-    ],
-    laboratories: ['Clinical OPD Examination Bays', 'IPD Ward Demonstration Rounds'],
-    facilities: ['Defibrillator & ECG Diagnostics', 'Nebulization & Oxygen Support Units']
-  },
-  {
-    id: 'surg',
-    code: 'DEPT-SURG',
-    name: 'Surgery & Homoeopathic Therapeutics',
-    banner: {
-      title: 'Department of Surgery & Homoeopathic Therapeutics',
-      subtitle: 'General surgical principles, wound care, operative procedures, and pre/post-operative homoeopathic management.',
-      badge: 'Surgical & Operative Wing',
-      bgImageUrl: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Surgery instructs students in general surgical principles, diagnostic imaging, minor operative techniques, wound management, and pre/post-surgical homoeopathic therapeutics.',
-    hod: 'Dr. S. K. Mitra, M.S. (Surgery)',
-    yearsCovered: 'BHMS 3rd Year & 4th Year',
-    methodology: [
-      'Classroom lectures on general surgery & surgical pathology',
-      'Minor OT procedure live demonstrations',
-      'Surgical dressing & suturing hands-on workshops',
-      'Clinical ward rounds & post-operative care monitoring'
-    ],
-    practical: [
-      'Wound dressing, bandaging, & aseptic suturing practice',
-      'Pre & post-operative patient management protocols',
-      'Surgical instrument identification & sterilization handling',
-      'Emergency trauma initial management & triage'
-    ],
-    teachingAids: [
-      'Surgical instrument gallery with 100+ precision instruments',
-      'Suture practice pads, mannequins & wound simulation models',
-      'Autoclave sterilization equipment',
-      'Surgical radiology viewboxes'
-    ],
-    facultyList: [
-      {
-        id: 'f-surg-1',
-        name: 'Dr. S. K. Mitra',
-        designation: 'Professor & HOD',
-        qualification: 'M.S. (Surgery)',
-        specialization: 'General Surgery & Minor OT Procedures',
-        email: 'skmitra@bwnhmch.com',
-        phone: '+91 94343 20001'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-surg-1',
-        url: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800',
-        caption: 'Minor Operation Theatre (OT) & Suture Practice Bay',
-        category: 'Operation Theatre'
-      }
-    ],
-    research: [
-      'Homoeopathic Management of Post-Surgical Healing and Anal Fissures',
-      'Role of Silicea in Chronic Fistula-in-Ano Management'
-    ],
-    achievements: [
-      'Fully equipped Minor OT performing 30+ minor surgical procedures monthly',
-      'Specialized Wound Care Unit integrated with Homoeopathic healing'
-    ],
-    downloads: [
-      {
-        id: 'd-surg-1',
-        title: 'Surgical Instrument Identification Manual & Suture Guide',
-        url: '/documents/bhmch_surgery_suture_guide.pdf',
-        fileType: 'PDF Document',
-        fileSize: '3.0 MB',
-        uploadDate: '2026-01-30'
-      }
-    ],
-    laboratories: ['Minor OT & Suture Practice Bay'],
-    facilities: ['Surgical Instrument Gallery', 'Sterilization Autoclave Suite']
-  },
-  {
-    id: 'gyn',
-    code: 'DEPT-GYN',
-    name: 'Obstetrics & Gynaecology',
-    banner: {
-      title: 'Department of Obstetrics & Gynaecology',
-      subtitle: 'Antenatal care, labor management, gynaecological health, and Homoeopathic therapeutics in female care.',
-      badge: 'Maternal & Women Health Wing',
-      bgImageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Obstetrics & Gynaecology provides specialized education in female reproductive health, antenatal care, delivery room management, and homoeopathic gynaecological therapeutics.',
-    hod: 'Dr. N. Mukhopadhyay, M.D. (O&G)',
-    yearsCovered: 'BHMS 3rd Year & 4th Year',
-    methodology: [
-      'Clinical ward teaching in labor and maternity wards',
-      'Antenatal clinic demonstrations and fetal heart sound monitoring',
-      'Pelvic model demonstrations & mechanism of labor exercises',
-      'Therapeutic case discussions for PCOS, dysmenorrhea & infertility'
-    ],
-    practical: [
-      'Antenatal palpation & fetal heart sound listening with Doppler',
-      'Labor progress monitoring & partograph plotting',
-      'Gynecological examination techniques & speculum insertion',
-      'Constitutional homoeopathic prescribing in female disorders'
-    ],
-    teachingAids: [
-      'Pelvic & anatomical fetal birth simulation models',
-      'Fetal Doppler & ultrasound diagnostic units',
-      'Gynecological instrument displays',
-      'Maternal health & antenatal charts'
-    ],
-    facultyList: [
-      {
-        id: 'f-gyn-1',
-        name: 'Dr. N. Mukhopadhyay',
-        designation: 'Professor & HOD',
-        qualification: 'M.D. (O&G)',
-        specialization: 'Obstetrics & Gynaecological Therapeutics',
-        email: 'nmukhopadhyay@bwnhmch.com',
-        phone: '+91 94343 30001'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-gyn-1',
-        url: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
-        caption: 'Antenatal Care Clinic & Labor Monitoring Suite',
-        category: 'Clinical Ward'
-      }
-    ],
-    research: [
-      'Homoeopathic Therapeutics in Polycystic Ovarian Syndrome (PCOS)',
-      'Clinical Efficacy of Pulsatilla Nigricans in Primary Dysmenorrhea'
-    ],
-    achievements: [
-      'Operates dedicated Antenatal OPD providing free routine checkups',
-      'Conducted 5 Women Health Awareness Seminars in Purba Bardhaman'
-    ],
-    downloads: [
-      {
-        id: 'd-gyn-1',
-        title: 'Antenatal Care Examination Protocol & Partograph Chart',
-        url: '/documents/bhmch_gynaecology_partograph_chart.pdf',
-        fileType: 'PDF Document',
-        fileSize: '1.9 MB',
-        uploadDate: '2026-02-08'
-      }
-    ],
-    laboratories: ['Labor Room & Antenatal Care Bay'],
-    facilities: ['Foetal Doppler & Ultrasound Suites', 'Pelvic Model Demonstration Hall']
-  },
-  {
-    id: 'cm',
-    code: 'DEPT-CM',
-    name: 'Community Medicine',
-    banner: {
-      title: 'Department of Community Medicine',
-      subtitle: 'Epidemiology, public health administration, preventive medicine, maternal & child health, and health camps.',
-      badge: 'Public Health & Rural Wing',
-      bgImageUrl: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1200'
-    },
-    description: 'The Department of Community Medicine trains students in public health management, preventive medicine, epidemiological survey methodologies, national health programs, and rural health administration.',
-    hod: 'Dr. B. Biswas, M.D. (Community Medicine)',
-    yearsCovered: 'BHMS 3rd Year & 4th Year',
-    methodology: [
-      'Classroom lectures on epidemiology, biostatistics & national health policies',
-      'Field visits & rural health demographic surveys',
-      'Health camp organization & village sanitation awareness',
-      'Epidemiological statistical data exercises'
-    ],
-    practical: [
-      'Rural health survey & census demographic data collection',
-      'Water quality, chlorination & sanitation testing',
-      'Immunization schedule tracking & maternal child health tracking',
-      'Health education presentations in rural villages'
-    ],
-    teachingAids: [
-      'Public health models & epidemiological charts',
-      'Statistical analysis software packages',
-      'Mobile health camp kit & water testing apparatus',
-      'Hygiene, nutrition & sanitation displays'
-    ],
-    facultyList: [
-      {
-        id: 'f-cm-1',
-        name: 'Dr. B. Biswas',
-        designation: 'Associate Professor & HOD',
-        qualification: 'M.D. (Community Medicine)',
-        specialization: 'Epidemiology & Rural Healthcare',
-        email: 'bbiswas@bwnhmch.com',
-        phone: '+91 94343 40001'
-      }
-    ],
-    gallery: [
-      {
-        id: 'g-cm-1',
-        url: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800',
-        caption: 'Rural Health Camp & Village Health Survey Unit',
-        category: 'Field Visit'
-      }
-    ],
-    research: [
-      'Vector-Borne Disease Prevention Strategies in Rural Bardhaman',
-      'Health Awareness & Homoeopathic Coverage in Rural Purba Bardhaman'
-    ],
-    achievements: [
-      'Adoption of 3 local villages for routine health monitoring',
-      'Organized 20+ free health awareness camps annually'
-    ],
-    downloads: [
-      {
-        id: 'd-cm-1',
-        title: 'Community Health Survey Questionnaire & Demographic Logbook',
-        url: '/documents/bhmch_community_medicine_questionnaire.pdf',
-        fileType: 'PDF Document',
-        fileSize: '1.4 MB',
-        uploadDate: '2026-01-14'
-      }
-    ],
-    laboratories: ['Public Health & Hygiene Museum'],
-    facilities: ['Mobile Rural Health Camp Unit', 'Epidemiological Statistical Lab']
+    ]
   }
 ];
 

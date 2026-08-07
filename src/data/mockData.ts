@@ -29,15 +29,15 @@ export const DEFAULT_PRINCIPAL_PROFILE: PrincipalProfile = {
   image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600',
   messageText: 'Welcome to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Established in 1958, our institution stands as a premier seat of homoeopathic learning in Eastern India. We strive to merge Hahnemannian classical philosophy with modern medical diagnostics and research.',
   tenure: '2021 - Present',
-  email: 'principal@bhmch.com',
-  phone: '+91 342 2656331'
+  email: 'drsusmita01@gmail.com',
+  phone: '9434238508'
 };
 
 export const DEFAULT_CMS_DATA: CMSData = {
   collegeName: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
-  address: '1, Ramkrishna Road, Burdwan, West Bengal - 713101, India',
-  phone: '+91 (0342) 2656331 / 2568442',
-  email: 'principal@bhmch.com',
+  address: 'NIMBARK BHABAN, Rajganj, P.O. - Nutanganj, Purba Bardhaman, Bardhaman, West Bengal, PIN - 713102',
+  phone: '+91-342-2530601 / +91-342-2530507',
+  email: 'bhmchospital78@gmail.com',
   aboutText: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL is a premier AYUSH educational institution in West Bengal, dedicated to classical homoeopathic education, research, and patient care.',
   historyText: 'Founded in 1958 by visionaries in Burdwan district, the college was established to deliver affordable homoeopathic healthcare and quality medical training.',
   missionText: 'To nurture highly competent, empathetic homoeopathic physicians equipped with deep classical knowledge and modern clinical diagnostic skills.',
@@ -377,13 +377,13 @@ export const DEPARTMENTS: Department[] = [
 export const FACULTY: FacultyMember[] = [
   {
     id: 'fac_1',
-    name: 'Dr. S. K. Banerjea',
-    designation: 'Professor & HOD',
+    name: 'Dr. Priyanka Maji',
+    designation: 'Associate Professor & Dept. In-Charge',
     department: 'Materia Medica',
     qualification: 'MD (Hom)',
-    experience: '28 Years',
-    email: 'skbanerjea@bhmch.com',
-    publications: 24
+    experience: '12 Years',
+    email: 'priyanka.maji2013@gmail.com',
+    publications: 14
   },
   {
     id: 'fac_2',
@@ -579,7 +579,7 @@ export const PATIENTS: PatientRecord[] = [
     homoeopathicRemedy: 'Pulsatilla Nigricans',
     potency: '200C',
     status: 'Under Treatment',
-    doctor: 'Dr. S. K. Banerjea'
+    doctor: 'Dr. Priyanka Maji'
   },
   {
     id: 'pat_4',

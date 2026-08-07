@@ -601,7 +601,7 @@ export const cmsService = {
           opdTiming: '9:00 AM - 2:00 PM',
           ipdTiming: '24x7 Visiting Hours 4 PM - 6 PM',
           description: '100 Bedded Hospital with state-of-the-art OPDs and IPDs.',
-          helplineNumber: '+91 342 2634999',
+          helplineNumber: '+91-342-2530507',
         },
         message: 'Hospital details',
         timestamp: currentTimestamp(),

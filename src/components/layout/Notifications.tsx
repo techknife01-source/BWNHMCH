@@ -30,7 +30,7 @@ export const Notifications: React.FC = () => {
       id: '2',
       category: 'Hospital Alert',
       title: 'OPD Patient Surge Notice',
-      message: 'Dr. S. K. Banerjea OPD clinic reached capacity. Additional doctors allocated to OPD Counter 3.',
+      message: 'Dr. Soumitra De OPD clinic reached capacity. Additional doctors allocated to OPD Counter 3.',
       time: '45m ago',
       read: false,
       icon: Stethoscope,

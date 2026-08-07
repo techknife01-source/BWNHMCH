@@ -36,7 +36,7 @@ export const mockLibraryBooks: LibraryBook[] = [
   {
     id: 'lib-102',
     title: 'Lectures on Homoeopathic Materia Medica Notes & Comparative Charts',
-    author: 'Prof. (Dr.) S. K. Banerjea',
+    author: 'Dr. Priyanka Maji',
     publisher: 'BHMC Academic Press',
     category: 'Materia Medica',
     department: 'Materia Medica',
@@ -53,7 +53,7 @@ export const mockLibraryBooks: LibraryBook[] = [
     coverImageUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=300&q=80',
     streamUrl: '/documents/bhmch_materia_medica_notes.pdf',
     fileUrl: '/documents/bhmch_materia_medica_notes.pdf',
-    uploadedBy: 'Prof. (Dr.) S. K. Banerjea',
+    uploadedBy: 'Dr. Priyanka Maji',
     uploadedByUserId: 'usr-fac-001',
     uploadedRole: 'HOD Materia Medica',
     uploadedAt: '2026-05-20',

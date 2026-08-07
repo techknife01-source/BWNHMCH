@@ -206,7 +206,8 @@ export const GalleryManagementPanel: React.FC = () => {
               const existingFilled = prev.filter((i) => i.imageUrl.trim() || i.title.trim());
               return [...existingFilled, ...newItems];
             });
-            toast.success(`${newItems.length} photo(s) selected and processed!`);
+            setIsUploadModalOpen(true);
+            toast.success(`${newItems.length} photo(s) selected & ready for upload! Click "Save & Publish" to complete.`);
           }
         }
       };

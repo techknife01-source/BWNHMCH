@@ -50,9 +50,9 @@ export interface DepartmentCMSData {
   teachingAids: string[]; // Teaching Aids
   facultyList: FacultyMemberCMS[]; // Faculty List
   gallery: GalleryItemCMS[]; // Gallery
-  research: string[]; // Research
-  achievements: string[]; // Achievements
-  downloads: DownloadItemCMS[]; // Downloads
+  research?: string[]; // Research
+  achievements?: string[]; // Achievements
+  downloads?: DownloadItemCMS[]; // Downloads
 
   // Extended metadata
   hod?: string;

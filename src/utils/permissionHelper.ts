@@ -114,7 +114,71 @@ export const isAdmin = (user: any): boolean => {
 
 export const canManageGallery = (user: any): boolean => {
   if (!user) return false;
-  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
+
+  const roleStr = (user.role || user.userRole || user.userType || '').toLowerCase();
+  const desStr = (user.designation || '').toLowerCase();
+  const emailStr = (user.email || '').toLowerCase();
+  const nameStr = (user.fullName || user.name || user.username || '').toLowerCase();
+
+  // Super Admin
+  if (roleStr.includes('super') || desStr.includes('super') || isSuperAdmin(user)) {
+    return true;
+  }
+
+  // Admin / Office Admin
+  if (
+    roleStr.includes('admin') ||
+    roleStr.includes('office_admin') ||
+    desStr.includes('admin') ||
+    emailStr.includes('admin') ||
+    isAdmin(user)
+  ) {
+    return true;
+  }
+
+  // Vice Principal (check before principal to prevent ambiguity)
+  if (
+    roleStr.includes('vice') ||
+    desStr.includes('vice') ||
+    emailStr.includes('vice') ||
+    isVicePrincipal(user)
+  ) {
+    return true;
+  }
+
+  // Principal
+  if (
+    roleStr === 'principal' ||
+    roleStr.includes('principal') ||
+    desStr.includes('principal') ||
+    emailStr.includes('principal') ||
+    emailStr.includes('drsusmita') ||
+    nameStr.includes('susmita') ||
+    isPrincipal(user)
+  ) {
+    return true;
+  }
+
+  // Check roles array
+  const roles = coreGetUserRoleCodes(user);
+  const allowed = [
+    'ROLE_SUPER_ADMIN',
+    'ROLE_SUPERADMIN',
+    'SUPER_ADMIN',
+    'SUPERADMIN',
+    'ROLE_ADMIN',
+    'ADMIN',
+    'ROLE_OFFICE_ADMIN',
+    'OFFICE_ADMIN',
+    'ROLE_PRINCIPAL',
+    'PRINCIPAL',
+    'ROLE_VICE_PRINCIPAL',
+    'VICE_PRINCIPAL',
+    'ROLE_VICEPRINCIPAL',
+    'VICEPRINCIPAL',
+  ];
+
+  return roles.some((r) => allowed.includes(r.toUpperCase()));
 };
 
 export const isHOD = (user: any): boolean => {

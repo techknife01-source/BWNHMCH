@@ -298,9 +298,9 @@ export const AdvancedIPD: React.FC<AdvancedIPDProps> = ({ beds, onUpdateBeds, us
                     onChange={e => setAdmissionForm({ ...admissionForm, doctorInCharge: e.target.value })}
                     className="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl text-2xs bg-white dark:bg-slate-900 font-normal text-slate-800 dark:text-slate-100"
                   >
-                    <option value="Dr. Susmita Chatterjee">Dr. Susmita Chatterjee (Medicine)</option>
-                    <option value="Dr. Sunita Sharma">Dr. Sunita Sharma (Gynae)</option>
-                    <option value="Dr. S. K. Banerjea">Dr. S. K. Banerjea (Materia Medica)</option>
+                    <option value="Dr. Susmita Chatterjee">Dr. Susmita Chatterjee (Medicine / Surgery)</option>
+                    <option value="Dr. Priyanka Maji">Dr. Priyanka Maji (Materia Medica)</option>
+                    <option value="Dr. Soumitra De">Dr. Soumitra De (Practice of Medicine)</option>
                     <option value="Dr. Rajesh Patel">Dr. Rajesh Patel (Surgery)</option>
                   </select>
                 </div>

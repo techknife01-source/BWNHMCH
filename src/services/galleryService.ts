@@ -165,10 +165,13 @@ class GalleryService {
       role === 'ROLE_SUPER_ADMIN' ||
       role === 'ADMIN' ||
       role === 'ROLE_ADMIN' ||
+      role === 'OFFICE_ADMIN' ||
+      role === 'ROLE_OFFICE_ADMIN' ||
       role === 'PRINCIPAL' ||
       role === 'ROLE_PRINCIPAL' ||
       role === 'VICE_PRINCIPAL' ||
-      role === 'ROLE_VICE_PRINCIPAL';
+      role === 'ROLE_VICE_PRINCIPAL' ||
+      role === 'AUTHORIZED';
 
     if (!isAuthorized) {
       result = result.filter((item) => item.status === 'PUBLISHED');

@@ -43,7 +43,7 @@ const MOCK_ACCOUNTS_MAP: Record<string, Partial<LoginResponse>> = {
     userId: 'usr-fac-001',
     username: 'faculty',
     email: 'faculty@bhmch.com',
-    fullName: 'Prof. (Dr.) S. K. Banerjea',
+    fullName: 'Dr. Priyanka Maji',
     roles: ['ROLE_FACULTY', 'ROLE_HOD'],
     department: 'Materia Medica',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',

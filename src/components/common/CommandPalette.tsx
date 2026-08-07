@@ -25,7 +25,7 @@ export const CommandPalette: React.FC = () => {
     // Global Search Entities
     { category: 'Students', label: 'Arjun Sen (BHMS 3rd Year - Reg #045)', path: '/portal/student', icon: GraduationCap },
     { category: 'Students', label: 'Priya Mukherjee (BHMS 1st Year - Reg #112)', path: '/portal/student', icon: GraduationCap },
-    { category: 'Faculty', label: 'Dr. S. K. Banerjea (HOD Materia Medica)', path: '/portal/faculty', icon: Users },
+    { category: 'Faculty', label: 'Dr. Priyanka Maji (Dept Incharge Materia Medica)', path: '/portal/faculty', icon: Users },
     { category: 'Faculty', label: 'Dr. Susmita Chatterjee (Principal)', path: '/portal/principal', icon: Users },
     { category: 'Patients', label: 'Savitri Devi (OPD #2026-90812 - General)', path: '/portal/hospital', icon: Stethoscope },
     { category: 'Patients', label: 'Ramesh Das (IPD Bed #12 - Male Ward)', path: '/portal/hospital', icon: Stethoscope },

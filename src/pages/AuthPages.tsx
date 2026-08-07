@@ -56,8 +56,8 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
     },
     faculty: {
       role: 'faculty',
-      name: 'Dr. S. K. Banerjea',
-      email: 'skbanerjea@bhmch.com',
+      name: 'Dr. Priyanka Maji',
+      email: 'priyanka.maji2013@gmail.com',
       avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       department: 'Materia Medica'
     },
@@ -300,7 +300,7 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
                     onClick={() => handleDemoLogin('faculty')}
                     className="p-2 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-[#00A651] transition text-left"
                   >
-                    Faculty (Dr. Banerjea)
+                    Faculty (Dr. Maji)
                   </button>
                   <button
                     onClick={() => handleDemoLogin('hospital_superintendent')}

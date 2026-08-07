@@ -533,7 +533,7 @@ export const Dashboards: React.FC<DashboardsProps> = ({ session, onLogout }) => 
                   {session.role === 'faculty' && (
                     <div className="space-y-4">
                       <p className="text-2xs text-slate-500">
-                        Hello Dr. Banerjea. As HOD of Materia Medica, you are assigned 8 scholars. Weekly drug-proving seminar rosters are scheduled on Fridays.
+                        Hello Faculty Member. As part of Department of Homoeopathic Materia Medica, you are assigned 8 scholars. Weekly drug-proving seminar rosters are scheduled on Fridays.
                       </p>
                       <div className="p-4 border border-slate-100 dark:border-slate-800 rounded-xl space-y-1.5">
                         <span className="text-3xs font-bold uppercase tracking-wider text-blue-600 block">Assigned Lectures today</span>

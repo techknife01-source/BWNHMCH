@@ -26,8 +26,8 @@ export const NoticeFormModal: React.FC<NoticeFormModalProps> = ({
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<NoticeCategory>('ACADEMIC');
   const [department, setDepartment] = useState('All');
-  const [author, setAuthor] = useState('Prof. Dr. S. K. Banerjea');
-  const [authorRole, setAuthorRole] = useState('Principal & Director');
+  const [author, setAuthor] = useState('Prof. (Dr.) Susmita Chatterjee');
+  const [authorRole, setAuthorRole] = useState('Principal');
   const [publishedDate, setPublishedDate] = useState(new Date().toISOString().split('T')[0]);
   const [scheduledPublishDate, setScheduledPublishDate] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
@@ -43,7 +43,7 @@ export const NoticeFormModal: React.FC<NoticeFormModalProps> = ({
       setContent(noticeToEdit.content || '');
       setCategory(noticeToEdit.category || 'ACADEMIC');
       setDepartment(noticeToEdit.department || 'All');
-      setAuthor(noticeToEdit.author || 'Prof. Dr. S. K. Banerjea');
+      setAuthor(noticeToEdit.author || 'Prof. (Dr.) Susmita Chatterjee');
       setAuthorRole(noticeToEdit.authorRole || 'Principal');
       setPublishedDate(noticeToEdit.publishedDate || new Date().toISOString().split('T')[0]);
       setScheduledPublishDate(noticeToEdit.scheduledPublishDate || '');
@@ -59,8 +59,8 @@ export const NoticeFormModal: React.FC<NoticeFormModalProps> = ({
       setContent('<p>Enter official directive content here...</p>');
       setCategory('ACADEMIC');
       setDepartment('All');
-      setAuthor(currentRole === 'HOD' ? 'HOD Office' : 'Prof. Dr. S. K. Banerjea');
-      setAuthorRole(currentRole === 'HOD' ? 'Head of Department' : 'Principal & Director');
+      setAuthor(currentRole === 'HOD' ? 'HOD Office' : 'Prof. (Dr.) Susmita Chatterjee');
+      setAuthorRole(currentRole === 'HOD' ? 'Head of Department' : 'Principal');
       setPublishedDate(new Date().toISOString().split('T')[0]);
       setScheduledPublishDate('');
       setExpiryDate('');
