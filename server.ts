@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import fs from 'fs';
+import { execSync } from 'child_process';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -87,6 +89,39 @@ app.use('/api/', apiLimiter);
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Ensure E-Library PDFs exist on server startup
+const organonPdfPath = path.join(process.cwd(), 'public', 'documents', 'bhmch_organon_edition6.pdf');
+if (!fs.existsSync(organonPdfPath)) {
+  try {
+    console.log('[PDF Storage] Auto-generating E-Library PDF resources...');
+    execSync('node scripts/generatePdfs.js', { stdio: 'inherit' });
+  } catch (err) {
+    console.error('[PDF Storage] Error auto-generating E-Library PDFs:', err);
+  }
+}
+
+// Serve static documents and downloads directly with application/pdf Content-Type
+app.use('/documents', express.static(path.join(process.cwd(), 'public', 'documents'), {
+  setHeaders: (res, filepath) => {
+    if (filepath.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+    }
+  }
+}));
+
+app.use('/downloads', express.static(path.join(process.cwd(), 'public', 'downloads'), {
+  setHeaders: (res, filepath) => {
+    if (filepath.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+    }
+  }
+}));
+
+// Ensure PDF requests that do not exist return a 404 JSON response rather than index.html
+app.use(['/documents/*', '/downloads/*'], (req: Request, res: Response) => {
+  res.status(404).json({ success: false, message: 'Document or PDF resource not found' });
+});
 
 // MongoDB Connection Logic with Retry Strategy
 let isConnecting = false;
