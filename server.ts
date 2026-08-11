@@ -9,6 +9,19 @@ import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
+import {
+  initBooksDatabaseAndMigration,
+  handleGetBooks,
+  handleGetBookById,
+  handleStreamBookPdf,
+  handleCreateBook,
+  handleUpdateBook,
+  handleDeleteBook,
+  handleIncrementView,
+  handleIncrementDownload,
+  handleGetStreamToken,
+  handleMigrateToDrive,
+} from './src/server/booksController';
 
 dotenv.config();
 
@@ -221,6 +234,79 @@ app.get('/api/v1/actuator/health', (req: Request, res: Response) => {
     },
   });
 });
+
+// Initialize E-Library Books Database & Google Drive Auto-Sync
+initBooksDatabaseAndMigration().catch((err) => console.warn('[Books Init Warning]:', err));
+
+// Book & E-Library Endpoints Across All URL Routes
+const bookCollectionRoutes = [
+  '/books',
+  '/library/books',
+  '/api/books',
+  '/api/v1/books',
+  '/api/v1/library/books',
+];
+
+bookCollectionRoutes.forEach((route) => {
+  app.get(route, handleGetBooks);
+  app.post(route, handleCreateBook);
+});
+
+const bookPdfStreamRoutes = [
+  '/books/:id/pdf',
+  '/library/books/:id/pdf',
+  '/api/books/:id/pdf',
+  '/api/v1/books/:id/pdf',
+  '/api/v1/library/books/:id/pdf',
+];
+
+bookPdfStreamRoutes.forEach((route) => {
+  app.get(route, handleStreamBookPdf);
+});
+
+const bookItemRoutes = [
+  '/books/:id',
+  '/library/books/:id',
+  '/api/books/:id',
+  '/api/v1/books/:id',
+  '/api/v1/library/books/:id',
+];
+
+bookItemRoutes.forEach((route) => {
+  app.get(route, handleGetBookById);
+  app.put(route, handleUpdateBook);
+  app.delete(route, handleDeleteBook);
+});
+
+const bookViewRoutes = [
+  '/books/:id/view',
+  '/library/books/:id/view',
+  '/api/books/:id/view',
+  '/api/v1/books/:id/view',
+  '/api/v1/library/books/:id/view',
+];
+bookViewRoutes.forEach((route) => app.post(route, handleIncrementView));
+
+const bookDownloadRoutes = [
+  '/books/:id/download',
+  '/library/books/:id/download',
+  '/api/books/:id/download',
+  '/api/v1/books/:id/download',
+  '/api/v1/library/books/:id/download',
+];
+bookDownloadRoutes.forEach((route) => app.post(route, handleIncrementDownload));
+
+const bookTokenRoutes = [
+  '/books/:id/stream-token',
+  '/library/books/:id/stream-token',
+  '/api/books/:id/stream-token',
+  '/api/v1/books/:id/stream-token',
+  '/api/v1/library/books/:id/stream-token',
+];
+bookTokenRoutes.forEach((route) => app.get(route, handleGetStreamToken));
+
+app.post('/api/v1/books/migrate-to-drive', handleMigrateToDrive);
+app.post('/api/v1/library/books/migrate-to-drive', handleMigrateToDrive);
 
 // OPD Ticket Email & Notification API Endpoint
 app.post('/api/v1/opd/send-ticket-email', (req: Request, res: Response) => {
@@ -552,7 +638,7 @@ app.post('/api/v1/gallery/bulk-status', (req: Request, res: Response) => {
 
 // API Routes Placeholder / Proxy Handler
 app.use('/api/v1', (req: Request, res: Response, next: NextFunction) => {
-  if (req.path === '/health' || req.path === '/actuator/health' || req.path.startsWith('/opd') || req.path.startsWith('/notices') || req.path.startsWith('/gallery')) return next();
+  if (req.path === '/health' || req.path === '/actuator/health' || req.path.startsWith('/opd') || req.path.startsWith('/notices') || req.path.startsWith('/gallery') || req.path.startsWith('/books') || req.path.startsWith('/library')) return next();
   res.status(200).json({
     message: 'BHMCH API Service operational',
     path: req.path,
