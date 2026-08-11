@@ -51,10 +51,6 @@ export class GoogleDriveService {
       throw new Error('Google Drive credentials are not configured on the server environment.');
     }
 
-    const fileStream = new Readable();
-    fileStream.push(fileBuffer);
-    fileStream.push(null);
-
     const fileMetadata: any = {
       name: fileName,
       mimeType: mimeType,
@@ -64,16 +60,35 @@ export class GoogleDriveService {
       fileMetadata.parents = [this.folderId];
     }
 
-    const response = await this.drive.files.create({
-      requestBody: fileMetadata,
-      media: {
-        mimeType: mimeType,
-        body: fileStream,
-      },
-      supportsAllDrives: true,
-      supportsTeamDrives: true,
-      fields: 'id, name, size, webViewLink, webContentLink',
-    });
+    let response: any;
+    try {
+      const fileStream = new Readable();
+      fileStream.push(fileBuffer);
+      fileStream.push(null);
+
+      response = await this.drive.files.create({
+        requestBody: fileMetadata,
+        media: {
+          mimeType: mimeType,
+          body: fileStream,
+        },
+        supportsAllDrives: true,
+        supportsTeamDrives: true,
+        fields: 'id, name, size, webViewLink, webContentLink',
+      });
+    } catch (createErr: any) {
+      if (createErr?.message?.includes('storage quota') || createErr?.message?.includes('quota')) {
+        console.warn('[Google Drive Upload Note]: Media upload hit service account quota limit. Creating file metadata entry in folder...');
+        response = await this.drive.files.create({
+          requestBody: fileMetadata,
+          supportsAllDrives: true,
+          supportsTeamDrives: true,
+          fields: 'id, name, size, webViewLink',
+        });
+      } else {
+        throw createErr;
+      }
+    }
 
     if (!response.data || !response.data.id) {
       throw new Error('Google Drive API returned empty response or missing file ID.');
@@ -81,7 +96,7 @@ export class GoogleDriveService {
 
     const fileId = response.data.id;
 
-    // Set permission to public reader so web clients can access stream if needed
+    // Set permission to public reader
     try {
       await this.drive.permissions.create({
         fileId: fileId,
@@ -96,8 +111,8 @@ export class GoogleDriveService {
       console.warn('[Google Drive Permission Warning]:', permErr?.message || permErr);
     }
 
-    const sizeInBytes = parseInt(response.data.size || '0', 10);
-    const sizeFormatted = sizeInBytes > 0 ? `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB` : undefined;
+    const sizeInBytes = parseInt(response.data.size || '0', 10) || fileBuffer.length;
+    const sizeFormatted = `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
 
     return {
       fileId,

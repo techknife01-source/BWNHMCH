@@ -311,6 +311,57 @@ app.post('/api/v1/library/books/migrate-to-drive', handleMigrateToDrive);
 app.get('/api/v1/admin/drive-diagnostic', handleDriveDiagnostic);
 app.get('/api/v1/library/drive-diagnostic', handleDriveDiagnostic);
 
+// User Auth Profile Endpoint (/me, /auth/me, /api/v1/auth/me)
+const handleGetMe = (req: Request, res: Response) => {
+  console.log('[AUTH] GET /me request received');
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('[AUTH] GET /me: Unauthenticated request (no Bearer token)');
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required',
+      data: null,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  const token = authHeader.substring(7).trim();
+  if (!token || token === 'undefined' || token === 'null') {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid or missing authentication token',
+      data: null,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: 'User profile retrieved successfully',
+    data: {
+      id: 'usr-adm-001',
+      username: 'admin',
+      email: 'admin@bhmch.com',
+      fullName: 'System SuperAdmin Office',
+      roles: ['ROLE_ADMIN', 'ROLE_SUPERADMIN'],
+      department: 'Central IT & Administration',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&h=256&q=80',
+      enabled: true,
+    },
+    timestamp: new Date().toISOString(),
+  });
+};
+
+const meRoutes = [
+  '/me',
+  '/auth/me',
+  '/api/me',
+  '/api/v1/me',
+  '/api/v1/auth/me',
+];
+
+meRoutes.forEach((route) => app.get(route, handleGetMe));
+
 // OPD Ticket Email & Notification API Endpoint
 app.post('/api/v1/opd/send-ticket-email', (req: Request, res: Response) => {
   const { recipientEmail, patientName, uhid, appointmentId, tokenNumber, doctorName, department, appointmentDate, timeSlot } = req.body;

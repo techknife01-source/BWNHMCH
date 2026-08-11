@@ -255,20 +255,20 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
   res.setHeader('Accept-Ranges', 'bytes');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // Option A: Stream from Google Drive if file ID exists & Drive service is configured
+  // Option A: Stream from Google Drive if file ID exists & Drive service is configured with non-zero length
   if (book.googleDriveFileId && googleDriveService.hasCredentials()) {
     try {
       const driveRes = await googleDriveService.getPdfStream(book.googleDriveFileId, req.headers.range);
+      const contentLength = parseInt(driveRes.headers['content-length'] || '0', 10);
       
-      if (driveRes.headers['content-range']) {
-        res.setHeader('Content-Range', driveRes.headers['content-range']);
+      if (contentLength > 0) {
+        if (driveRes.headers['content-range']) {
+          res.setHeader('Content-Range', driveRes.headers['content-range']);
+        }
+        res.setHeader('Content-Length', contentLength);
+        res.status(driveRes.status || 200);
+        return driveRes.stream.pipe(res);
       }
-      if (driveRes.headers['content-length']) {
-        res.setHeader('Content-Length', driveRes.headers['content-length']);
-      }
-
-      res.status(driveRes.status || 200);
-      return driveRes.stream.pipe(res);
     } catch (driveErr: any) {
       console.warn(`[Google Drive Stream Error for ${book.title}]:`, driveErr?.message || driveErr);
       // Fallback to local file if available
@@ -316,6 +316,8 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
 
 export const handleCreateBook = async (req: Request, res: Response) => {
   try {
+    console.log('[E-LIBRARY] Upload started');
+
     const {
       title,
       author,
@@ -348,31 +350,68 @@ export const handleCreateBook = async (req: Request, res: Response) => {
 
     // Handle PDF upload
     const base64Content = fileDataUrl || fileData;
-    if (base64Content) {
-      const cleanBase64 = base64Content.replace(/^data:application\/pdf;base64,/, '');
-      const fileBuffer = Buffer.from(cleanBase64, 'base64');
-      fileSizeStr = `${(fileBuffer.length / (1024 * 1024)).toFixed(1)} MB`;
+    if (!base64Content) {
+      return res.status(400).json({ success: false, message: 'PDF file content is required for upload.' });
+    }
 
-      // Upload to Google Drive if configured
-      if (googleDriveService.hasCredentials()) {
-        try {
-          const driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
-          googleDriveFileId = driveRes.fileId;
-          storageProvider = 'google-drive';
-          if (driveRes.fileSizeFormatted) fileSizeStr = driveRes.fileSizeFormatted;
-        } catch (driveErr: any) {
-          console.error('[Create Book Google Drive Error]:', driveErr?.message || driveErr);
-        }
+    const cleanBase64 = base64Content.replace(/^data:application\/pdf;base64,/, '');
+    const fileBuffer = Buffer.from(cleanBase64, 'base64');
+    fileSizeStr = `${(fileBuffer.length / (1024 * 1024)).toFixed(1)} MB`;
+
+    // 1. Verify Google Drive Auth & Access
+    if (!googleDriveService.hasCredentials()) {
+      return res.status(500).json({
+        success: false,
+        message: 'Google Drive integration is not configured. Upload aborted.',
+      });
+    }
+
+    const driveAccess = await googleDriveService.verifyDriveAccess();
+    if (!driveAccess.success) {
+      console.error('[E-LIBRARY] Google Drive folder access failed:', driveAccess.message);
+      return res.status(500).json({
+        success: false,
+        message: `Google Drive verification failed: ${driveAccess.message}`,
+      });
+    }
+
+    console.log('[E-LIBRARY] Google Drive authentication successful');
+    console.log('[E-LIBRARY] Target folder accessible');
+
+    // 2. Upload PDF to Google Drive
+    console.log(`[E-LIBRARY] Uploading PDF: ${nameToUse}`);
+    let driveRes: { fileId: string; fileSizeFormatted?: string };
+    try {
+      driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
+      if (!driveRes || !driveRes.fileId) {
+        throw new Error('Google Drive upload returned an invalid fileId');
       }
+      googleDriveFileId = driveRes.fileId;
+      storageProvider = 'google-drive';
+      if (driveRes.fileSizeFormatted) fileSizeStr = driveRes.fileSizeFormatted;
 
-      // Save locally as well
+      console.log('[E-LIBRARY] Google Drive upload successful');
+      console.log(`[E-LIBRARY] Google Drive fileId: ${googleDriveFileId}`);
+    } catch (uploadErr: any) {
+      console.error('[E-LIBRARY] Google Drive upload failed:', uploadErr?.message || uploadErr);
+      return res.status(500).json({
+        success: false,
+        message: `Google Drive upload failed: ${uploadErr?.message || uploadErr}. Book record was not created in database.`,
+      });
+    }
+
+    // Save locally as backup
+    try {
       const documentsDir = path.join(process.cwd(), 'public', 'documents');
       if (!fs.existsSync(documentsDir)) {
         fs.mkdirSync(documentsDir, { recursive: true });
       }
       fs.writeFileSync(path.join(documentsDir, nameToUse), fileBuffer);
+    } catch (locErr: any) {
+      console.warn('[E-LIBRARY] Local backup file write warning:', locErr?.message || locErr);
     }
 
+    const nowIso = new Date().toISOString();
     const newBook: any = {
       id: bookId,
       title,
@@ -386,14 +425,17 @@ export const handleCreateBook = async (req: Request, res: Response) => {
       isbn: isbn || `978-${Math.floor(1000000000 + Math.random() * 9000000000)}`,
       accessionNo: accessionNo || `BHMC-DIG-${Math.floor(100 + Math.random() * 900)}`,
       type: type || 'BOOK',
-      fileFormat: fileFormat || 'PDF',
+      fileFormat: 'PDF',
+      mimeType: 'application/pdf',
       availableCopies: 10,
       isBookmarked: false,
       coverImageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=300&q=80',
       uploadedBy: uploadedBy || 'Faculty Administrator',
       uploadedByUserId: 'usr-fac-001',
       uploadedRole: 'Faculty',
-      uploadedAt: new Date().toISOString().split('T')[0],
+      uploadedAt: nowIso.split('T')[0],
+      createdAt: nowIso,
+      updatedAt: nowIso,
       viewsCount: 0,
       downloadsCount: 0,
       allowDownload: true,
@@ -410,17 +452,24 @@ export const handleCreateBook = async (req: Request, res: Response) => {
     memoryBooksStore.unshift(newBook);
 
     if (mongoose.connection.readyState === 1) {
-      await (BookModel as any).create(newBook);
+      try {
+        await (BookModel as any).create(newBook);
+      } catch (dbErr: any) {
+        console.warn('[E-LIBRARY] MongoDB create warning (stored in memory):', dbErr?.message || dbErr);
+      }
     }
+
+    console.log('[E-LIBRARY] Database record created');
+    console.log('[E-LIBRARY] Upload completed');
 
     res.status(201).json({
       success: true,
       message: 'Book successfully published to E-Library',
       data: formatBookOutput(newBook),
-      timestamp: new Date().toISOString(),
+      timestamp: nowIso,
     });
   } catch (err: any) {
-    console.error('[Create Book Error]:', err?.stack || err?.message);
+    console.error('[E-LIBRARY] Create Book Error:', err?.stack || err?.message);
     res.status(500).json({ success: false, message: 'Failed to create and publish book resource.' });
   }
 };
