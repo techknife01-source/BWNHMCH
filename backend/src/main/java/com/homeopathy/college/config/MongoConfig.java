@@ -89,6 +89,10 @@ public class MongoConfig {
 
             MongoClientSettings settings = MongoClientSettings.builder()
                     .applyConnectionString(connectionString)
+                    .applyToClusterSettings(builder -> builder.serverSelectionTimeout(5, java.util.concurrent.TimeUnit.SECONDS))
+                    .applyToSocketSettings(builder -> builder
+                            .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+                            .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS))
                     .build();
 
             return MongoClients.create(settings);

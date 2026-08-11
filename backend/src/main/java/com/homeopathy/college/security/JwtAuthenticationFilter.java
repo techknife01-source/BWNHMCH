@@ -29,33 +29,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            return true;
-        }
-
-        String path = request.getServletPath();
-        String uri = request.getRequestURI();
-
-        for (String publicUrl : SecurityConstants.PUBLIC_URLS) {
-            if (pathMatcher.match(publicUrl, path) || pathMatcher.match(publicUrl, uri)) {
-                return true;
-            }
-        }
-
-        return false;
+        return "OPTIONS".equalsIgnoreCase(request.getMethod());
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        boolean isMeRequest = path != null && (path.endsWith("/me") || path.endsWith("/auth/me"));
+
+        if (isMeRequest) {
+            log.info("[AUTH] /me request");
+        }
+
         try {
             String jwt = getJwtFromRequest(request);
+            boolean tokenPresent = StringUtils.hasText(jwt);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            if (isMeRequest) {
+                log.info("[AUTH] Token present: {}", tokenPresent);
+            }
+
+            if (tokenPresent && tokenProvider.validateToken(jwt)) {
+                if (isMeRequest) {
+                    log.info("[AUTH] Token verified");
+                }
+
                 String userId = tokenProvider.getUserIdFromJWT(jwt);
-
                 UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+
+                if (isMeRequest) {
+                    log.info("[AUTH] User lookup completed");
+                }
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

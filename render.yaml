@@ -5,10 +5,10 @@ services:
     dockerfilePath: ./backend/Dockerfile
     region: singapore
     plan: free
-    healthCheckPath: /api/v1/actuator/health
+    healthCheckPath: /api/v1/health
     envVars:
       - key: PORT
-        value: 10000
+        value: 8080
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: MONGODB_URI
@@ -26,6 +26,12 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: CLOUDINARY_URL
+        sync: false
+      - key: GOOGLE_DRIVE_FOLDER_ID
+        sync: false
+      - key: GOOGLE_DRIVE_CLIENT_EMAIL
+        sync: false
+      - key: GOOGLE_DRIVE_PRIVATE_KEY
         sync: false
       - key: SMTP_HOST
         value: smtp.gmail.com

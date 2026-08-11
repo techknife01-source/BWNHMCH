@@ -24,13 +24,13 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        log.info("Attempting MongoDB database initialization and default user seeding...");
+        log.info("[STARTUP] Attempting MongoDB database initialization and default user seeding...");
 
         try {
             // Ensure collection exists in MongoDB database
             if (!mongoTemplate.collectionExists(User.class)) {
                 mongoTemplate.createCollection(User.class);
-                log.info("Created 'users' collection in database '{}'", mongoTemplate.getDb().getName());
+                log.info("[STARTUP] Created 'users' collection in database '{}'", mongoTemplate.getDb().getName());
             }
 
             // Seed default accounts
@@ -45,10 +45,10 @@ public class DatabaseSeeder implements CommandLineRunner {
             seedUser("admission", "admission@bwnhmch.com", "Admission@123", "Admission Cell Officer", Role.ROLE_ADMISSION_CELL);
             seedUser("student1", "student1@bwnhmch.com", "Student@123", "Student One", Role.ROLE_STUDENT);
 
-            log.info("Database seeding completed successfully.");
+            log.info("[STARTUP] Database seeding completed successfully.");
         } catch (Throwable e) {
-            log.error("Database seeding skipped or failed due to MongoDB connection/authentication error: {}", e.getMessage());
-            log.warn("Application startup continues gracefully without crashing.");
+            log.error("[STARTUP] Database seeding skipped or failed due to MongoDB error: {}", e.getMessage());
+            log.warn("[STARTUP] Application startup continues gracefully without crashing.");
         }
     }
 

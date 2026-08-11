@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -77,6 +79,16 @@ public class AuthController {
     @GetMapping("/me")
     @Operation(summary = "Fetch current authenticated user profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(@AuthenticationPrincipal UserPrincipal currentUser) {
+        log.info("[AUTH] /me request");
+        boolean tokenPresent = currentUser != null;
+        log.info("[AUTH] Token present: {}", tokenPresent);
+        if (currentUser == null) {
+            log.info("[AUTH] Token missing or invalid for /me request");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Unauthorized access: missing or invalid token"));
+        }
+        log.info("[AUTH] Token verified");
+        log.info("[AUTH] User lookup completed");
         UserResponse response = authService.getCurrentUser(currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success(response, "Profile retrieved successfully"));
     }

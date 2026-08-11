@@ -26,7 +26,7 @@ public class HealthController {
 
     private final MongoTemplate mongoTemplate;
 
-    @GetMapping("/health")
+    @GetMapping({"/health", "/actuator/health"})
     @Operation(summary = "Check backend microservice health & environment details")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getHealthStatus() {
         Map<String, Object> status = new HashMap<>();

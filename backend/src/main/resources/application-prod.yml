@@ -1,7 +1,9 @@
 # Production Environment Configuration
 logging:
   level:
-    root: WARN
+    root: INFO
+    org.springframework.boot: INFO
+    org.springframework.web: INFO
     com.homeopathy.college: INFO
 
 springdoc:

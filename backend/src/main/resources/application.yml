@@ -1,5 +1,6 @@
 server:
-  port: ${PORT:10000}
+  port: ${PORT:8080}
+  address: 0.0.0.0
   servlet:
     context-path: /api/v1
 
@@ -28,8 +29,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 # JWT Configuration
 app:
@@ -46,6 +47,13 @@ cloudinary:
   api-key: ${CLOUDINARY_API_KEY:796437452988145}
   api-secret: ${CLOUDINARY_API_SECRET:y0NqZCj61XzTaiiIDvxG5TS7drQ}
 
+# Google Drive Storage Config (Lazily initialized)
+google:
+  drive:
+    folder-id: ${GOOGLE_DRIVE_FOLDER_ID:1NFUQwGp3eTHeMoZJzmzoBgwrCOX5EOb7}
+    client-email: ${GOOGLE_DRIVE_CLIENT_EMAIL:bwnhmch-elibrary@bwnhmch.iam.gserviceaccount.com}
+    private-key: ${GOOGLE_DRIVE_PRIVATE_KEY:}
+
 # OpenAPI Swagger Config
 springdoc:
   api-docs:
@@ -58,6 +66,8 @@ springdoc:
 logging:
   level:
     root: INFO
-    com.homeopathy.college: DEBUG
+    com.homeopathy.college: INFO
+    org.springframework.boot: INFO
+    org.springframework.web: INFO
     org.springframework.data.mongodb: INFO
     org.springframework.security: INFO
