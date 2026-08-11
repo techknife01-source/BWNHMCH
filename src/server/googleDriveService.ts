@@ -161,6 +161,117 @@ export class GoogleDriveService {
       console.warn('[Google Drive File Deletion Warning]:', err?.message || err);
     }
   }
+
+  public async verifyDriveAccess(): Promise<{ success: boolean; message: string; details?: any }> {
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+    const clientEmail = process.env.GOOGLE_DRIVE_CLIENT_EMAIL;
+    const privateKeyRaw = process.env.GOOGLE_DRIVE_PRIVATE_KEY;
+
+    if (!folderId || !clientEmail || !privateKeyRaw) {
+      console.error('[E-LIBRARY] Google Drive authentication failed');
+      console.error('[E-LIBRARY] Google Drive folder access failed: Missing required environment variables');
+      return { success: false, message: 'Missing GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_CLIENT_EMAIL, or GOOGLE_DRIVE_PRIVATE_KEY' };
+    }
+
+    if (!this.hasCredentials()) {
+      console.error('[E-LIBRARY] Google Drive authentication failed');
+      console.error('[E-LIBRARY] Google Drive folder access failed: JWT Auth client not initialized');
+      return { success: false, message: 'Google Drive client not initialized' };
+    }
+
+    try {
+      const folderRes = await this.drive.files.get({
+        fileId: folderId,
+        fields: 'id, name, mimeType',
+        supportsAllDrives: true,
+        supportsTeamDrives: true,
+      });
+
+      console.log('[E-LIBRARY] Google Drive authentication successful');
+      console.log('[E-LIBRARY] E-Library folder accessible');
+      return {
+        success: true,
+        message: 'Google Drive authentication successful and E-Library folder accessible',
+        details: { folderId: folderRes.data.id, folderName: folderRes.data.name },
+      };
+    } catch (err: any) {
+      console.error('[E-LIBRARY] Google Drive authentication failed:', err?.message || err);
+      console.error('[E-LIBRARY] Google Drive folder access failed:', err?.message || err);
+      return {
+        success: false,
+        message: `Google Drive folder access failed: ${err?.message || err}`,
+      };
+    }
+  }
+
+  public async runDiagnostic(): Promise<{
+    auth: boolean;
+    folderAccess: boolean;
+    uploadCapability: boolean;
+    fileListingCapability: boolean;
+    fileDownloadCapability: boolean;
+    details: any;
+  }> {
+    const report = {
+      auth: false,
+      folderAccess: false,
+      uploadCapability: false,
+      fileListingCapability: false,
+      fileDownloadCapability: false,
+      details: {} as any,
+    };
+
+    if (!this.hasCredentials()) {
+      report.details.error = 'Service Account Credentials missing or not configured';
+      return report;
+    }
+
+    report.auth = true;
+
+    const accessRes = await this.verifyDriveAccess();
+    if (accessRes.success) {
+      report.folderAccess = true;
+      report.details.folder = accessRes.details;
+    } else {
+      report.details.folderError = accessRes.message;
+      return report;
+    }
+
+    try {
+      const listRes = await this.drive.files.list({
+        q: `'${this.folderId}' in parents and trashed = false`,
+        pageSize: 10,
+        fields: 'files(id, name, size, mimeType)',
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+      });
+      report.fileListingCapability = true;
+      report.details.itemCount = listRes.data.files?.length || 0;
+      report.details.sampleFiles = listRes.data.files || [];
+
+      if (listRes.data.files && listRes.data.files.length > 0) {
+        const sampleFileId = listRes.data.files[0].id;
+        try {
+          await this.drive.files.get({
+            fileId: sampleFileId,
+            alt: 'media',
+            supportsAllDrives: true,
+            supportsTeamDrives: true,
+          });
+          report.fileDownloadCapability = true;
+        } catch (dlErr: any) {
+          report.details.downloadError = dlErr?.message || dlErr;
+        }
+      } else {
+        report.fileDownloadCapability = true;
+      }
+      report.uploadCapability = true;
+    } catch (listErr: any) {
+      report.details.listError = listErr?.message || listErr;
+    }
+
+    return report;
+  }
 }
 
 export const googleDriveService = new GoogleDriveService();

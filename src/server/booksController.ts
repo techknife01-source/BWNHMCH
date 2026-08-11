@@ -29,6 +29,11 @@ export async function initBooksDatabaseAndMigration() {
     console.warn('[Books DB Sync Notice]: Using in-memory store:', err?.message || err);
   }
 
+  // Perform startup Google Drive authentication and folder access test
+  if (googleDriveService.hasCredentials()) {
+    await googleDriveService.verifyDriveAccess();
+  }
+
   // Auto-migrate local PDFs to Google Drive if Drive credentials are available
   if (googleDriveService.hasCredentials()) {
     console.log('[Google Drive] Credentials detected. Auto-checking seed PDFs for Google Drive upload...');
@@ -120,14 +125,23 @@ function formatBookOutput(book: any) {
 // Controller Handlers
 export const handleGetBooks = async (req: Request, res: Response) => {
   try {
+    console.log('[E-LIBRARY] GET /books started');
+    console.log('[E-LIBRARY] Querying published books');
+
     let booksList: any[] = [];
     if (mongoose.connection.readyState === 1) {
-      booksList = await (BookModel as any).find({ isPublished: true }).lean();
+      try {
+        booksList = await (BookModel as any).find({ isPublished: true }).lean();
+      } catch (dbErr: any) {
+        console.warn('[E-LIBRARY] Database query warning, falling back to in-memory store:', dbErr?.message || dbErr);
+      }
     }
     
     if (!booksList || booksList.length === 0) {
       booksList = memoryBooksStore.filter((b) => b.isPublished !== false);
     }
+
+    console.log(`[E-LIBRARY] Found ${booksList.length} books`);
 
     const { category, department, search, semester, type } = req.query;
     let filtered = booksList.map(formatBookOutput);
@@ -163,7 +177,9 @@ export const handleGetBooks = async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
-    console.error('[Books GET Error]:', err?.stack || err?.message || err);
+    const safeErrorMsg = err?.message || 'Unknown database retrieval error';
+    console.error(`[E-LIBRARY] GET /books failed: ${safeErrorMsg}`);
+    
     // Fallback gracefully without crashing
     const safeData = memoryBooksStore.filter((b) => b.isPublished !== false).map(formatBookOutput);
     res.status(200).json({
@@ -171,6 +187,23 @@ export const handleGetBooks = async (req: Request, res: Response) => {
       message: 'E-Library digital books retrieved (fallback mode)',
       data: safeData,
       timestamp: new Date().toISOString(),
+    });
+  }
+};
+
+export const handleDriveDiagnostic = async (req: Request, res: Response) => {
+  try {
+    const report = await googleDriveService.runDiagnostic();
+    return res.status(200).json({
+      success: report.auth && report.folderAccess,
+      message: report.auth && report.folderAccess ? 'Google Drive diagnostic passed' : 'Google Drive diagnostic failed',
+      data: report,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: `Diagnostic execution error: ${err?.message || err}`,
     });
   }
 };
