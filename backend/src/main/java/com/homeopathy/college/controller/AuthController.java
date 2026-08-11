@@ -85,7 +85,7 @@ public class AuthController {
         if (currentUser == null) {
             log.info("[AUTH] Token missing or invalid for /me request");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("Unauthorized access: missing or invalid token"));
+                    .body(ApiResponse.error("Unauthorized access: missing or invalid token", "UNAUTHORIZED"));
         }
         log.info("[AUTH] Token verified");
         log.info("[AUTH] User lookup completed");
