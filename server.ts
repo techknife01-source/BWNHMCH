@@ -101,8 +101,8 @@ const apiLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Ensure E-Library PDFs exist on server startup
 const organonPdfPath = path.join(process.cwd(), 'public', 'documents', 'bhmch_organon_edition6.pdf');

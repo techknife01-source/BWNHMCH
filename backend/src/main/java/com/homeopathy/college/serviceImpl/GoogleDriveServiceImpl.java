@@ -63,10 +63,19 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
                                 .fromStream(new ByteArrayInputStream(jsonCredentials.getBytes(StandardCharsets.UTF_8)))
                                 .createScoped(Collections.singletonList(DriveScopes.DRIVE));
 
+                        HttpCredentialsAdapter adapter = new HttpCredentialsAdapter(credentials) {
+                            @Override
+                            public void initialize(com.google.api.client.http.HttpRequest request) throws java.io.IOException {
+                                super.initialize(request);
+                                request.setConnectTimeout(15000); // 15 seconds connect timeout
+                                request.setReadTimeout(60000);    // 60 seconds read timeout
+                            }
+                        };
+
                         driveService = new Drive.Builder(
                                 GoogleNetHttpTransport.newTrustedTransport(),
                                 GsonFactory.getDefaultInstance(),
-                                new HttpCredentialsAdapter(credentials))
+                                adapter)
                                 .setApplicationName("Smart Homeopathic Medical College E-Library")
                                 .build();
 

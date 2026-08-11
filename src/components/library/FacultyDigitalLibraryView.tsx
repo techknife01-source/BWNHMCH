@@ -319,7 +319,7 @@ export const FacultyDigitalLibraryView: React.FC = () => {
               ? 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=400&q=80'
               : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
         };
-        const res = await libraryApi.addResource(newResourcePayload);
+        const res = await libraryApi.addResource(newResourcePayload, selectedFile);
         if (res.data) {
           setBooks((prev) => [res.data, ...prev]);
           showToast('New digital resource published successfully!');

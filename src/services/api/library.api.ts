@@ -285,11 +285,32 @@ export const libraryApi = {
     }
   },
 
-  addResource: async (resourceData: Partial<LibraryBook>): Promise<ApiResponse<LibraryBook>> => {
+  addResource: async (resourceData: Partial<LibraryBook>, file?: File | null): Promise<ApiResponse<LibraryBook>> => {
     try {
-      const response = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', resourceData);
-      return response.data;
-    } catch {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', resourceData.title || '');
+        formData.append('author', resourceData.author || '');
+        if (resourceData.category) formData.append('category', resourceData.category);
+        if (resourceData.semester) formData.append('semester', resourceData.semester);
+        if (resourceData.description) formData.append('description', resourceData.description);
+        if (resourceData.department) formData.append('department', resourceData.department);
+        if (resourceData.subject) formData.append('subject', resourceData.subject);
+        if (resourceData.publisher) formData.append('publisher', resourceData.publisher);
+
+        const response = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', formData, {
+          timeout: 120000,
+        });
+        return response.data;
+      } else {
+        const response = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', resourceData, {
+          timeout: 120000,
+        });
+        return response.data;
+      }
+    } catch (err: any) {
+      console.warn('[LIBRARY_API] POST /library/books failed, utilizing local fallback:', err?.message);
       const newBook: LibraryBook = {
         id: `lib-${Date.now()}`,
         title: resourceData.title || 'Untitled Digital Document',

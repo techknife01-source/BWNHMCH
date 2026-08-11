@@ -68,17 +68,29 @@ public class BookController {
                 .body(pdfResource);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'LIBRARIAN', 'PRINCIPAL')")
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'LIBRARIAN', 'PRINCIPAL', 'FACULTY', 'USER')")
     @Operation(summary = "Upload new book PDF to Google Drive and save metadata")
     public ResponseEntity<ApiResponse<BookResponse>> uploadBook(
-            @RequestParam("title") String title,
-            @RequestParam("author") String author,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "semester", required = false) String semester,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestPart("file") MultipartFile file,
+            @RequestParam(value = "title", required = false) String titleParam,
+            @RequestParam(value = "author", required = false) String authorParam,
+            @RequestParam(value = "category", required = false) String categoryParam,
+            @RequestParam(value = "semester", required = false) String semesterParam,
+            @RequestParam(value = "description", required = false) String descriptionParam,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestBody(required = false) BookRequest jsonRequest,
             @AuthenticationPrincipal UserPrincipal currentUser) {
+
+        String title = titleParam != null ? titleParam : (jsonRequest != null ? jsonRequest.getTitle() : null);
+        String author = authorParam != null ? authorParam : (jsonRequest != null ? jsonRequest.getAuthor() : null);
+        String category = categoryParam != null ? categoryParam : (jsonRequest != null ? jsonRequest.getCategory() : null);
+        String semester = semesterParam != null ? semesterParam : (jsonRequest != null ? jsonRequest.getSemester() : null);
+        String description = descriptionParam != null ? descriptionParam : (jsonRequest != null ? jsonRequest.getDescription() : null);
+
+        if (title == null || title.isBlank() || author == null || author.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Title and Author are required"));
+        }
 
         BookRequest request = new BookRequest();
         request.setTitle(title);
@@ -88,11 +100,11 @@ public class BookController {
         request.setDescription(description);
         request.setPublished(true);
 
-        String username = currentUser != null ? currentUser.getUsername() : "SYSTEM";
+        String username = currentUser != null ? currentUser.getUsername() : "FACULTY";
 
         BookResponse response = bookService.uploadBook(request, file, username);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response, "Book uploaded successfully to Google Drive"));
+                .body(ApiResponse.success(response, "Book uploaded successfully"));
     }
 
     @PutMapping("/{id}")
