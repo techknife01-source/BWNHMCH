@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 import toast from 'react-hot-toast';
+import { ENV_CONFIG } from '../config/env.config';
 import { institutionSettingsService, InstitutionSettings } from './institutionSettingsService';
 
 export interface OpdTicketData {
@@ -517,7 +518,7 @@ export class OpdTicketService {
     }
 
     try {
-      const response = await fetch('/api/v1/opd/send-ticket-email', {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/opd/send-ticket-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
