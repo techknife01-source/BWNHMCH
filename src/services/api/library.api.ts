@@ -227,6 +227,17 @@ export const libraryApi = {
   getBooks: async (params?: Record<string, any>): Promise<ApiResponse<LibraryBook[]>> => {
     try {
       const response = await apiClient.get<ApiResponse<LibraryBook[]>>('/library/books', { params });
+      if (response.data && Array.isArray(response.data.data)) {
+        response.data.data = response.data.data.map((b: any) => {
+          const pdfEndpoint = b.pdfUrl || b.streamUrl || b.fileUrl || `/api/v1/library/books/${b.id}/pdf`;
+          return {
+            ...b,
+            pdfUrl: pdfEndpoint,
+            streamUrl: pdfEndpoint,
+            fileUrl: pdfEndpoint,
+          };
+        });
+      }
       return response.data;
     } catch {
       let filtered = [...mockLibraryBooks];
@@ -302,11 +313,25 @@ export const libraryApi = {
         const response = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', formData, {
           timeout: 120000,
         });
+        if (response.data && response.data.data) {
+          const b = response.data.data as any;
+          const pdfEndpoint = b.pdfUrl || b.streamUrl || b.fileUrl || `/api/v1/library/books/${b.id}/pdf`;
+          b.pdfUrl = pdfEndpoint;
+          b.streamUrl = pdfEndpoint;
+          b.fileUrl = pdfEndpoint;
+        }
         return response.data;
       } else {
         const response = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', resourceData, {
           timeout: 120000,
         });
+        if (response.data && response.data.data) {
+          const b = response.data.data as any;
+          const pdfEndpoint = b.pdfUrl || b.streamUrl || b.fileUrl || `/api/v1/library/books/${b.id}/pdf`;
+          b.pdfUrl = pdfEndpoint;
+          b.streamUrl = pdfEndpoint;
+          b.fileUrl = pdfEndpoint;
+        }
         return response.data;
       }
     } catch (err: any) {

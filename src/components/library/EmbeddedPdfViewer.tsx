@@ -19,6 +19,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { LibraryBook } from '../../types/index';
+import { getAbsolutePdfUrl } from '../../utils/urlUtils';
 
 interface EmbeddedPdfViewerProps {
   book: LibraryBook;
@@ -86,13 +87,15 @@ export const EmbeddedPdfViewer: React.FC<EmbeddedPdfViewerProps> = ({
     setDownloadSuccess(true);
     setTimeout(() => setDownloadSuccess(false), 3000);
 
+    const rawUrl = book.fileDataUrl || (book as any).pdfUrl || book.fileUrl || book.streamUrl || '#';
+    const targetUrl = getAbsolutePdfUrl(rawUrl);
+
     // Create anchor trigger
     const link = document.createElement('a');
-    link.href = book.fileUrl || '#';
+    link.href = targetUrl;
     link.download = `${book.title.replace(/\s+/g, '_')}.pdf`;
     document.body.appendChild(link);
-    // In demo environment, trigger alert or simulated save
-    alert(`Starting download for: ${book.title} (${book.fileFormat || 'PDF'})`);
+    link.click();
     document.body.removeChild(link);
   };
 

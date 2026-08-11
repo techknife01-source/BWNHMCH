@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink, FileText } from 'lucide-react';
 import { Button } from './Button';
+import { getAbsolutePdfUrl } from '../../utils/urlUtils';
 
 export interface PdfViewerProps {
   fileUrl: string;
@@ -8,6 +9,7 @@ export interface PdfViewerProps {
 }
 
 export const PdfViewer: React.FC<PdfViewerProps> = ({ fileUrl, title = 'Document Preview' }) => {
+  const resolvedUrl = getAbsolutePdfUrl(fileUrl);
   return (
     <div className="flex flex-col rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 overflow-hidden shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/60">
@@ -15,7 +17,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ fileUrl, title = 'Document
           <FileText className="h-5 w-5 text-rose-600" />
           <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{title}</span>
         </div>
-        <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+        <a href={resolvedUrl} target="_blank" rel="noopener noreferrer">
           <Button variant="outline" size="sm">
             <span>Open PDF</span>
             <ExternalLink className="h-3.5 w-3.5" />
@@ -23,7 +25,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ fileUrl, title = 'Document
         </a>
       </div>
       <div className="h-96 w-full bg-slate-100 dark:bg-slate-950">
-        <iframe src={fileUrl} title={title} className="h-full w-full border-none" />
+        <iframe src={resolvedUrl} title={title} className="h-full w-full border-none" />
       </div>
     </div>
   );

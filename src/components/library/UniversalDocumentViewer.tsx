@@ -23,6 +23,7 @@ import {
   RefreshCw,
   Loader2,
 } from 'lucide-react';
+import { getAbsolutePdfUrl } from '../../utils/urlUtils';
 import { LibraryBook } from '../../types/index';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -65,14 +66,15 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
 
   const format = (book.fileFormat || 'PDF').toUpperCase();
   const filename = book.fileName || `${book.title.replace(/\s+/g, '_')}.${format.toLowerCase()}`;
-  const pdfUrl = book.fileDataUrl || book.fileUrl || book.streamUrl || '#';
+  const rawPdfUrl = book.fileDataUrl || (book as any).pdfUrl || book.fileUrl || book.streamUrl || '#';
+  const pdfUrl = getAbsolutePdfUrl(rawPdfUrl);
 
   // Total pages calculation: Real PDF page count if loaded, else fallback
   const totalPages = realPageCount || book.pageCount || (format === 'PPTX' || format === 'PPT' ? 12 : format === 'XLSX' || format === 'XLS' ? 3 : 1);
 
   // Load PDF document using pdfjs
   const loadPdfDocument = async () => {
-    if (format !== 'PDF' && !pdfUrl.endsWith('.pdf') && !pdfUrl.startsWith('data:application/pdf')) {
+    if (!pdfUrl || pdfUrl === '#') {
       return;
     }
 
@@ -97,7 +99,7 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
   };
 
   useEffect(() => {
-    if (format === 'PDF' || pdfUrl.endsWith('.pdf') || pdfUrl.startsWith('data:application/pdf')) {
+    if (pdfUrl && pdfUrl !== '#') {
       loadPdfDocument();
     }
   }, [pdfUrl, format]);

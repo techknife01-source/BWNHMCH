@@ -20,6 +20,14 @@
       "dest": "https://smart-homeopathic-college-backend.onrender.com/api/v1/$1"
     },
     {
+      "src": "/library/books/(.*)",
+      "dest": "https://smart-homeopathic-college-backend.onrender.com/api/v1/library/books/$1"
+    },
+    {
+      "src": "/books/(.*)",
+      "dest": "https://smart-homeopathic-college-backend.onrender.com/api/v1/books/$1"
+    },
+    {
       "handle": "filesystem"
     },
     {
