@@ -47,7 +47,7 @@ export const DEFAULT_INSTITUTION_SETTINGS: InstitutionSettings = {
   collegeEmail: 'bhmchospital78@gmail.com',
   collegePhone: '+91-342-2530601',
   hospitalPhone: '+91-342-2530507',
-  principalName: 'Dr. Susmita Chatterjee',
+  principalName: 'Prof. (Dr.) Susmita Chatterjee',
   principalMobile: '9434238508',
   principalEmail: 'drsusmita01@gmail.com',
   websiteUrl: 'https://bhmch.ac.in',

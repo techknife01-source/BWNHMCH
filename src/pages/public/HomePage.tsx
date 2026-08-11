@@ -146,7 +146,7 @@ export const HomePage: React.FC = () => {
               <Award className="h-8 w-8 text-blue-600" />
               <div>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">Principal's Desk</h3>
-                <p className="text-xs text-slate-400">Prof. (Dr.) S. N. Bhattacharya, M.D. (Hom.)</p>
+                <p className="text-xs text-slate-400">Prof. (Dr.) Susmita Chatterjee</p>
               </div>
             </div>
             <blockquote className="text-xs italic text-slate-600 dark:text-slate-300 leading-relaxed">

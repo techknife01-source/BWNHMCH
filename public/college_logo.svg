@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Radial gradient for inner green sphere -->
+    <radialGradient id="greenSphere" cx="50%" cy="50%" r="50%" fx="35%" fy="35%">
+      <stop offset="0%" stop-color="#4ae374" />
+      <stop offset="40%" stop-color="#14a342" />
+      <stop offset="85%" stop-color="#086124" />
+      <stop offset="100%" stop-color="#043813" />
+    </radialGradient>
+
+    <!-- Metallic Gold Gradient for Caduceus -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff5b8" />
+      <stop offset="30%" stop-color="#ffd700" />
+      <stop offset="70%" stop-color="#cca000" />
+      <stop offset="100%" stop-color="#8f6c00" />
+    </linearGradient>
+
+    <!-- Subtle Grid Pattern for inner sphere -->
+    <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" stroke-width="0.5" stroke-opacity="0.25"/>
+    </pattern>
+
+    <!-- Text Paths -->
+    <!-- Top arc path for "Burdwan Homoeopathic Medical College & Hospital" -->
+    <path id="topArcPath" d="M 45,250 A 205,205 0 1,1 455,250" fill="none" />
+    <!-- Bottom arc path for "ESTD.- 1978" -->
+    <path id="bottomArcPath" d="M 80,250 A 170,170 0 0,0 420,250" fill="none" />
+  </defs>
+
+  <!-- Outer Ring Shadow / Border -->
+  <circle cx="250" cy="250" r="245" fill="#ffffff" stroke="#111827" stroke-width="6"/>
+  <circle cx="250" cy="250" r="241" fill="none" stroke="#111827" stroke-width="2"/>
+
+  <!-- Inner Border Ring (Separating white text band from green core) -->
+  <circle cx="250" cy="250" r="172" fill="none" stroke="#111827" stroke-width="5"/>
+
+  <!-- Inner Green Core Sphere -->
+  <circle cx="250" cy="250" r="170" fill="url(#greenSphere)" />
+  <circle cx="250" cy="250" r="170" fill="url(#gridPattern)" />
+
+  <!-- Top Curved Text -->
+  <text font-family="'Arial', 'Helvetica', sans-serif" font-weight="900" font-size="32.5" fill="#000000" letter-spacing="1.2">
+    <textPath href="#topArcPath" startOffset="50%" text-anchor="middle">
+      Burdwan Homoeopathic Medical College &amp; Hospital
+    </textPath>
+  </text>
+
+  <!-- Bottom Curved Text -->
+  <text font-family="'Arial', 'Helvetica', sans-serif" font-weight="900" font-size="34" fill="#000000" letter-spacing="4">
+    <textPath href="#bottomArcPath" startOffset="50%" text-anchor="middle">
+      ESTD.- 1978
+    </textPath>
+  </text>
+
+  <!-- White ECG Line across the center sphere -->
+  <path d="M 80 250 L 160 250 L 175 250 L 185 220 L 195 280 L 205 170 L 218 310 L 228 230 L 235 250 L 265 250 L 272 230 L 282 310 L 295 170 L 305 280 L 315 220 L 325 250 L 340 250 L 420 250" 
+        fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- CADUCEUS STAFF & SNAKES (Golden Center Emblem) -->
+  <g transform="translate(250, 245) scale(1.15)">
+    <!-- Wings at top of Caduceus -->
+    <!-- Left Wing -->
+    <path d="M -2 -72 C -18 -85 -45 -95 -75 -75 C -55 -60 -35 -55 -15 -58 C -35 -48 -58 -38 -68 -18 C -48 -22 -28 -32 -8 -45 Z" fill="url(#goldGradient)" stroke="#8f6c00" stroke-width="1.5"/>
+    <!-- Right Wing -->
+    <path d="M 2 -72 C 18 -85 45 -95 75 -75 C 55 -60 35 -55 15 -58 C 35 -48 58 -38 68 -18 C 48 -22 28 -32 8 -45 Z" fill="url(#goldGradient)" stroke="#8f6c00" stroke-width="1.5"/>
+
+    <!-- Central Rod / Staff -->
+    <ellipse cx="0" cy="-80" rx="9" ry="9" fill="url(#goldGradient)" stroke="#664d00" stroke-width="1.5"/>
+    <rect x="-3.5" y="-72" width="7" height="162" rx="3.5" fill="url(#goldGradient)" stroke="#664d00" stroke-width="1.5"/>
+    <polygon points="0,92 -6,82 6,82" fill="url(#goldGradient)"/>
+
+    <!-- Snake 1 (Left to Right Coils) -->
+    <path d="M 0 65 Q -38 45 -30 20 Q -10 -5 0 -25 Q 25 -40 25 -52 Q 20 -60 0 -62" fill="none" stroke="url(#goldGradient)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 0 65 Q 38 45 30 20 Q 10 -5 0 -25 Q -25 -40 -25 -52 Q -20 -60 0 -62" fill="none" stroke="url(#goldGradient)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Snake Head Left -->
+    <path d="M 0 -62 C -8 -66 -12 -70 -6 -73 C 0 -72 2 -66 0 -62 Z" fill="url(#goldGradient)"/>
+    <!-- Snake Head Right -->
+    <path d="M 0 -62 C 8 -66 12 -70 6 -73 C 0 -72 -2 -66 0 -62 Z" fill="url(#goldGradient)"/>
+  </g>
+</svg>

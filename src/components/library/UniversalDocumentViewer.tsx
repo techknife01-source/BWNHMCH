@@ -364,6 +364,15 @@ export const UniversalDocumentViewer: React.FC<UniversalDocumentViewerProps> = (
                     </p>
                   </div>
                 </div>
+              ) : (book.fileDataUrl || (book.fileUrl && book.fileUrl.endsWith('.pdf'))) ? (
+                /* Native PDF Viewer Frame */
+                <div className="w-full h-[620px] my-2">
+                  <iframe
+                    src={book.fileDataUrl || book.fileUrl}
+                    className="w-full h-full rounded-xl border border-slate-200 shadow-inner"
+                    title={book.title}
+                  />
+                </div>
               ) : (
                 /* Standard PDF / DOCX Document View */
                 <div className="space-y-4 text-xs sm:text-sm text-slate-800 font-serif leading-relaxed my-4">

@@ -21,9 +21,11 @@ export const Footer: React.FC = () => {
           {/* Brand & Mission */}
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00A651] text-white font-extrabold text-sm shadow-md">
-                BW
-              </div>
+              <img
+                src="/college_logo.svg"
+                alt="College Logo"
+                className="h-10 w-10 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0"
+              />
               <div>
                 <span className="font-extrabold text-white text-sm block leading-tight">{settings.collegeName}</span>
                 <span className="text-[10px] text-emerald-400 font-bold uppercase">100-Bed Attached Teaching Hospital & College</span>
@@ -58,6 +60,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li><Link to="/hospital" className="hover:text-emerald-400 transition-colors">Homoeopathic Hospital OPD</Link></li>
               <li><Link to="/doctors" className="hover:text-emerald-400 transition-colors">Medical Consultants</Link></li>
+              <li><Link to="/staff" className="hover:text-emerald-400 transition-colors">Hospital Staff Directory</Link></li>
               <li><Link to="/notice" className="hover:text-emerald-400 transition-colors">College Notices & Circulars</Link></li>
               <li><Link to="/events" className="hover:text-emerald-400 transition-colors">Events & Seminars</Link></li>
               <li><Link to="/downloads" className="hover:text-emerald-400 transition-colors">Syllabi & Prospectus</Link></li>

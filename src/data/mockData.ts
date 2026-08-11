@@ -22,7 +22,7 @@ import {
 } from '../types';
 
 export const DEFAULT_PRINCIPAL_PROFILE: PrincipalProfile = {
-  name: 'Dr. Susmita Chatterjee',
+  name: 'Prof. (Dr.) Susmita Chatterjee',
   title: 'Principal & Chief Administrator',
   qualification: 'DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)',
   experience: '26 Years in Academic Administration & Clinical Medicine',

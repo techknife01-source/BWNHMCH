@@ -174,9 +174,11 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
 
         {/* LOGO AREA */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-11 h-11 bg-[#00A651] rounded-xl flex items-center justify-center text-white shadow-xs">
-            <Heart className="w-6 h-6" />
-          </div>
+          <img
+            src="/college_logo.svg"
+            alt="Official College Logo"
+            className="mx-auto w-14 h-14 object-contain shadow-xs rounded-xl bg-white p-1 border border-slate-200"
+          />
           <h2 className="text-lg font-black text-[#002147] dark:text-slate-100 tracking-tight uppercase">
             Burdwan HomoeoERP
           </h2>

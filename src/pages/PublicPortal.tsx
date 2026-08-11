@@ -400,7 +400,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">Dr. Susmita Chatterjee, DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)</h3>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-sans">Prof. (Dr.) Susmita Chatterjee, DHMS (West Bengal Council of Homoeopathic Medicine), MD (Organon of Medicine)</h3>
                   <p className="text-3xs text-slate-400 uppercase font-bold">Principal & Administrator</p>
                   <p className="text-4xs text-slate-400 mt-1">Renowned Homoeopathic Clinician & Academician</p>
                 </div>
@@ -418,7 +418,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                 </p>
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                   With warm regards,<br />
-                  Dr. Susmita Chatterjee
+                  Prof. (Dr.) Susmita Chatterjee
                 </p>
               </div>
             </div>

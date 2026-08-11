@@ -15,6 +15,7 @@ import { CoursesPage } from '../pages/public/CoursesPage';
 import { AdmissionPage } from '../pages/public/AdmissionPage';
 import { HospitalPage } from '../pages/public/HospitalPage';
 import { DoctorsPage } from '../pages/public/DoctorsPage';
+import { StaffPage } from '../pages/public/StaffPage';
 import { GalleryPage } from '../pages/public/GalleryPage';
 import { ContactPage } from '../pages/public/ContactPage';
 import { NoticePage } from '../pages/public/NoticePage';
@@ -89,8 +90,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/investigation" element={<HospitalPage defaultTab="investigations" />} />
         <Route path="/investigations" element={<HospitalPage defaultTab="investigations" />} />
         <Route path="/doctors" element={<DoctorsPage />} />
-        <Route path="/staff" element={<HospitalPage defaultTab="staff" />} />
-        <Route path="/hospital-staff" element={<HospitalPage defaultTab="staff" />} />
+        <Route path="/staff" element={<StaffPage />} />
+        <Route path="/hospital-staff" element={<StaffPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/notice" element={<NoticePage />} />
