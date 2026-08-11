@@ -307,13 +307,11 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
     }
   }
 
-  // Option C: Fallback valid PDF binary buffer if file is not found on disk or drive
-  const samplePdfBytes = Buffer.from(
-    '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj 3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000052 00000 n\n0000000101 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n178\n%%EOF'
-  );
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Length', samplePdfBytes.length);
-  return res.status(200).send(samplePdfBytes);
+  // Option C: Return clear 404 error if file is not found on disk or drive (do not return fake PDF)
+  return res.status(404).json({
+    success: false,
+    message: `PDF document '${book.title}' content is unavailable in storage.`,
+  });
 };
 
 export const handleCreateBook = async (req: Request, res: Response) => {
@@ -361,63 +359,41 @@ export const handleCreateBook = async (req: Request, res: Response) => {
     }
 
     if (!fileBuffer || fileBuffer.length === 0) {
-      // Fallback sample PDF buffer if no file attached
-      fileBuffer = Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj 3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000052 00000 n\n0000000101 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n178\n%%EOF');
+      return res.status(400).json({ success: false, message: 'PDF file attachment is required.' });
     }
 
     fileSizeStr = `${(fileBuffer.length / (1024 * 1024)).toFixed(1)} MB`;
 
-    // 1. Verify Google Drive Auth & Access
-    if (!googleDriveService.hasCredentials()) {
-      return res.status(500).json({
-        success: false,
-        message: 'Google Drive integration is not configured. Upload aborted.',
-      });
-    }
-
-    const driveAccess = await googleDriveService.verifyDriveAccess();
-    if (!driveAccess.success) {
-      console.error('[E-LIBRARY] Google Drive folder access failed:', driveAccess.message);
-      return res.status(500).json({
-        success: false,
-        message: `Google Drive verification failed: ${driveAccess.message}`,
-      });
-    }
-
-    console.log('[E-LIBRARY] Google Drive authentication successful');
-    console.log('[E-LIBRARY] Target folder accessible');
-
-    // 2. Upload PDF to Google Drive
-    console.log(`[E-LIBRARY] Uploading PDF: ${nameToUse}`);
-    let driveRes: { fileId: string; fileSizeFormatted?: string };
-    try {
-      driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
-      if (!driveRes || !driveRes.fileId) {
-        throw new Error('Google Drive upload returned an invalid fileId');
-      }
-      googleDriveFileId = driveRes.fileId;
-      storageProvider = 'google-drive';
-      if (driveRes.fileSizeFormatted) fileSizeStr = driveRes.fileSizeFormatted;
-
-      console.log('[E-LIBRARY] Google Drive upload successful');
-      console.log(`[E-LIBRARY] Google Drive fileId: ${googleDriveFileId}`);
-    } catch (uploadErr: any) {
-      console.error('[E-LIBRARY] Google Drive upload failed:', uploadErr?.message || uploadErr);
-      return res.status(500).json({
-        success: false,
-        message: `Google Drive upload failed: ${uploadErr?.message || uploadErr}. Book record was not created in database.`,
-      });
-    }
-
-    // Save locally as backup
+    // 1. Save file locally to disk first
     try {
       const documentsDir = path.join(process.cwd(), 'public', 'documents');
       if (!fs.existsSync(documentsDir)) {
         fs.mkdirSync(documentsDir, { recursive: true });
       }
       fs.writeFileSync(path.join(documentsDir, nameToUse), fileBuffer);
+      console.log(`[E-LIBRARY] Local PDF stored successfully: ${nameToUse} (${fileSizeStr})`);
     } catch (locErr: any) {
       console.warn('[E-LIBRARY] Local backup file write warning:', locErr?.message || locErr);
+    }
+
+    // 2. Attempt Google Drive Upload if configured
+    if (googleDriveService.hasCredentials()) {
+      try {
+        const driveAccess = await googleDriveService.verifyDriveAccess();
+        if (driveAccess.success) {
+          console.log(`[E-LIBRARY] Uploading PDF to Google Drive: ${nameToUse}`);
+          const driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
+          if (driveRes && driveRes.fileId) {
+            googleDriveFileId = driveRes.fileId;
+            storageProvider = 'google-drive';
+            if (driveRes.fileSizeFormatted) fileSizeStr = driveRes.fileSizeFormatted;
+            console.log(`[E-LIBRARY] Google Drive upload successful. File ID: ${googleDriveFileId}`);
+          }
+        }
+      } catch (uploadErr: any) {
+        console.warn('[E-LIBRARY] Google Drive upload note:', uploadErr?.message || uploadErr);
+        console.log('[E-LIBRARY] Document served via local persistent storage.');
+      }
     }
 
     const nowIso = new Date().toISOString();

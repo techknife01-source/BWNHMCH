@@ -8,7 +8,13 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import multer from 'multer';
 import { createServer as createViteServer } from 'vite';
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+});
 import {
   initBooksDatabaseAndMigration,
   handleGetBooks,
@@ -250,7 +256,7 @@ const bookCollectionRoutes = [
 
 bookCollectionRoutes.forEach((route) => {
   app.get(route, handleGetBooks);
-  app.post(route, handleCreateBook);
+  app.post(route, upload.single('file'), handleCreateBook);
 });
 
 const bookPdfStreamRoutes = [

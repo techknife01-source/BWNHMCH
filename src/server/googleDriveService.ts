@@ -3,6 +3,15 @@ import { Readable } from 'stream';
 import fs from 'fs';
 import path from 'path';
 
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 5000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Google Drive API operation timed out after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
 export class GoogleDriveService {
   private drive: any = null;
   private folderId: string | null = null;
@@ -66,28 +75,22 @@ export class GoogleDriveService {
       fileStream.push(fileBuffer);
       fileStream.push(null);
 
-      response = await this.drive.files.create({
-        requestBody: fileMetadata,
-        media: {
-          mimeType: mimeType,
-          body: fileStream,
-        },
-        supportsAllDrives: true,
-        supportsTeamDrives: true,
-        fields: 'id, name, size, webViewLink, webContentLink',
-      });
-    } catch (createErr: any) {
-      if (createErr?.message?.includes('storage quota') || createErr?.message?.includes('quota')) {
-        console.warn('[Google Drive Upload Note]: Media upload hit service account quota limit. Creating file metadata entry in folder...');
-        response = await this.drive.files.create({
+      response = await withTimeout(
+        this.drive.files.create({
           requestBody: fileMetadata,
+          media: {
+            mimeType: mimeType,
+            body: fileStream,
+          },
           supportsAllDrives: true,
           supportsTeamDrives: true,
-          fields: 'id, name, size, webViewLink',
-        });
-      } else {
-        throw createErr;
-      }
+          fields: 'id, name, size, webViewLink, webContentLink',
+        }),
+        10000
+      );
+    } catch (createErr: any) {
+      console.error('[Google Drive Upload Error]:', createErr?.message || createErr);
+      throw createErr;
     }
 
     if (!response.data || !response.data.id) {
@@ -195,12 +198,15 @@ export class GoogleDriveService {
     }
 
     try {
-      const folderRes = await this.drive.files.get({
-        fileId: folderId,
-        fields: 'id, name, mimeType',
-        supportsAllDrives: true,
-        supportsTeamDrives: true,
-      });
+      const folderRes = await withTimeout(
+        this.drive.files.get({
+          fileId: folderId,
+          fields: 'id, name, mimeType',
+          supportsAllDrives: true,
+          supportsTeamDrives: true,
+        }),
+        5000
+      );
 
       console.log('[E-LIBRARY] Google Drive authentication successful');
       console.log('[E-LIBRARY] E-Library folder accessible');
