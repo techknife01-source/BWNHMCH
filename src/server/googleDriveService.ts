@@ -55,7 +55,7 @@ export class GoogleDriveService {
     fileBuffer: Buffer,
     fileName: string,
     mimeType: string = 'application/pdf'
-  ): Promise<{ fileId: string; fileSizeFormatted?: string }> {
+  ): Promise<{ fileId: string; fileSizeFormatted?: string; storedSizeBytes: number }> {
     if (!this.hasCredentials()) {
       throw new Error('Google Drive credentials are not configured on the server environment.');
     }
@@ -86,37 +86,26 @@ export class GoogleDriveService {
           supportsTeamDrives: true,
           fields: 'id, name, size, webViewLink, webContentLink',
         }),
-        10000
+        15000
       );
     } catch (createErr: any) {
-      const isQuotaErr = createErr?.message?.includes('storage quota') || createErr?.message?.includes('quota');
-      if (isQuotaErr) {
-        console.log('[Google Drive Sync Note]: Service account quota limit reached for direct media storage. Allocating metadata entry in folder...');
-        try {
-          response = await withTimeout<any>(
-            this.drive.files.create({
-              requestBody: fileMetadata,
-              supportsAllDrives: true,
-              supportsTeamDrives: true,
-              fields: 'id, name, size, webViewLink',
-            }),
-            5000
-          );
-        } catch (metaErr: any) {
-          console.warn('[Google Drive Metadata Allocation Note]:', metaErr?.message || metaErr);
-          throw createErr;
-        }
-      } else {
-        console.warn('[Google Drive Upload Note]:', createErr?.message || createErr);
-        throw createErr;
-      }
+      console.warn('[E-LIBRARY] Google Drive upload note:', createErr?.message || createErr);
+      throw createErr;
     }
 
-    if (!response.data || !response.data.id) {
+    if (!response || !response.data || !response.data.id) {
       throw new Error('Google Drive API returned empty response or missing file ID.');
     }
 
     const fileId = response.data.id;
+    const storedSize = parseInt(response.data.size || '0', 10);
+
+    // Verify stored binary size against original buffer length
+    if (storedSize === 0 || Math.abs(storedSize - fileBuffer.length) > 1024) {
+      // Clean up invalid/broken 0-byte file entry
+      await this.deleteFile(fileId);
+      throw new Error(`Google Drive upload size mismatch: stored ${storedSize} bytes vs expected ${fileBuffer.length} bytes.`);
+    }
 
     // Set permission to public reader
     try {
@@ -133,18 +122,23 @@ export class GoogleDriveService {
       console.warn('[Google Drive Permission Warning]:', permErr?.message || permErr);
     }
 
-    const sizeInBytes = parseInt(response.data.size || '0', 10) || fileBuffer.length;
-    const sizeFormatted = `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
+    const sizeFormatted = `${(storedSize / (1024 * 1024)).toFixed(1)} MB`;
 
     return {
       fileId,
       fileSizeFormatted: sizeFormatted,
+      storedSizeBytes: storedSize,
     };
   }
 
   public async getPdfStream(fileId: string, rangeHeader?: string) {
     if (!this.hasCredentials()) {
       throw new Error('Google Drive API not configured.');
+    }
+
+    const meta = await this.getFileMetadata(fileId);
+    if (!meta || !meta.size || parseInt(meta.size, 10) === 0) {
+      throw new Error(`Google Drive file ID ${fileId} is unavailable or contains 0 bytes.`);
     }
 
     const requestOptions: any = {
@@ -168,6 +162,9 @@ export class GoogleDriveService {
       stream: response.data,
       headers: response.headers,
       status: response.status,
+      size: parseInt(meta.size, 10),
+      name: meta.name,
+      mimeType: meta.mimeType,
     };
   }
 
