@@ -36,6 +36,10 @@ public class SecurityConstants {
             "/api/v1/swagger-ui.html",
             "/admin/diagnostics/**",
             "/api/v1/admin/diagnostics/**",
+            "/documents/**",
+            "/api/v1/documents/**",
+            "/downloads/**",
+            "/api/v1/downloads/**",
             "/error",
             "/api/v1/error"
     };

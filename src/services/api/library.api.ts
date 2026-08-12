@@ -366,40 +366,9 @@ export const libraryApi = {
         return response.data;
       }
     } catch (err: any) {
-      console.warn('[LIBRARY_API] POST /library/books failed, utilizing local fallback:', err?.message);
-      const newBook: LibraryBook = {
-        id: `lib-${Date.now()}`,
-        title: resourceData.title || 'Untitled Digital Document',
-        author: resourceData.author || 'Faculty Member',
-        publisher: resourceData.publisher || 'BHMC Medical Library',
-        category: resourceData.category || 'General',
-        department: resourceData.department || 'Organon of Medicine',
-        semester: resourceData.semester || '1st BHMS',
-        subject: resourceData.subject || 'Organon of Medicine',
-        year: resourceData.year || '2025-2026',
-        isbn: resourceData.isbn || `N/A-${Math.floor(1000 + Math.random() * 9000)}`,
-        accessionNo: resourceData.accessionNo || `BHMC-DIG-${Math.floor(100 + Math.random() * 900)}`,
-        type: resourceData.type || 'BOOK',
-        fileFormat: resourceData.fileFormat || 'PDF',
-        availableCopies: 99,
-        isBookmarked: false,
-        coverImageUrl: resourceData.coverImageUrl || 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=300&q=80',
-        streamUrl: resourceData.streamUrl || '/documents/bhmch_library_resource.pdf',
-        fileUrl: resourceData.fileUrl || '/documents/bhmch_library_resource.pdf',
-        uploadedBy: resourceData.uploadedBy || 'Faculty Member',
-        uploadedByUserId: resourceData.uploadedByUserId || 'usr-vp-001',
-        uploadedRole: resourceData.uploadedRole || 'Faculty',
-        uploadedAt: new Date().toISOString().split('T')[0],
-        viewsCount: 0,
-        downloadsCount: 0,
-        allowDownload: resourceData.allowDownload !== undefined ? resourceData.allowDownload : true,
-        description: resourceData.description || 'Uploaded academic resource for faculty & students.',
-        fileSize: resourceData.fileSize || '5.4 MB',
-        pageCount: resourceData.pageCount || 42,
-      };
-
-      mockLibraryBooks.unshift(newBook);
-      return { success: true, message: 'Digital resource published successfully', data: newBook, timestamp: new Date().toISOString() };
+      const errorMsg = err?.response?.data?.message || err?.message || 'Digital library book upload failed.';
+      console.error('[LIBRARY_API] POST /library/books failed:', errorMsg);
+      throw new Error(errorMsg);
     }
   },
 

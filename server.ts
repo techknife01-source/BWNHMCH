@@ -123,7 +123,7 @@ if (!fs.existsSync(organonPdfPath)) {
 }
 
 // Serve static documents and downloads directly with application/pdf Content-Type
-app.use('/documents', express.static(path.join(process.cwd(), 'public', 'documents'), {
+app.use(['/documents', '/api/v1/documents'], express.static(path.join(process.cwd(), 'public', 'documents'), {
   setHeaders: (res, filepath) => {
     if (filepath.endsWith('.pdf')) {
       res.setHeader('Content-Type', 'application/pdf');
@@ -131,7 +131,7 @@ app.use('/documents', express.static(path.join(process.cwd(), 'public', 'documen
   }
 }));
 
-app.use('/downloads', express.static(path.join(process.cwd(), 'public', 'downloads'), {
+app.use(['/downloads', '/api/v1/downloads'], express.static(path.join(process.cwd(), 'public', 'downloads'), {
   setHeaders: (res, filepath) => {
     if (filepath.endsWith('.pdf')) {
       res.setHeader('Content-Type', 'application/pdf');
@@ -140,7 +140,7 @@ app.use('/downloads', express.static(path.join(process.cwd(), 'public', 'downloa
 }));
 
 // Ensure PDF requests that do not exist return a 404 JSON response rather than index.html
-app.use(['/documents/*', '/downloads/*'], (req: Request, res: Response) => {
+app.use(['/documents/*', '/api/v1/documents/*', '/downloads/*', '/api/v1/downloads/*'], (req: Request, res: Response) => {
   res.status(404).json({ success: false, message: 'Document or PDF resource not found' });
 });
 

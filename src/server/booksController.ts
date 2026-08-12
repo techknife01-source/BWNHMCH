@@ -492,23 +492,28 @@ export const handleCreateBook = async (req: Request, res: Response) => {
       console.warn('[E-LIBRARY] Local write warning:', locErr?.message || locErr);
     }
 
-    // 2. Attempt Google Drive Upload if configured
+    // 2. Upload to Google Drive if credentials exist
     if (googleDriveService.hasCredentials()) {
       try {
-        const driveAccess = await googleDriveService.verifyDriveAccess();
-        if (driveAccess.success) {
-          const driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
-          if (driveRes && driveRes.fileId && driveRes.storedSizeBytes > 0) {
-            googleDriveFileId = driveRes.fileId;
-            storageProvider = 'google-drive';
-            console.log('[E-LIBRARY] Google Drive upload completed');
-            console.log(`[E-LIBRARY] Google Drive file ID: ${googleDriveFileId}`);
-            console.log(`[E-LIBRARY] Google Drive stored size: ${driveRes.storedSizeBytes} bytes`);
-          }
+        const driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
+        if (driveRes && driveRes.fileId && driveRes.storedSizeBytes > 0) {
+          googleDriveFileId = driveRes.fileId;
+          storageProvider = 'google-drive';
+          console.log('[E-LIBRARY] Google Drive upload completed');
+          console.log(`[E-LIBRARY] Google Drive file ID: ${googleDriveFileId}`);
+          console.log(`[E-LIBRARY] Google Drive stored size: ${driveRes.storedSizeBytes} bytes`);
+        } else {
+          return res.status(500).json({
+            success: false,
+            message: 'Google Drive upload completed but returned invalid file ID.',
+          });
         }
       } catch (uploadErr: any) {
-        console.warn('[E-LIBRARY] Google Drive upload note:', uploadErr?.message || uploadErr);
-        console.log('[E-LIBRARY] Document stored in local persistent storage.');
+        console.error('[E-LIBRARY] Google Drive upload failed:', uploadErr?.message || uploadErr);
+        return res.status(500).json({
+          success: false,
+          message: `Google Drive PDF upload failed: ${uploadErr?.message || uploadErr}`,
+        });
       }
     }
 

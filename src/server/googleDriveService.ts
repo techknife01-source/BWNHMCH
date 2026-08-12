@@ -3,7 +3,7 @@ import { Readable } from 'stream';
 import fs from 'fs';
 import path from 'path';
 
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 5000): Promise<T> {
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 60000): Promise<T> {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
@@ -86,7 +86,7 @@ export class GoogleDriveService {
           supportsTeamDrives: true,
           fields: 'id, name, size, webViewLink, webContentLink',
         }),
-        15000
+        120000
       );
     } catch (createErr: any) {
       console.warn('[E-LIBRARY] Google Drive upload note:', createErr?.message || createErr);
