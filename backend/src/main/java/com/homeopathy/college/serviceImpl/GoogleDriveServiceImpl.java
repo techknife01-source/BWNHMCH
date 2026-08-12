@@ -91,6 +91,47 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
     }
 
     @Override
+    public boolean isConfigured() {
+        boolean present = clientEmail != null && !clientEmail.isBlank() && privateKey != null && !privateKey.isBlank();
+        log.info("[E-LIBRARY] Google Drive configuration present: {}", present);
+        log.info("[E-LIBRARY] Google Drive folder configured: {}", folderId != null && !folderId.isBlank());
+        return present;
+    }
+
+    @Override
+    public File getFileMetadata(String fileId) {
+        if (fileId == null || fileId.isBlank()) return null;
+        try {
+            Drive drive = getDriveService();
+            return drive.files().get(fileId)
+                    .setSupportsAllDrives(true)
+                    .setFields("id, name, mimeType, size")
+                    .execute();
+        } catch (Exception e) {
+            log.warn("[GOOGLE_DRIVE] Failed to fetch file metadata for file ID '{}': {}", fileId, e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public File getFolderMetadata(String folderIdToTest) {
+        String targetFolder = (folderIdToTest != null && !folderIdToTest.isBlank()) ? folderIdToTest : this.folderId;
+        if (targetFolder == null || targetFolder.isBlank()) return null;
+        try {
+            Drive drive = getDriveService();
+            File folder = drive.files().get(targetFolder)
+                    .setSupportsAllDrives(true)
+                    .setFields("id, name, mimeType")
+                    .execute();
+            log.info("[E-LIBRARY] Google Drive folder accessible: true");
+            return folder;
+        } catch (Exception e) {
+            log.error("[E-LIBRARY] Google Drive folder accessible: false - Error: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
     public String uploadFile(InputStream inputStream, String fileName, String mimeType, long size) {
         try {
             Drive drive = getDriveService();
@@ -102,13 +143,25 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
             }
 
             InputStreamContent mediaContent = new InputStreamContent(mimeType, inputStream);
-            mediaContent.setLength(size);
+            if (size > 0) {
+                mediaContent.setLength(size);
+            }
 
             File uploadedFile = drive.files().create(fileMetadata, mediaContent)
-                    .setFields("id, name, webViewLink, webContentLink")
+                    .setSupportsAllDrives(true)
+                    .setFields("id, name, mimeType, size")
                     .execute();
 
-            log.info("[GOOGLE_DRIVE] PDF file '{}' uploaded successfully. File ID: {}", fileName, uploadedFile.getId());
+            if (uploadedFile == null || uploadedFile.getId() == null) {
+                throw new IllegalStateException("Google Drive returned empty response or missing file ID.");
+            }
+
+            log.info("[E-LIBRARY] Upload completed");
+            log.info("[E-LIBRARY] Google Drive file ID: {}", uploadedFile.getId());
+            if (uploadedFile.getSize() != null) {
+                log.info("[E-LIBRARY] Google Drive stored size: {} bytes", uploadedFile.getSize());
+            }
+
             return uploadedFile.getId();
         } catch (Exception e) {
             log.error("[GOOGLE_DRIVE] PDF upload failed for file '{}': {}", fileName, e.getMessage());
@@ -121,7 +174,9 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
         try {
             Drive drive = getDriveService();
             log.info("[GOOGLE_DRIVE] Streaming PDF file with ID: {}", fileId);
-            return drive.files().get(fileId).executeMediaAsInputStream();
+            return drive.files().get(fileId)
+                    .setSupportsAllDrives(true)
+                    .executeMediaAsInputStream();
         } catch (Exception e) {
             log.error("[GOOGLE_DRIVE] PDF streaming failed for file ID '{}': {}", fileId, e.getMessage());
             throw new RuntimeException("Failed to stream PDF from Google Drive: " + e.getMessage(), e);

@@ -208,6 +208,49 @@ export const handleDriveDiagnostic = async (req: Request, res: Response) => {
   }
 };
 
+export const handleAdminDriveDiagnostic = async (req: Request, res: Response) => {
+  try {
+    const isConfigured = googleDriveService.hasCredentials();
+    if (!isConfigured) {
+      return res.status(200).json({
+        configured: false,
+        authenticated: false,
+        folderConfigured: false,
+        folderAccessible: false,
+        googleDriveStatus: 'FAILED',
+        error: 'Google Drive credentials (GOOGLE_DRIVE_CLIENT_EMAIL, GOOGLE_DRIVE_PRIVATE_KEY) not configured.',
+      });
+    }
+
+    const accessRes = await googleDriveService.verifyDriveAccess();
+    if (accessRes.success) {
+      return res.status(200).json({
+        configured: true,
+        authenticated: true,
+        folderConfigured: true,
+        folderAccessible: true,
+        googleDriveStatus: 'CONNECTED',
+      });
+    } else {
+      return res.status(200).json({
+        configured: true,
+        authenticated: false,
+        folderAccessible: false,
+        googleDriveStatus: 'FAILED',
+        error: accessRes.message || 'Folder access failed',
+      });
+    }
+  } catch (err: any) {
+    return res.status(200).json({
+      configured: true,
+      authenticated: false,
+      folderAccessible: false,
+      googleDriveStatus: 'FAILED',
+      error: err?.message || 'Diagnostic execution failed',
+    });
+  }
+};
+
 export const handleGetBookById = async (req: Request, res: Response) => {
   const { id } = req.params;
   let book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);

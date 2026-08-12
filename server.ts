@@ -28,6 +28,7 @@ import {
   handleGetStreamToken,
   handleMigrateToDrive,
   handleDriveDiagnostic,
+  handleAdminDriveDiagnostic,
 } from './src/server/booksController';
 
 dotenv.config();
@@ -314,6 +315,7 @@ bookTokenRoutes.forEach((route) => app.get(route, handleGetStreamToken));
 
 app.post('/api/v1/books/migrate-to-drive', handleMigrateToDrive);
 app.post('/api/v1/library/books/migrate-to-drive', handleMigrateToDrive);
+app.get('/api/v1/admin/diagnostics/google-drive', handleAdminDriveDiagnostic);
 app.get('/api/v1/admin/drive-diagnostic', handleDriveDiagnostic);
 app.get('/api/v1/library/drive-diagnostic', handleDriveDiagnostic);
 

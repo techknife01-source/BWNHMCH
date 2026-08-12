@@ -100,6 +100,7 @@ public class LegacyBookController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                 .body(pdfResource);
     }
 }

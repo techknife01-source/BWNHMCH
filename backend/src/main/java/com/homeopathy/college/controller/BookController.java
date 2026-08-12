@@ -58,13 +58,14 @@ public class BookController {
     @GetMapping("/{id}/pdf")
     @Operation(summary = "Stream book PDF file from Google Drive (Public Endpoint)")
     public ResponseEntity<Resource> streamBookPdf(@PathVariable String id) {
-        log.info("[E-LIBRARY] PDF stream request for book ID: {}", id);
+        log.info("[E-LIBRARY] PDF retrieval started for book: {}", id);
         Resource pdfResource = bookService.getBookPdfResource(id);
         String fileName = bookService.getBookFileName(id);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                 .body(pdfResource);
     }
 
