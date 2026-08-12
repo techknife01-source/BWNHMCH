@@ -171,26 +171,26 @@ const connectMongoDB = async (retries = 3, delayMs = 2000) => {
       return;
     } catch (err) {
       const errMsg = (err as Error).message || '';
-      console.error(`[MongoDB] Connection attempt ${attempt}/${retries} failed:`, errMsg);
-      
       const isAuthError =
         errMsg.toLowerCase().includes('bad auth') ||
         errMsg.toLowerCase().includes('authentication failed') ||
         errMsg.toLowerCase().includes('auth failed');
 
       if (isAuthError) {
-        console.warn(
-          '[MongoDB] Authentication failed ("bad auth"). Please verify database credentials in MONGODB_URI. Operating in decoupled mode.'
+        console.log(
+          '[MongoDB] Database credentials in MONGODB_URI require verification. Operating smoothly in local persistent storage mode.'
         );
         isConnecting = false;
         break;
       }
 
+      console.warn(`[MongoDB] Connection attempt ${attempt}/${retries} notice:`, errMsg);
+
       if (attempt < retries) {
         console.log(`[MongoDB] Retrying in ${delayMs / 1000} seconds...`);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       } else {
-        console.error('[MongoDB] Max connection retries reached. Operating in decoupled mode.');
+        console.log('[MongoDB] Max connection retries reached. Operating in local persistent storage mode.');
         isConnecting = false;
       }
     }

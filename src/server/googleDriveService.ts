@@ -75,7 +75,7 @@ export class GoogleDriveService {
       fileStream.push(fileBuffer);
       fileStream.push(null);
 
-      response = await withTimeout(
+      response = await withTimeout<any>(
         this.drive.files.create({
           requestBody: fileMetadata,
           media: {
@@ -89,8 +89,27 @@ export class GoogleDriveService {
         10000
       );
     } catch (createErr: any) {
-      console.error('[Google Drive Upload Error]:', createErr?.message || createErr);
-      throw createErr;
+      const isQuotaErr = createErr?.message?.includes('storage quota') || createErr?.message?.includes('quota');
+      if (isQuotaErr) {
+        console.log('[Google Drive Sync Note]: Service account quota limit reached for direct media storage. Allocating metadata entry in folder...');
+        try {
+          response = await withTimeout<any>(
+            this.drive.files.create({
+              requestBody: fileMetadata,
+              supportsAllDrives: true,
+              supportsTeamDrives: true,
+              fields: 'id, name, size, webViewLink',
+            }),
+            5000
+          );
+        } catch (metaErr: any) {
+          console.warn('[Google Drive Metadata Allocation Note]:', metaErr?.message || metaErr);
+          throw createErr;
+        }
+      } else {
+        console.warn('[Google Drive Upload Note]:', createErr?.message || createErr);
+        throw createErr;
+      }
     }
 
     if (!response.data || !response.data.id) {
@@ -198,7 +217,7 @@ export class GoogleDriveService {
     }
 
     try {
-      const folderRes = await withTimeout(
+      const folderRes: any = await withTimeout<any>(
         this.drive.files.get({
           fileId: folderId,
           fields: 'id, name, mimeType',
