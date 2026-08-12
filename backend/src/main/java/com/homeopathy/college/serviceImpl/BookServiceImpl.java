@@ -126,7 +126,7 @@ public class BookServiceImpl implements BookService {
         String driveFileId = book.getGoogleDriveFileId();
         if (driveFileId == null || driveFileId.isBlank()) {
             log.error("[E-LIBRARY] Book ID '{}' has no associated googleDriveFileId in MongoDB", id);
-            throw new ResourceNotFoundException("PDF resource file ID is missing for book: " + book.getTitle());
+            throw new ResourceNotFoundException("Book PDF File", "googleDriveFileId", id);
         }
 
         try {
@@ -134,7 +134,7 @@ public class BookServiceImpl implements BookService {
             InputStream pdfStream = googleDriveService.downloadFile(driveFileId);
             if (pdfStream == null) {
                 log.error("[E-LIBRARY] Google Drive returned null stream for file ID '{}'", driveFileId);
-                throw new ResourceNotFoundException("Google Drive returned empty stream for file ID: " + driveFileId);
+                throw new ResourceNotFoundException("Book PDF Stream", "driveFileId", driveFileId);
             }
             log.info("[E-LIBRARY] PDF retrieval completed for book '{}'", book.getTitle());
             return new InputStreamResource(pdfStream);
