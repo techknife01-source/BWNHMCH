@@ -65,7 +65,7 @@ const sanitizeMongoUri = (rawUri: string): string => {
   return uri;
 };
 
-const PORT = parseInt(process.env.PORT || '3000', 10);
+const PORT = Number(process.env.PORT) || 10000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const MONGODB_URI = sanitizeMongoUri(process.env.MONGODB_URI || '');
 const CLIENT_URL = process.env.CLIENT_URL || '';
@@ -878,13 +878,18 @@ async function startServer() {
     });
   }
 
-  const server = app.listen(PORT, '0.0.0.0', () => {
+  const host = '0.0.0.0';
+  const server = app.listen(PORT, host, () => {
+    console.log(`[SERVER] NODE_ENV=${NODE_ENV}`);
+    console.log(`[SERVER] PORT=${PORT}`);
+    console.log(`[SERVER] HOST=${host}`);
+    console.log(`[SERVER] Server listening successfully on http://${host}:${PORT}`);
     console.log(`
 ==================================================
   BWNHMCH Smart Homeopathic Ecosystem Server Ready
 ==================================================
   Local:   http://localhost:${PORT}
-  Network: http://127.0.0.1:${PORT}
+  Network: http://${host}:${PORT}
   Mode:    ${NODE_ENV}
 ==================================================
 `);

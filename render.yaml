@@ -2,13 +2,13 @@ services:
   - type: web
     name: smart-homeopathic-college-backend
     env: docker
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: Dockerfile
     region: singapore
     plan: free
     healthCheckPath: /api/v1/health
     envVars:
       - key: PORT
-        value: 8080
+        value: 10000
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: MONGODB_URI

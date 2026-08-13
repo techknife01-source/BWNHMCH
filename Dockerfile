@@ -1,4 +1,4 @@
-# Stage 1: Build Vite / React SPA
+# Stage 1: Build Node/Express Full-Stack Application
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
@@ -6,9 +6,15 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve via Nginx
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY --from=build /app/vite.config.ts /usr/share/nginx/html/
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Stage 2: Production Node Runtime Container
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/public ./public
+COPY --from=build /app/.env* ./
+
+ENV NODE_ENV=production
+EXPOSE 10000
+CMD ["npm", "start"]
