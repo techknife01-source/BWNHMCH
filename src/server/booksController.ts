@@ -11,7 +11,7 @@ let memoryBooksStore: any[] = [...SEED_BOOKS];
 // Helper to construct safe Mongoose queries without throwing CastError on non-ObjectId string IDs
 function buildBookQuery(idOrParam: string) {
   if (!idOrParam) return { _id: null };
-  const trimmed = idOrParam.trim();
+  const trimmed = decodeURIComponent(idOrParam).trim();
 
   if (mongoose.Types.ObjectId.isValid(trimmed)) {
     return {
@@ -31,6 +31,35 @@ function buildBookQuery(idOrParam: string) {
       ]
     };
   }
+}
+
+// Unified Persistent Book Resolver supporting both application id and MongoDB _id
+export async function findBookByIdentifier(identifier: string): Promise<any | null> {
+  if (!identifier) return null;
+  const trimmed = decodeURIComponent(identifier).trim();
+
+  let book: any = null;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      book = await (BookModel as any).findOne(buildBookQuery(trimmed)).lean();
+    } catch (e: any) {
+      console.warn(`[LIBRARY] MongoDB findBookByIdentifier error for '${trimmed}':`, e?.message || e);
+    }
+  }
+
+  if (!book && memoryBooksStore && memoryBooksStore.length > 0) {
+    const paramLower = trimmed.toLowerCase();
+    book = memoryBooksStore.find((b) => {
+      if (!b) return false;
+      const bId = String(b.id || '').trim().toLowerCase();
+      const bObjId = String(b._id || '').trim().toLowerCase();
+      const bFileName = String(b.fileName || '').trim().toLowerCase();
+      const bTitle = String(b.title || '').trim().toLowerCase();
+      return bId === paramLower || bObjId === paramLower || bFileName === paramLower || bTitle === paramLower;
+    });
+  }
+
+  return book;
 }
 
 // Helper: Seed initial books into MongoDB if connected and empty
@@ -62,10 +91,13 @@ export async function initBooksDatabaseAndMigration() {
 
 // Format book object for API output
 function formatBookOutput(book: any) {
-  const bookId = book.id || book._id?.toString();
-  const pdfEndpointUrl = `/api/v1/library/books/${bookId}/pdf`;
+  const customId = book.id;
+  const mongoId = book._id ? book._id.toString() : null;
+  const primaryId = customId || mongoId || 'unknown';
+  const pdfEndpointUrl = `/api/v1/library/books/${primaryId}/pdf`;
   return {
-    id: bookId,
+    id: primaryId,
+    _id: mongoId || primaryId,
     title: book.title,
     author: book.author,
     publisher: book.publisher || 'BHMCH Academic Press',
@@ -235,27 +267,17 @@ export const handleAdminDriveDiagnostic = async (req: Request, res: Response) =>
 
 export const handleGetBookById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log(`[LIBRARY] get book ID: ${id}`);
+  const decodedParam = decodeURIComponent(id).trim();
+  console.log(`[LIBRARY] get book ID: ${decodedParam}`);
 
-  let book: any = null;
-  if (mongoose.connection.readyState === 1) {
-    try {
-      book = await (BookModel as any).findOne(buildBookQuery(id)).lean();
-    } catch (e: any) {
-      console.warn(`[LIBRARY] MongoDB getBookById error for '${id}':`, e?.message || e);
-    }
-  }
+  const book = await findBookByIdentifier(decodedParam);
+  const recordFound = !!book;
+  console.log(`[LIBRARY] MongoDB record found: ${recordFound}`);
 
   if (!book) {
-    book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
-  }
-
-  if (!book) {
-    console.log(`[LIBRARY] MongoDB record found: false`);
     return res.status(404).json({ success: false, message: 'Book resource not found' });
   }
 
-  console.log(`[LIBRARY] MongoDB record found: true`);
   console.log(`[LIBRARY] googleDriveFileId: ${book.googleDriveFileId || 'none'}`);
 
   res.status(200).json({
@@ -268,39 +290,27 @@ export const handleGetBookById = async (req: Request, res: Response) => {
 export const handleStreamBookPdf = async (req: Request, res: Response) => {
   const paramId = req.params.id;
   const decodedParam = decodeURIComponent(paramId).trim();
+  const isObjId = mongoose.Types.ObjectId.isValid(decodedParam);
 
   console.log(`[LIBRARY] PDF request book ID: ${decodedParam}`);
+  console.log(`[LIBRARY] Identifier type: ${isObjId ? 'objectId' : 'custom-id'}`);
 
-  let book: any = null;
-  if (mongoose.connection.readyState === 1) {
-    try {
-      book = await (BookModel as any).findOne(buildBookQuery(decodedParam)).lean();
-    } catch (e: any) {
-      console.warn(`[LIBRARY] MongoDB PDF lookup error for '${decodedParam}':`, e?.message || e);
-    }
-  }
-
-  if (!book) {
-    book = memoryBooksStore.find((b) => {
-      if (!b) return false;
-      const bId = (b.id || b._id?.toString() || '').toLowerCase();
-      const bFileName = (b.fileName || '').toLowerCase();
-      const bTitle = (b.title || '').toLowerCase();
-      const paramLower = decodedParam.toLowerCase();
-      return bId === paramLower || bFileName === paramLower || bTitle === paramLower;
-    });
-  }
-
+  const book = await findBookByIdentifier(decodedParam);
   const recordFound = !!book;
   console.log(`[LIBRARY] MongoDB record found: ${recordFound}`);
 
   if (!book) {
-    console.log(`[LIBRARY] PDF stream failed: Book record '${decodedParam}' not found in MongoDB or memory`);
+    console.log(`[LIBRARY] No persistent MongoDB book found for identifier: ${decodedParam}`);
     return res.status(404).json({
       success: false,
       message: `PDF document '${decodedParam}' not found in repository.`,
     });
   }
+
+  const safeCustomId = book.id || 'none';
+  const safeMongoId = book._id ? book._id.toString() : (book.id || 'none');
+  console.log(`[LIBRARY] MongoDB book ID: ${safeCustomId}`);
+  console.log(`[LIBRARY] MongoDB _id: ${safeMongoId}`);
 
   const driveIdPresent = !!book.googleDriveFileId;
   console.log(`[LIBRARY] googleDriveFileId present: ${driveIdPresent}`);
@@ -522,27 +532,17 @@ export const handleUpdateBook = async (req: Request, res: Response) => {
 
 export const handleDeleteBook = async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log(`[LIBRARY] delete book ID: ${id}`);
+  const decodedParam = decodeURIComponent(id).trim();
+  console.log(`[LIBRARY] delete book ID: ${decodedParam}`);
 
-  let book: any = null;
-  if (mongoose.connection.readyState === 1) {
-    try {
-      book = await (BookModel as any).findOne(buildBookQuery(id)).lean();
-    } catch (e: any) {
-      console.warn(`[LIBRARY] MongoDB delete lookup error for '${id}':`, e?.message || e);
-    }
-  }
+  const book = await findBookByIdentifier(decodedParam);
+  const recordFound = !!book;
+  console.log(`[LIBRARY] delete book ID: ${decodedParam} - MongoDB record found: ${recordFound}`);
 
   if (!book) {
-    book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
-  }
-
-  if (!book) {
-    console.log(`[LIBRARY] delete book ID: ${id} - MongoDB record found: false`);
     return res.status(404).json({ success: false, message: 'Book resource not found' });
   }
 
-  console.log(`[LIBRARY] delete book ID: ${id} - MongoDB record found: true`);
   console.log(`[LIBRARY] Google Drive file ID: ${book.googleDriveFileId || 'none'}`);
 
   // Delete from Google Drive
@@ -558,7 +558,7 @@ export const handleDeleteBook = async (req: Request, res: Response) => {
   // Delete from MongoDB
   if (mongoose.connection.readyState === 1) {
     try {
-      await (BookModel as any).deleteOne(buildBookQuery(id));
+      await (BookModel as any).deleteOne(buildBookQuery(decodedParam));
       console.log(`[LIBRARY] MongoDB delete successful`);
     } catch (dbErr: any) {
       console.error(`[LIBRARY] MongoDB delete error:`, dbErr?.message || dbErr);
@@ -570,7 +570,9 @@ export const handleDeleteBook = async (req: Request, res: Response) => {
   }
 
   // Delete from memory store
-  const index = memoryBooksStore.findIndex((b) => b.id === id || b._id?.toString() === id);
+  const index = memoryBooksStore.findIndex(
+    (b) => b.id === decodedParam || b._id?.toString() === decodedParam
+  );
   if (index !== -1) {
     memoryBooksStore.splice(index, 1);
   }
