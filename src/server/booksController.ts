@@ -62,7 +62,7 @@ export async function findBookByIdentifier(identifier: string): Promise<any | nu
   return book;
 }
 
-// Helper: Seed initial books into MongoDB if connected and empty
+// Helper: Seed initial books into MongoDB if connected and empty, and repair documents missing id
 export async function initBooksDatabaseAndMigration() {
   try {
     if (mongoose.connection.readyState === 1) {
@@ -70,7 +70,25 @@ export async function initBooksDatabaseAndMigration() {
       if (count === 0) {
         console.log('[LIBRARY] Seeding initial E-Library books into MongoDB...');
         await (BookModel as any).insertMany(SEED_BOOKS);
+      } else {
+        // Automatic Migration: Repair any old documents in MongoDB where id is missing or null
+        const missingIdDocs = await (BookModel as any).find({
+          $or: [{ id: null }, { id: { $exists: false } }]
+        }).lean();
+
+        if (missingIdDocs && missingIdDocs.length > 0) {
+          console.log(`[LIBRARY MIGRATION] Found ${missingIdDocs.length} MongoDB book(s) missing 'id'. Repairing...`);
+          for (const doc of missingIdDocs) {
+            const repairedId = doc._id ? doc._id.toString() : `book-${Date.now()}`;
+            await (BookModel as any).updateOne(
+              { _id: doc._id },
+              { $set: { id: repairedId } }
+            );
+            console.log(`[LIBRARY MIGRATION] Repaired MongoDB book _id ${doc._id} with id: '${repairedId}'`);
+          }
+        }
       }
+
       const dbBooks = await (BookModel as any).find({}).lean();
       if (dbBooks && dbBooks.length > 0) {
         memoryBooksStore = dbBooks.map((b: any) => ({
@@ -126,7 +144,7 @@ function formatBookOutput(book: any) {
     allowDownload: book.allowDownload ?? true,
     description: book.description || '',
     fileSize: book.fileSize || '10.0 MB',
-    fileName: book.fileName || `${bookId}.pdf`,
+    fileName: book.fileName || `${primaryId}.pdf`,
     pageCount: book.pageCount || 100,
     googleDriveFileId: book.googleDriveFileId || null,
     storageProvider: book.storageProvider || 'local',
@@ -399,8 +417,10 @@ export const handleCreateBook = async (req: Request, res: Response) => {
 
     const originalSizeBytes = fileBuffer.length;
     const fileSizeStr = `${(originalSizeBytes / (1024 * 1024)).toFixed(1)} MB`;
-    const bookId = `book-${Date.now()}`;
+    const bookId = `book-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const nameToUse = fileName || `${title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`;
+
+    console.log(`[LIBRARY] Generated book ID: ${bookId}`);
 
     // Enforce Google Drive Upload (No local fallback allowed)
     if (!googleDriveService.hasCredentials()) {
@@ -464,15 +484,21 @@ export const handleCreateBook = async (req: Request, res: Response) => {
     };
 
     // Save to MongoDB - mandatory persistent storage
+    console.log(`[LIBRARY] Saving MongoDB book with ID: ${bookId}`);
     if (mongoose.connection.readyState === 1) {
       try {
         await (BookModel as any).create(newBook);
-        console.log(`[LIBRARY] MongoDB book ID: ${bookId}`);
         console.log('[LIBRARY] MongoDB save successful');
       } catch (dbErr: any) {
         console.error('[LIBRARY] MongoDB create failed:', dbErr?.message || dbErr);
         if (googleDriveFileId) {
-          try { await googleDriveService.deleteFile(googleDriveFileId); } catch {}
+          try {
+            console.log(`[LIBRARY Cleanup] Deleting orphaned Google Drive file: ${maskedDriveId}`);
+            await googleDriveService.deleteFile(googleDriveFileId);
+            console.log('[LIBRARY Cleanup] Orphaned Google Drive file deleted successfully.');
+          } catch (cleanupErr: any) {
+            console.error('[LIBRARY Cleanup Error]:', cleanupErr?.message || cleanupErr);
+          }
         }
         return res.status(500).json({
           success: false,
@@ -480,6 +506,9 @@ export const handleCreateBook = async (req: Request, res: Response) => {
         });
       }
     } else {
+      if (googleDriveFileId) {
+        try { await googleDriveService.deleteFile(googleDriveFileId); } catch {}
+      }
       return res.status(500).json({
         success: false,
         message: 'MongoDB connection not ready. Book record could not be persisted.',
