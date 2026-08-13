@@ -479,11 +479,11 @@ export const handleCreateBook = async (req: Request, res: Response) => {
           console.log(`[E-LIBRARY] Google Drive file ID: ${googleDriveFileId}`);
           console.log(`[E-LIBRARY] Google Drive stored size: ${driveRes.storedSizeBytes} bytes`);
         } else {
-          console.warn('[E-LIBRARY] Google Drive upload returned invalid response, falling back to local storage.');
+          console.log('[E-LIBRARY] Using local disk storage.');
           storageProvider = 'local';
         }
       } catch (uploadErr: any) {
-        console.warn('[E-LIBRARY] Google Drive upload failed, falling back to local storage:', uploadErr?.message || uploadErr);
+        console.log('[E-LIBRARY] Using local disk storage:', uploadErr?.message || uploadErr);
         storageProvider = 'local';
       }
     }

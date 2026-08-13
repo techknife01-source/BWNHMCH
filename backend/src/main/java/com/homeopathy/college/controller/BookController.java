@@ -59,47 +59,51 @@ public class BookController {
     @Operation(summary = "Stream book PDF file from Google Drive (Public Endpoint)")
     public ResponseEntity<Resource> streamBookPdf(@PathVariable String id) {
         log.info("[E-LIBRARY] PDF retrieval started for book: {}", id);
+        BookResponse book = bookService.getBookById(id);
         Resource pdfResource = bookService.getBookPdfResource(id);
-        String fileName = bookService.getBookFileName(id);
+        String fileName = book.getFileName() != null ? book.getFileName() : "book.pdf";
+        String contentType = book.getMimeType() != null ? book.getMimeType() : MediaType.APPLICATION_PDF_VALUE;
 
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
+                .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                 .body(pdfResource);
     }
 
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE, "multipart/*", MediaType.ALL_VALUE })
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'LIBRARIAN', 'FACULTY')")
     @Operation(summary = "Upload new book PDF to Google Drive and save metadata")
     public ResponseEntity<ApiResponse<BookResponse>> uploadBook(
             @RequestParam(value = "title", required = false) String titleParam,
             @RequestParam(value = "author", required = false) String authorParam,
             @RequestParam(value = "category", required = false) String categoryParam,
             @RequestParam(value = "semester", required = false) String semesterParam,
+            @RequestParam(value = "department", required = false) String departmentParam,
+            @RequestParam(value = "subject", required = false) String subjectParam,
+            @RequestParam(value = "publisher", required = false) String publisherParam,
             @RequestParam(value = "description", required = false) String descriptionParam,
-            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "allowDownload", required = false) Boolean allowDownloadParam,
+            @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserPrincipal currentUser) {
 
-        String title = titleParam;
-        String author = authorParam;
-        String category = categoryParam;
-        String semester = semesterParam;
-        String description = descriptionParam;
-
-        if (title == null || title.isBlank() || author == null || author.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Title and Author are required"));
-        }
+        log.info("[E-LIBRARY] Upload controller endpoint triggered");
 
         BookRequest request = new BookRequest();
-        request.setTitle(title);
-        request.setAuthor(author);
-        request.setCategory(category);
-        request.setSemester(semester);
-        request.setDescription(description);
+        if (titleParam != null) request.setTitle(titleParam.trim());
+        if (authorParam != null) request.setAuthor(authorParam.trim());
+        if (categoryParam != null) request.setCategory(categoryParam.trim());
+        if (semesterParam != null) request.setSemester(semesterParam.trim());
+        if (departmentParam != null) request.setDepartment(departmentParam.trim());
+        if (subjectParam != null) request.setSubject(subjectParam.trim());
+        if (publisherParam != null) request.setPublisher(publisherParam.trim());
+        if (descriptionParam != null) request.setDescription(descriptionParam.trim());
+        if (allowDownloadParam != null) request.setAllowDownload(allowDownloadParam);
         request.setPublished(true);
 
-        String username = currentUser != null ? currentUser.getUsername() : "Faculty Member";
+        String username = (currentUser != null && currentUser.getUsername() != null)
+                ? currentUser.getUsername()
+                : "Authorized User";
 
         BookResponse response = bookService.uploadBook(request, file, username);
         return ResponseEntity.status(HttpStatus.CREATED)

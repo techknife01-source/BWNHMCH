@@ -69,6 +69,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/library/books", "/library/books/**", "/books", "/books/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/library/books", "/api/v1/library/books/**", "/api/v1/books", "/api/v1/books/**").permitAll()
                         .requestMatchers(SecurityConstants.PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
                 );

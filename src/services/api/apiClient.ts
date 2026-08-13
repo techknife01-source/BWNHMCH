@@ -55,17 +55,7 @@ const processQueue = (error: any, token: string | null = null) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean; _fallbackRetry?: boolean };
-
-    // Network Error fallback: if an external backend URL fails due to network/CORS error, retry with relative local endpoint
-    if (!error.response && originalRequest && !originalRequest._fallbackRetry) {
-      originalRequest._fallbackRetry = true;
-      if (typeof originalRequest.baseURL === 'string' && originalRequest.baseURL.startsWith('http')) {
-        console.warn('[apiClient] External API Network Error detected. Retrying request via local backend /api/v1...');
-        originalRequest.baseURL = '/api/v1';
-        return apiClient(originalRequest);
-      }
-    }
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     // Do not attempt token refresh for authentication requests like login or refresh itself
     if (

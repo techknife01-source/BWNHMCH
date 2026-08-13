@@ -13,6 +13,10 @@ public class BookRequest {
 
     private String category;
     private String semester;
+    private String department;
+    private String subject;
+    private String publisher;
     private String description;
+    private Boolean allowDownload = true;
     private Boolean published = true;
 }

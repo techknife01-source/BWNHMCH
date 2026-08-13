@@ -9,4 +9,5 @@ public interface GoogleDriveService {
     boolean isConfigured();
     File getFileMetadata(String fileId);
     File getFolderMetadata(String folderId);
+    void deleteFile(String fileId);
 }

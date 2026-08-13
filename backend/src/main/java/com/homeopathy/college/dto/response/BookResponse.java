@@ -17,12 +17,16 @@ public class BookResponse {
     private String author;
     private String category;
     private String semester;
+    private String department;
+    private String subject;
+    private String publisher;
     private String description;
     private String fileName;
     private String mimeType;
     private Long fileSize;
     private String googleDriveFileId;
     private String pdfUrl;
+    private boolean allowDownload;
     private boolean published;
     private String uploadedBy;
     private LocalDateTime createdAt;

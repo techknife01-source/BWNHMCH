@@ -20,12 +20,18 @@ public class Book extends BaseEntity {
     private String author;
     private String category;
     private String semester;
+    private String department;
+    private String subject;
+    private String publisher;
     private String description;
     private String fileName;
     private String mimeType;
     private Long fileSize;
     private String googleDriveFileId;
-    private String storageProvider; // e.g. "GOOGLE_DRIVE" or "LOCAL"
-    private boolean published;
+    private String storageProvider; // e.g. "GOOGLE_DRIVE"
+    @Builder.Default
+    private boolean allowDownload = true;
+    @Builder.Default
+    private boolean published = true;
     private String uploadedBy;
 }

@@ -68,12 +68,15 @@ export interface PageResponse<T> {
 export interface Notice {
   id: string;
   title: string;
-  category: 'ACADEMIC' | 'EXAM' | 'ADMINISTRATIVE' | 'HOSPITAL' | 'GENERAL';
+  category: string;
   content: string;
   attachmentUrl?: string;
-  publishedDate: string;
-  isImportant: boolean;
-  author: string;
+  attachmentName?: string;
+  publishedDate?: string;
+  date?: string;
+  isImportant?: boolean;
+  isPinned?: boolean;
+  author?: string;
 }
 
 // Events

@@ -53,6 +53,9 @@ google:
     folder-id: ${GOOGLE_DRIVE_FOLDER_ID:1NFUQwGp3eTHeMoZJzmzoBgwrCOX5EOb7}
     client-email: ${GOOGLE_DRIVE_CLIENT_EMAIL:bwnhmch-elibrary@bwnhmch.iam.gserviceaccount.com}
     private-key: ${GOOGLE_DRIVE_PRIVATE_KEY:}
+    private-key-id: ${GOOGLE_DRIVE_PRIVATE_KEY_ID:0000000000000000000000000000000000000000}
+    client-id: ${GOOGLE_DRIVE_CLIENT_ID:100000000000000000000}
+    project-id: ${GOOGLE_DRIVE_PROJECT_ID:bwnhmch-elibrary}
 
 # OpenAPI Swagger Config
 springdoc:

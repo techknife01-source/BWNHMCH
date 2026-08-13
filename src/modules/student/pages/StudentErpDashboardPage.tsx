@@ -69,6 +69,7 @@ import {
   FeeTransaction,
   DownloadItem,
   Notice,
+  ApiResponse,
 } from '../../../types/index';
 
 import {
@@ -130,26 +131,7 @@ export const StudentErpDashboardPage: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [
-        profRes,
-        attRes,
-        attRecRes,
-        ttRes,
-        asgRes,
-        smRes,
-        exRes,
-        resRes,
-        feeRes,
-        txRes,
-        dlRes,
-        notRes,
-        lvRes,
-        crtRes,
-        notifRes,
-        subRes,
-        calRes,
-        stgRes,
-      ] = await Promise.all([
+      const results = await Promise.allSettled([
         studentApi.getProfile(),
         attendanceApi.getSummary(),
         attendanceApi.getDailyRecords(),
@@ -170,24 +152,31 @@ export const StudentErpDashboardPage: React.FC = () => {
         studentErpService.getSettings(),
       ]);
 
-      if (profRes.data) setProfile(profRes.data);
-      if (attRes.data) setAttendance(attRes.data);
-      if (attRecRes.data) setAttendanceRecords(attRecRes.data);
-      if (ttRes.data) setTimetable(ttRes.data);
-      if (asgRes.data) setAssignments(asgRes.data);
-      if (smRes.data) setStudyMaterials(smRes.data);
-      if (exRes.data) setExams(exRes.data);
-      if (resRes.data) setResults(resRes.data);
-      if (feeRes.data) setFeeDetails(feeRes.data);
-      if (txRes.data) setFeeTransactions(txRes.data);
-      if (dlRes.data) setDownloads(dlRes.data);
-      if (notRes.data) setNotices(notRes.data);
-      if (lvRes.data) setLeaves(lvRes.data);
-      if (crtRes.data) setCertificates(crtRes.data);
-      if (notifRes.data) setNotifications(notifRes.data);
-      if (subRes.data) setSubjects(subRes.data);
-      if (calRes.data) setCalendarEvents(calRes.data);
-      if (stgRes.data) setSettings(stgRes.data);
+      const getValue = <T,>(result: PromiseSettledResult<ApiResponse<T>>): T | undefined => {
+        if (result.status === 'fulfilled' && result.value?.data) {
+          return result.value.data;
+        }
+        return undefined;
+      };
+
+      const profData = getValue(results[0]); if (profData) setProfile(profData);
+      const attData = getValue(results[1]); if (attData) setAttendance(attData);
+      const attRecData = getValue(results[2]); if (attRecData) setAttendanceRecords(attRecData);
+      const ttData = getValue(results[3]); if (ttData) setTimetable(ttData);
+      const asgData = getValue(results[4]); if (asgData) setAssignments(asgData);
+      const smData = getValue(results[5]); if (smData) setStudyMaterials(smData);
+      const exData = getValue(results[6]); if (exData) setExams(exData);
+      const resData = getValue(results[7]); if (resData) setResults(resData);
+      const feeData = getValue(results[8]); if (feeData) setFeeDetails(feeData);
+      const txData = getValue(results[9]); if (txData) setFeeTransactions(txData);
+      const dlData = getValue(results[10]); if (dlData) setDownloads(dlData);
+      const notData = getValue(results[11]); if (notData) setNotices(notData);
+      const lvData = getValue(results[12]); if (lvData) setLeaves(lvData);
+      const crtData = getValue(results[13]); if (crtData) setCertificates(crtData);
+      const notifData = getValue(results[14]); if (notifData) setNotifications(notifData);
+      const subData = getValue(results[15]); if (subData) setSubjects(subData);
+      const calData = getValue(results[16]); if (calData) setCalendarEvents(calData);
+      const stgData = getValue(results[17]); if (stgData) setSettings(stgData);
     } catch (err) {
       console.error('Failed to load student ERP data', err);
     } finally {
