@@ -1,8 +1,20 @@
 {
   "name": "react-example",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "An enterprise-grade, production-ready, clean-architecture digital ecosystem engineered for **Homeopathic Medical Colleges & Hospitals**.",
+  "homepage": "https://github.com/techknife01-source/BWNHMCH#readme",
+  "bugs": {
+    "url": "https://github.com/techknife01-source/BWNHMCH/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techknife01-source/BWNHMCH.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "test_drive_options.js",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "node scripts/generatePdfs.js && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",

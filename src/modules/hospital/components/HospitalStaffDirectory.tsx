@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Users,
@@ -51,8 +51,8 @@ export const HospitalStaffDirectory: React.FC = () => {
 
   // Form State for Add / Edit
   const [formData, setFormData] = useState<Omit<HospitalStaffMember, 'id'>>({
-    slNo: 44,
-    empId: 'SL-44',
+    slNo: 45,
+    empId: 'SL-45',
     name: '',
     roleCategory: 'MEDICAL_STAFF',
     department: 'MEDICAL STAFF (HOSPITAL SECTION)',
@@ -65,9 +65,14 @@ export const HospitalStaffDirectory: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const refreshStaff = () => {
-    setStaffList(hospitalStaffService.getAllStaff());
+  const refreshStaff = async () => {
+    const list = await hospitalStaffService.fetchStaffAsync();
+    setStaffList(list);
   };
+
+  useEffect(() => {
+    refreshStaff();
+  }, []);
 
   // Derive unique departments & designations for filters
   const departments = useMemo(() => {
@@ -162,7 +167,7 @@ export const HospitalStaffDirectory: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleSaveStaff = (e: React.FormEvent) => {
+  const handleSaveStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
       alert('Please enter staff name.');
@@ -174,22 +179,22 @@ export const HospitalStaffDirectory: React.FC = () => {
     }
 
     if (editingStaff) {
-      hospitalStaffService.updateStaffMember(editingStaff.id, formData);
+      await hospitalStaffService.updateStaffMemberAsync(editingStaff.id, formData);
       showNotification(`Staff record updated for ${formData.name}`);
     } else {
-      hospitalStaffService.addStaffMember(formData);
+      await hospitalStaffService.addStaffMemberAsync(formData);
       showNotification(`New staff member ${formData.name} added successfully.`);
     }
 
     setIsAddModalOpen(false);
-    refreshStaff();
+    await refreshStaff();
   };
 
-  const handleDeleteStaff = (id: string, name: string) => {
-    hospitalStaffService.deleteStaffMember(id);
+  const handleDeleteStaff = async (id: string, name: string) => {
+    await hospitalStaffService.deleteStaffMemberAsync(id);
     showNotification(`Staff record for ${name} deleted successfully.`);
     setDeletingStaffId(null);
-    refreshStaff();
+    await refreshStaff();
   };
 
   const handleResetDefault = () => {

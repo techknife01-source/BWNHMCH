@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/library/books", "/library/books/**", "/books", "/books/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/library/books", "/api/v1/library/books/**", "/api/v1/books", "/api/v1/books/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/staff", "/staff/**", "/api/v1/staff", "/api/v1/staff/**", "/api/v1/hospital/staff", "/api/v1/hospital/staff/**").permitAll()
                         .requestMatchers(SecurityConstants.PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
                 );

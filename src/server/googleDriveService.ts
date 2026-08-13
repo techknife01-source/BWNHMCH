@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { Readable } from 'stream';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 60000): Promise<T> {
   return Promise.race([
@@ -14,33 +15,45 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 60000): Promise
 
 export class GoogleDriveService {
   private drive: any = null;
+  private oauth2Client: any = null;
   private folderId: string | null = null;
   private isConfigured: boolean = false;
-  private quotaExceeded: boolean = false;
+  private authMode: 'oauth2' | 'service_account' | 'none' = 'none';
 
   constructor() {
     this.init();
   }
 
   public init() {
-    let folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    let clientEmail = process.env.GOOGLE_DRIVE_CLIENT_EMAIL || 'bwnhmch-elibrary@bwnhmch.iam.gserviceaccount.com';
-    let privateKeyRaw = process.env.GOOGLE_DRIVE_PRIVATE_KEY || `-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDZ7HI+ttULYDr0\nTOGFkcl+nQoc0OCEqtUEf0BxpNzeZDbmSkHj2KlCU6i0PXGzRUnrEDVwqjQz58YJ\n6f8RF2zfkh4cU+PmhWU2xotGg41am7Df66vEDmbK1AZlTYVjopkEhyUYS7B1SQLn\nvK5E9EPGWYPNCrHhP2jgmkjeVnQ50ZCFScGVM/4QRmElyOV5KueqYX3sLPprQG5P\nudyUWrnFrSXPnt0qMztqq75dIqG7CC1QSl9vBB7OISYY4EumoJBPmlcG52Jl6Aam\nyNZmOf/ap1qcJinJhQ8Ln/+KtFdlAbptZ29uxGzFeJaCgwTVYvtH3vAhxXcleRSN\nRJpEvecrAgMBAAECggEAVD2YtDGNDYa3g3SswStoDq+6FwWPpPk8uy5NxSCL2NQ4\nfLE7403/sAoS7wnJiBlCx8FORy0kXOQ9o9t2pC7AAXTEewLa2GO8in4ZnLqBzALf\nTtAVaAaBKeroRgS/iZJzQFLVvhyUK+J7YwWHAFTEVkqILpzxwjb23cwGWxxkdWyc\neQRh48JxXLpXrqsCAz1c23AG6FYn9oSWsBk0IrWlOiI78mxpAOThsSlGr1as4XIE\n3AWWUTND1c9d7zl+lk+mhoQYoAF8wbT+o+xXeSeJ2LHgjAHmH2daoWL5TCPfhtCa\nrV804odSP5ETeC0nzzZrJE0cdnTD3lW+sXdq26pmEQKBgQD3XvQU7pIYvh3MoFvm\nm2oMcrEdjDAoihVfzrD16rmkP4mOEW8dukTvdo5Hb8jtnhw/NlrFaaWhYHCTyQOB\n4QGB6sxuFYk1ncwrKHdlA7h6jOEUqAIBsVCild/hoYqnlXHUmfIRjXMilayHCQsH\n/F3NQbeXFXEZVf7kx2r7LOJS9QKBgQDhhoaNoIu7+ssvhYpAtTfplCk1YnZwyLA1\nR7M6fpq39DVGkqu4wTdzcYdOTIFp+0NLeJhU2rrwsgcdAdZiLXAKETB2aWoCobuI\ndiS0PppO6pYuXqnihMII5eZTuAAT52iYLfCVnzqQ3066US8R9qVR+GiJnf2kX2WF\niCXZq8g9nwKBgHjThW8v9GZnflCzxw/Fu6/m2YIwNlmm0LfiUmdbxl9mtX6SH28q\ny38XrnlQLZl60BtEJmQkrUU8wOA+oBrxV3YoxL/EfyeUMuSluGO7xID/jPU09v3y\nqQsxH5CrAfnHMjmBFE7kg2dSKlou3ZeB+iNGxTDjxUF10rHWgfe7vbR9AoGAa3HC\n8wCU8hb27IoLpu5vV+oNg/CICw2h3ZBuVCTzI0bGhvvjsh7jgy2IUAZk9ZAOrIsk\nz/BxdbDrcKdqctXA9hrgYtmv9tcE2Guo6vKUY5qhuC/Dcjbblo+pHyOfbdwm2bGx\nWCdHKLQq9tssuLswYhAeBcpuh/wnCuolVkHgIXMCgYEA7eEVYuYlbr9K1SetVC8x\nt3/Ws5ypzb5zGHsXKMXGezLx2v/Dht5RgOtBnakwIj4dt4StQpzunJruJytJZOoF\n0h+C34zhjfKf4915iIqu5mlUN9OCcrkhbBHrlE0UKnRzp7QMUhtm792FMjIoMxAf\n9vZl7ROhm8RGjomnN/WJFlk=\n-----END PRIVATE KEY-----\n`;
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '';
+    const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID || '';
+    const clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET || '';
+    const redirectUri = process.env.GOOGLE_DRIVE_REDIRECT_URI || 'http://localhost:10000/api/v1/library/google-drive/oauth/callback';
+    const refreshToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN || '';
 
-    this.folderId = folderId || null;
+    this.folderId = folderId;
 
-    try {
-      if (privateKeyRaw && privateKeyRaw.trim().startsWith('{')) {
-        try {
-          const parsed = JSON.parse(privateKeyRaw.trim());
-          if (parsed.client_email) clientEmail = parsed.client_email;
-          if (parsed.private_key) privateKeyRaw = parsed.private_key;
-        } catch (e) {
-          // Ignore JSON parse failure
-        }
+    // 1. Prefer OAuth 2.0 credentials if refresh token is present
+    if (clientId && clientSecret && redirectUri && refreshToken && refreshToken.trim() !== '') {
+      try {
+        this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+        this.oauth2Client.setCredentials({ refresh_token: refreshToken.trim() });
+        this.drive = google.drive({ version: 'v3', auth: this.oauth2Client });
+        this.isConfigured = true;
+        this.authMode = 'oauth2';
+        console.log('[Google Drive Service] Authenticated via OAuth 2.0 (bwnhmch@gmail.com).');
+        return;
+      } catch (oauthErr: any) {
+        console.error('[Google Drive Service] OAuth2 client init error:', oauthErr?.message || oauthErr);
       }
+    }
 
-      if (clientEmail && privateKeyRaw) {
+    // 2. Fallback to Service Account credentials if OAuth refresh token is not yet set
+    let clientEmail = process.env.GOOGLE_DRIVE_CLIENT_EMAIL;
+    let privateKeyRaw = process.env.GOOGLE_DRIVE_PRIVATE_KEY;
+
+    if (clientEmail && privateKeyRaw) {
+      try {
         let privateKey = privateKeyRaw.replace(/\\n/g, '\n').trim();
         if ((privateKey.startsWith('"') && privateKey.endsWith('"')) || (privateKey.startsWith("'") && privateKey.endsWith("'"))) {
           privateKey = privateKey.substring(1, privateKey.length - 1).trim();
@@ -56,28 +69,113 @@ export class GoogleDriveService {
         });
         this.drive = google.drive({ version: 'v3', auth });
         this.isConfigured = true;
-        console.log('[Google Drive Service] Authenticated via Service Account Credentials.');
-      } else {
-        console.warn('[Google Drive Service] Service account credentials (GOOGLE_DRIVE_CLIENT_EMAIL, GOOGLE_DRIVE_PRIVATE_KEY) not configured in env. Operating in local disk fallback mode.');
+        this.authMode = 'service_account';
+        console.log('[Google Drive Service] Authenticated via Service Account (OAuth refresh token pending authorization).');
+        return;
+      } catch (err: any) {
+        console.error('[Google Drive Auth Error]:', err?.message || err);
       }
-    } catch (err: any) {
-      console.error('[Google Drive Auth Error]:', err?.message || err);
-      this.isConfigured = false;
-      this.drive = null;
+    }
+
+    this.isConfigured = false;
+    this.drive = null;
+    this.authMode = 'none';
+  }
+
+  public getAuthUrl(): { authUrl: string; state: string } {
+    const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID || '';
+    const clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET || '';
+    const redirectUri = process.env.GOOGLE_DRIVE_REDIRECT_URI || 'http://localhost:10000/api/v1/library/google-drive/oauth/callback';
+
+    const stateToken = crypto.randomBytes(32).toString('hex');
+    if (!this.pendingStateTokens) {
+      this.pendingStateTokens = new Set<string>();
+    }
+    this.pendingStateTokens.add(stateToken);
+
+    setTimeout(() => {
+      if (this.pendingStateTokens) {
+        this.pendingStateTokens.delete(stateToken);
+      }
+    }, 15 * 60 * 1000);
+
+    const client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+    const authUrl = client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/drive'],
+      prompt: 'consent',
+      state: stateToken,
+      include_granted_scopes: true,
+    });
+
+    return { authUrl, state: stateToken };
+  }
+
+  private pendingStateTokens: Set<string> = new Set<string>();
+
+  public verifyStateToken(state: string): boolean {
+    if (!state || !this.pendingStateTokens || !this.pendingStateTokens.has(state)) {
+      return false;
+    }
+    this.pendingStateTokens.delete(state);
+    return true;
+  }
+
+  public async handleOAuthCallback(code: string): Promise<any> {
+    const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID || '';
+    const clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET || '';
+    const redirectUri = process.env.GOOGLE_DRIVE_REDIRECT_URI || 'http://localhost:10000/api/v1/library/google-drive/oauth/callback';
+
+    const client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+    const { tokens } = await client.getToken(code);
+
+    if (tokens.refresh_token) {
+      process.env.GOOGLE_DRIVE_REFRESH_TOKEN = tokens.refresh_token;
+      this.saveRefreshTokenToEnv(tokens.refresh_token);
+      this.init();
+      console.log('[Google Drive Service] OAuth 2.0 refresh token saved and initialized successfully.');
+    } else {
+      console.warn('[Google Drive Service] Warning: Authorization succeeded but no refresh token was returned (user may have previously consented without prompt=consent).');
+    }
+
+    return tokens;
+  }
+
+  private saveRefreshTokenToEnv(refreshToken: string) {
+    try {
+      const envPath = path.join(process.cwd(), '.env');
+      if (fs.existsSync(envPath)) {
+        let content = fs.readFileSync(envPath, 'utf8');
+        if (content.includes('GOOGLE_DRIVE_REFRESH_TOKEN=')) {
+          content = content.replace(/GOOGLE_DRIVE_REFRESH_TOKEN=.*/g, `GOOGLE_DRIVE_REFRESH_TOKEN=${refreshToken}`);
+        } else {
+          content += `\nGOOGLE_DRIVE_REFRESH_TOKEN=${refreshToken}\n`;
+        }
+        fs.writeFileSync(envPath, content, 'utf8');
+      }
+    } catch (e: any) {
+      console.warn('[Google Drive Service] Could not write refresh token to .env file:', e?.message || e);
     }
   }
 
+  public getAuthMode(): string {
+    return this.authMode;
+  }
+
   public hasCredentials(): boolean {
-    return this.isConfigured && !!this.drive && !this.quotaExceeded;
+    if (!this.isConfigured || !this.drive) {
+      this.init();
+    }
+    return this.isConfigured && !!this.drive;
   }
 
   public async uploadPdf(
     fileBuffer: Buffer,
     fileName: string,
     mimeType: string = 'application/pdf'
-  ): Promise<{ fileId: string; fileSizeFormatted?: string; storedSizeBytes: number }> {
+  ): Promise<{ fileId: string; fileSizeFormatted?: string; storedSizeBytes: number; error?: string }> {
     if (!this.hasCredentials()) {
-      return { fileId: '', storedSizeBytes: 0 };
+      return { fileId: '', storedSizeBytes: 0, error: 'Google Drive client not configured' };
     }
 
     try {
@@ -109,7 +207,7 @@ export class GoogleDriveService {
       );
 
       if (!response || !response.data || !response.data.id) {
-        return { fileId: '', storedSizeBytes: 0 };
+        return { fileId: '', storedSizeBytes: 0, error: 'Empty file ID returned' };
       }
 
       const fileId = response.data.id;
@@ -140,10 +238,11 @@ export class GoogleDriveService {
     } catch (err: any) {
       const errMsg = err?.message || String(err);
       if (errMsg.includes('storage quota') || errMsg.includes('Service Accounts do not have storage quota')) {
-        this.quotaExceeded = true;
+        console.error('[LIBRARY] Google Drive WRITE: FAIL (Service Accounts do not have storage quota for folder destination)');
+      } else {
+        console.error('[LIBRARY] Google Drive upload error:', errMsg);
       }
-      console.log('[E-LIBRARY] Google Drive upload note:', errMsg);
-      return { fileId: '', storedSizeBytes: 0 };
+      return { fileId: '', storedSizeBytes: 0, error: errMsg };
     }
   }
 
@@ -153,8 +252,8 @@ export class GoogleDriveService {
     }
 
     const meta = await this.getFileMetadata(fileId);
-    if (!meta || !meta.size || parseInt(meta.size, 10) === 0) {
-      throw new Error(`Google Drive file ID ${fileId} is unavailable or contains 0 bytes.`);
+    if (!meta) {
+      throw new Error(`Google Drive file ID ${fileId} is unavailable.`);
     }
 
     const requestOptions: any = {
@@ -178,7 +277,7 @@ export class GoogleDriveService {
       stream: response.data,
       headers: response.headers,
       status: response.status,
-      size: parseInt(meta.size, 10),
+      size: meta.size ? parseInt(meta.size, 10) : 0,
       name: meta.name,
       mimeType: meta.mimeType,
     };
@@ -207,27 +306,23 @@ export class GoogleDriveService {
         supportsAllDrives: true,
         supportsTeamDrives: true,
       });
+      console.log(`[LIBRARY] Deleted file ${fileId} from Google Drive`);
     } catch (err: any) {
-      console.warn('[Google Drive File Deletion Warning]:', err?.message || err);
+      console.warn('[LIBRARY] Google Drive File Deletion Warning:', err?.message || err);
     }
   }
 
-  public async verifyDriveAccess(): Promise<{ success: boolean; message: string; details?: any }> {
-    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    const clientEmail = process.env.GOOGLE_DRIVE_CLIENT_EMAIL;
-    const privateKeyRaw = process.env.GOOGLE_DRIVE_PRIVATE_KEY;
-
-    if (!folderId || !clientEmail || !privateKeyRaw) {
-      console.error('[E-LIBRARY] Google Drive authentication failed');
-      console.error('[E-LIBRARY] Google Drive folder access failed: Missing required environment variables');
-      return { success: false, message: 'Missing GOOGLE_DRIVE_FOLDER_ID, GOOGLE_DRIVE_CLIENT_EMAIL, or GOOGLE_DRIVE_PRIVATE_KEY' };
-    }
+  public async verifyDriveAccess(): Promise<{ success: boolean; message: string; read: boolean; write: boolean; details?: any }> {
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1IRcwRPZ9d0Tk-cp-bCYZwKOUX7Cg3dsC';
 
     if (!this.hasCredentials()) {
-      console.error('[E-LIBRARY] Google Drive authentication failed');
-      console.error('[E-LIBRARY] Google Drive folder access failed: JWT Auth client not initialized');
-      return { success: false, message: 'Google Drive client not initialized' };
+      console.error('[E-LIBRARY] Google Drive authentication failed: Client not initialized');
+      return { success: false, read: false, write: false, message: 'Google Drive client not initialized' };
     }
+
+    let readPass = false;
+    let writePass = false;
+    let folderDetails: any = null;
 
     try {
       const folderRes: any = await withTimeout<any>(
@@ -239,27 +334,71 @@ export class GoogleDriveService {
         }),
         5000
       );
-
-      console.log('[E-LIBRARY] Google Drive authentication successful');
-      console.log('[E-LIBRARY] E-Library folder accessible');
-      return {
-        success: true,
-        message: 'Google Drive authentication successful and E-Library folder accessible',
-        details: { folderId: folderRes.data.id, folderName: folderRes.data.name },
-      };
+      readPass = true;
+      folderDetails = { folderId: folderRes.data.id, folderName: folderRes.data.name };
+      console.log('[LIBRARY] Google Drive READ: PASS');
     } catch (err: any) {
-      console.error('[E-LIBRARY] Google Drive authentication failed:', err?.message || err);
-      console.error('[E-LIBRARY] Google Drive folder access failed:', err?.message || err);
+      console.error('[LIBRARY] Google Drive READ: FAIL:', err?.message || err);
       return {
         success: false,
-        message: `Google Drive folder access failed: ${err?.message || err}`,
+        read: false,
+        write: false,
+        message: `Google Drive folder READ failed: ${err?.message || err}`,
       };
     }
+
+    // Probe WRITE capability
+    try {
+      const probeRes = await this.drive.files.create({
+        requestBody: {
+          name: 'write_capability_probe.tmp',
+          mimeType: 'text/plain',
+          parents: [folderId],
+        },
+        media: {
+          mimeType: 'text/plain',
+          body: Readable.from(Buffer.from('probe')),
+        },
+        supportsAllDrives: true,
+        supportsTeamDrives: true,
+        fields: 'id',
+      });
+
+      if (probeRes.data?.id) {
+        writePass = true;
+        console.log('[LIBRARY] Google Drive WRITE: PASS');
+        try {
+          await this.drive.files.delete({ fileId: probeRes.data.id, supportsAllDrives: true, supportsTeamDrives: true });
+          console.log('[LIBRARY] Google Drive DELETE: PASS');
+        } catch {}
+      }
+    } catch (writeErr: any) {
+      const errMsg = writeErr?.message || String(writeErr);
+      if (errMsg.includes('storage quota') || errMsg.includes('Service Accounts do not have storage quota')) {
+        console.error('[LIBRARY] Google Drive WRITE: FAIL (Service Accounts do not have storage quota)');
+      } else {
+        console.error('[LIBRARY] Google Drive WRITE: FAIL:', errMsg);
+      }
+    }
+
+    const overallSuccess = readPass && writePass;
+    const summaryMsg = `Google Drive READ: ${readPass ? 'PASS' : 'FAIL'}, Google Drive WRITE: ${writePass ? 'PASS' : 'FAIL'}`;
+
+    return {
+      success: overallSuccess,
+      read: readPass,
+      write: writePass,
+      message: summaryMsg,
+      details: folderDetails,
+    };
   }
 
   public async runDiagnostic(): Promise<{
     auth: boolean;
     folderAccess: boolean;
+    readCapability: boolean;
+    writeCapability: boolean;
+    deleteCapability: boolean;
     uploadCapability: boolean;
     fileListingCapability: boolean;
     fileDownloadCapability: boolean;
@@ -268,6 +407,9 @@ export class GoogleDriveService {
     const report = {
       auth: false,
       folderAccess: false,
+      readCapability: false,
+      writeCapability: false,
+      deleteCapability: false,
       uploadCapability: false,
       fileListingCapability: false,
       fileDownloadCapability: false,
@@ -275,14 +417,19 @@ export class GoogleDriveService {
     };
 
     if (!this.hasCredentials()) {
-      report.details.error = 'Service Account Credentials missing or not configured';
+      report.details.error = 'Google Drive Client missing or not configured';
       return report;
     }
 
     report.auth = true;
 
     const accessRes = await this.verifyDriveAccess();
-    if (accessRes.success) {
+    report.readCapability = accessRes.read;
+    report.writeCapability = accessRes.write;
+    report.uploadCapability = accessRes.write;
+    report.deleteCapability = accessRes.write;
+
+    if (accessRes.read) {
       report.folderAccess = true;
       report.details.folder = accessRes.details;
     } else {
@@ -318,7 +465,6 @@ export class GoogleDriveService {
       } else {
         report.fileDownloadCapability = true;
       }
-      report.uploadCapability = true;
     } catch (listErr: any) {
       report.details.listError = listErr?.message || listErr;
     }

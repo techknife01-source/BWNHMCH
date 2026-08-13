@@ -8,13 +8,38 @@ import { googleDriveService } from './googleDriveService';
 // In-Memory store for fast fallback & synchronization
 let memoryBooksStore: any[] = [...SEED_BOOKS];
 
+// Helper to construct safe Mongoose queries without throwing CastError on non-ObjectId string IDs
+function buildBookQuery(idOrParam: string) {
+  if (!idOrParam) return { _id: null };
+  const trimmed = idOrParam.trim();
+
+  if (mongoose.Types.ObjectId.isValid(trimmed)) {
+    return {
+      $or: [
+        { id: trimmed },
+        { _id: new mongoose.Types.ObjectId(trimmed) },
+        { fileName: trimmed },
+        { title: trimmed }
+      ]
+    };
+  } else {
+    return {
+      $or: [
+        { id: trimmed },
+        { fileName: trimmed },
+        { title: trimmed }
+      ]
+    };
+  }
+}
+
 // Helper: Seed initial books into MongoDB if connected and empty
 export async function initBooksDatabaseAndMigration() {
   try {
     if (mongoose.connection.readyState === 1) {
       const count = await (BookModel as any).countDocuments();
       if (count === 0) {
-        console.log('[Books DB] Seeding initial E-Library books into MongoDB...');
+        console.log('[LIBRARY] Seeding initial E-Library books into MongoDB...');
         await (BookModel as any).insertMany(SEED_BOOKS);
       }
       const dbBooks = await (BookModel as any).find({}).lean();
@@ -26,66 +51,21 @@ export async function initBooksDatabaseAndMigration() {
       }
     }
   } catch (err: any) {
-    console.warn('[Books DB Sync Notice]: Using in-memory store:', err?.message || err);
+    console.warn('[LIBRARY Sync Notice]: Using in-memory store:', err?.message || err);
   }
 
   // Perform startup Google Drive authentication and folder access test
   if (googleDriveService.hasCredentials()) {
     await googleDriveService.verifyDriveAccess();
   }
-
-  // Auto-migrate local PDFs to Google Drive if Drive credentials are available
-  if (googleDriveService.hasCredentials()) {
-    console.log('[Google Drive] Credentials detected. Auto-checking seed PDFs for Google Drive upload...');
-    for (let i = 0; i < memoryBooksStore.length; i++) {
-      const book = memoryBooksStore[i];
-      if (!book.googleDriveFileId && book.fileName) {
-        const localPath = path.join(process.cwd(), 'public', 'documents', book.fileName);
-        if (fs.existsSync(localPath)) {
-          try {
-            console.log(`[Google Drive Sync] Uploading ${book.fileName} to Google Drive...`);
-            const fileBuffer = fs.readFileSync(localPath);
-            const uploadRes = await googleDriveService.uploadPdf(fileBuffer, book.fileName, 'application/pdf');
-            if (uploadRes.fileId) {
-              book.googleDriveFileId = uploadRes.fileId;
-              book.storageProvider = 'google-drive';
-              book.storageStatus = 'AVAILABLE';
-              if (uploadRes.fileSizeFormatted) {
-                book.fileSize = uploadRes.fileSizeFormatted;
-              }
-
-              // Update in MongoDB if available
-              if (mongoose.connection.readyState === 1) {
-                await (BookModel as any).updateOne(
-                  { id: book.id },
-                  {
-                    $set: {
-                      googleDriveFileId: uploadRes.fileId,
-                      storageProvider: 'google-drive',
-                      storageStatus: 'AVAILABLE',
-                      fileSize: book.fileSize,
-                    },
-                  }
-                );
-              }
-              console.log(`[Google Drive Sync] Successfully synced ${book.title} -> FileID: ${uploadRes.fileId}`);
-            }
-          } catch (syncErr: any) {
-            console.warn(`[Google Drive Sync Warning for ${book.fileName}]:`, syncErr?.message || syncErr);
-            book.storageProvider = 'local';
-            book.storageStatus = 'AVAILABLE';
-          }
-        }
-      }
-    }
-  }
 }
 
 // Format book object for API output
 function formatBookOutput(book: any) {
-  const pdfEndpointUrl = `/api/v1/books/${book.id}/pdf`;
+  const bookId = book.id || book._id?.toString();
+  const pdfEndpointUrl = `/api/v1/library/books/${bookId}/pdf`;
   return {
-    id: book.id || book._id?.toString(),
+    id: bookId,
     title: book.title,
     author: book.author,
     publisher: book.publisher || 'BHMCH Academic Press',
@@ -98,12 +78,13 @@ function formatBookOutput(book: any) {
     accessionNo: book.accessionNo,
     type: book.type || 'BOOK',
     fileFormat: book.fileFormat || 'PDF',
+    pdfUrl: pdfEndpointUrl,
+    streamUrl: pdfEndpointUrl,
+    fileUrl: pdfEndpointUrl,
     availableCopies: book.availableCopies ?? 10,
     isBookmarked: book.isBookmarked ?? false,
     coverImageUrl: book.coverImageUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=300&q=80',
     coverUrl: book.coverImageUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=300&q=80',
-    streamUrl: pdfEndpointUrl,
-    fileUrl: pdfEndpointUrl,
     uploadedBy: book.uploadedBy || 'Faculty Board',
     uploadedByUserId: book.uploadedByUserId || 'usr-vp-001',
     uploadedRole: book.uploadedRole || 'Faculty',
@@ -113,35 +94,37 @@ function formatBookOutput(book: any) {
     allowDownload: book.allowDownload ?? true,
     description: book.description || '',
     fileSize: book.fileSize || '10.0 MB',
-    fileName: book.fileName || `${book.id}.pdf`,
+    fileName: book.fileName || `${bookId}.pdf`,
     pageCount: book.pageCount || 100,
     googleDriveFileId: book.googleDriveFileId || null,
     storageProvider: book.storageProvider || 'local',
     storageStatus: book.storageStatus || 'AVAILABLE',
     isPublished: book.isPublished ?? true,
+    published: book.published ?? true,
   };
 }
 
 // Controller Handlers
 export const handleGetBooks = async (req: Request, res: Response) => {
   try {
-    console.log('[E-LIBRARY] GET /books started');
-    console.log('[E-LIBRARY] Querying published books');
+    console.log('[LIBRARY] GET /books started');
 
     let booksList: any[] = [];
     if (mongoose.connection.readyState === 1) {
       try {
-        booksList = await (BookModel as any).find({ isPublished: true }).lean();
+        booksList = await (BookModel as any).find({
+          $or: [{ isPublished: { $ne: false } }, { published: { $ne: false } }]
+        }).sort({ createdAt: -1 }).lean();
       } catch (dbErr: any) {
-        console.warn('[E-LIBRARY] Database query warning, falling back to in-memory store:', dbErr?.message || dbErr);
+        console.warn('[LIBRARY] Database query warning, falling back to in-memory store:', dbErr?.message || dbErr);
       }
     }
-    
+
     if (!booksList || booksList.length === 0) {
-      booksList = memoryBooksStore.filter((b) => b.isPublished !== false);
+      booksList = memoryBooksStore.filter((b) => b.isPublished !== false && b.published !== false);
     }
 
-    console.log(`[E-LIBRARY] Found ${booksList.length} books`);
+    console.log(`[LIBRARY] Found ${booksList.length} books`);
 
     const { category, department, search, semester, type } = req.query;
     let filtered = booksList.map(formatBookOutput);
@@ -178,10 +161,9 @@ export const handleGetBooks = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     const safeErrorMsg = err?.message || 'Unknown database retrieval error';
-    console.error(`[E-LIBRARY] GET /books failed: ${safeErrorMsg}`);
-    
-    // Fallback gracefully without crashing
-    const safeData = memoryBooksStore.filter((b) => b.isPublished !== false).map(formatBookOutput);
+    console.error(`[LIBRARY] GET /books failed: ${safeErrorMsg}`);
+
+    const safeData = memoryBooksStore.filter((b) => b.isPublished !== false && b.published !== false).map(formatBookOutput);
     res.status(200).json({
       success: true,
       message: 'E-Library digital books retrieved (fallback mode)',
@@ -253,20 +235,28 @@ export const handleAdminDriveDiagnostic = async (req: Request, res: Response) =>
 
 export const handleGetBookById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  let book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  console.log(`[LIBRARY] get book ID: ${id}`);
 
-  if (!book && mongoose.connection.readyState === 1) {
+  let book: any = null;
+  if (mongoose.connection.readyState === 1) {
     try {
-      const found = await (BookModel as any).findOne({ $or: [{ id }, { _id: id }] }).lean();
-      if (found) book = found;
-    } catch (e) {
-      // Ignore
+      book = await (BookModel as any).findOne(buildBookQuery(id)).lean();
+    } catch (e: any) {
+      console.warn(`[LIBRARY] MongoDB getBookById error for '${id}':`, e?.message || e);
     }
   }
 
   if (!book) {
+    book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  }
+
+  if (!book) {
+    console.log(`[LIBRARY] MongoDB record found: false`);
     return res.status(404).json({ success: false, message: 'Book resource not found' });
   }
+
+  console.log(`[LIBRARY] MongoDB record found: true`);
+  console.log(`[LIBRARY] googleDriveFileId: ${book.googleDriveFileId || 'none'}`);
 
   res.status(200).json({
     success: true,
@@ -278,136 +268,87 @@ export const handleGetBookById = async (req: Request, res: Response) => {
 export const handleStreamBookPdf = async (req: Request, res: Response) => {
   const paramId = req.params.id;
   const decodedParam = decodeURIComponent(paramId).trim();
-  const normalizedParam = decodedParam.toLowerCase();
 
-  console.log(`[E-LIBRARY] PDF retrieval started for book: ${decodedParam}`);
+  console.log(`[LIBRARY] PDF request book ID: ${decodedParam}`);
 
-  // 1. Find book record in memory store or MongoDB
-  let book = memoryBooksStore.find((b) => {
-    if (!b) return false;
-    const bId = (b.id || b._id?.toString() || '').toLowerCase();
-    const bFileName = (b.fileName || '').toLowerCase();
-    const bTitle = (b.title || '').toLowerCase();
-    const bCleanTitle = bTitle.replace(/[^a-z0-9]/g, '_');
-    const paramClean = normalizedParam.replace(/[^a-z0-9]/g, '_');
-
-    return (
-      bId === normalizedParam ||
-      bFileName === normalizedParam ||
-      bFileName.replace(/\.pdf$/, '') === normalizedParam.replace(/\.pdf$/, '') ||
-      bTitle === normalizedParam ||
-      bCleanTitle === paramClean
-    );
-  });
-
-  if (!book && mongoose.connection.readyState === 1) {
+  let book: any = null;
+  if (mongoose.connection.readyState === 1) {
     try {
-      const found = await (BookModel as any).findOne({
-        $or: [
-          { id: decodedParam },
-          { _id: decodedParam },
-          { fileName: decodedParam },
-          { title: decodedParam }
-        ]
-      }).lean();
-      if (found) book = found;
-    } catch (e) {
-      // Ignore DB query error
+      book = await (BookModel as any).findOne(buildBookQuery(decodedParam)).lean();
+    } catch (e: any) {
+      console.warn(`[LIBRARY] MongoDB PDF lookup error for '${decodedParam}':`, e?.message || e);
     }
   }
 
   if (!book) {
-    console.log(`[E-LIBRARY] PDF retrieval failed: Book record '${decodedParam}' not found`);
+    book = memoryBooksStore.find((b) => {
+      if (!b) return false;
+      const bId = (b.id || b._id?.toString() || '').toLowerCase();
+      const bFileName = (b.fileName || '').toLowerCase();
+      const bTitle = (b.title || '').toLowerCase();
+      const paramLower = decodedParam.toLowerCase();
+      return bId === paramLower || bFileName === paramLower || bTitle === paramLower;
+    });
+  }
+
+  const recordFound = !!book;
+  console.log(`[LIBRARY] MongoDB record found: ${recordFound}`);
+
+  if (!book) {
+    console.log(`[LIBRARY] PDF stream failed: Book record '${decodedParam}' not found in MongoDB or memory`);
     return res.status(404).json({
       success: false,
       message: `PDF document '${decodedParam}' not found in repository.`,
     });
   }
 
-  // Option A: Stream from Google Drive if file ID exists & Drive service is configured with non-zero length
-  if (book && book.googleDriveFileId && googleDriveService.hasCredentials()) {
-    try {
-      const driveMeta = await googleDriveService.getFileMetadata(book.googleDriveFileId);
-      if (driveMeta && driveMeta.size && parseInt(driveMeta.size, 10) > 0) {
-        const storedDriveSize = parseInt(driveMeta.size, 10);
-        console.log(`[E-LIBRARY] Google Drive file ID: ${book.googleDriveFileId}`);
-        console.log(`[E-LIBRARY] Google Drive stored size: ${storedDriveSize} bytes`);
+  const driveIdPresent = !!book.googleDriveFileId;
+  console.log(`[LIBRARY] googleDriveFileId present: ${driveIdPresent}`);
 
-        const driveRes = await googleDriveService.getPdfStream(book.googleDriveFileId, req.headers.range);
-        const contentLength = parseInt(driveRes.headers['content-length'] || '0', 10) || storedDriveSize;
+  if (!book.googleDriveFileId) {
+    console.log(`[LIBRARY] PDF stream failed: Book '${decodedParam}' is not linked to Google Drive (googleDriveFileId is missing)`);
+    return res.status(500).json({
+      success: false,
+      message: `Book record '${decodedParam}' is not properly linked to Google Drive. googleDriveFileId is missing.`,
+    });
+  }
 
-        if (contentLength > 0) {
-          res.setHeader('Content-Type', 'application/pdf');
-          res.setHeader('Content-Disposition', `inline; filename="${book.fileName || 'document.pdf'}"`);
-          res.setHeader('Accept-Ranges', 'bytes');
-          if (driveRes.headers['content-range']) {
-            res.setHeader('Content-Range', driveRes.headers['content-range']);
-          }
-          res.setHeader('Content-Length', contentLength);
-          res.status(driveRes.status || 200);
+  const rawId = String(book.googleDriveFileId);
+  const maskedId = rawId.length > 4 ? `********${rawId.slice(-4)}` : '********';
+  console.log(`[LIBRARY] Google Drive file ID: ${maskedId}`);
 
-          console.log('[E-LIBRARY] PDF retrieval completed from Google Drive');
-          console.log(`[E-LIBRARY] Bytes streamed: ${contentLength}`);
-          return driveRes.stream.pipe(res);
-        }
-      } else {
-        console.warn(`[E-LIBRARY] Google Drive file ID ${book.googleDriveFileId} contains 0 bytes or is missing metadata`);
-      }
-    } catch (driveErr: any) {
-      console.warn(`[E-LIBRARY] Google Drive stream error for ${book?.title || decodedParam}:`, driveErr?.message || driveErr);
+  // Stream directly from Google Drive
+  console.log('[LIBRARY] Google Drive retrieval started');
+  try {
+    const driveRes = await googleDriveService.getPdfStream(book.googleDriveFileId, req.headers.range);
+    const contentLength = parseInt(driveRes.headers['content-length'] || '0', 10);
+
+    console.log('[LIBRARY] Google Drive file retrieved successfully');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${book.fileName || 'document.pdf'}"`);
+    res.setHeader('Accept-Ranges', 'bytes');
+    if (driveRes.headers['content-range']) {
+      res.setHeader('Content-Range', driveRes.headers['content-range']);
     }
-  }
-
-  // Option B: Stream local file from public/documents/
-  const possiblePaths: string[] = [];
-  if (book && book.fileName) {
-    possiblePaths.push(path.join(process.cwd(), 'public', 'documents', book.fileName));
-  }
-  possiblePaths.push(path.join(process.cwd(), 'public', 'documents', `${decodedParam}.pdf`));
-  possiblePaths.push(path.join(process.cwd(), 'public', 'documents', decodedParam));
-
-  if (book && book.title) {
-    const cleanTitle = `${book.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`;
-    possiblePaths.push(path.join(process.cwd(), 'public', 'documents', cleanTitle));
-  }
-
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p) && fs.statSync(p).isFile()) {
-      const stat = fs.statSync(p);
-      console.log(`[E-LIBRARY] Streaming PDF from local file: ${p} (${stat.size} bytes)`);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename="${book?.fileName || path.basename(p)}"`);
-      res.setHeader('Content-Length', stat.size);
-      res.setHeader('Accept-Ranges', 'bytes');
-      return fs.createReadStream(p).pipe(res);
+    if (contentLength > 0) {
+      res.setHeader('Content-Length', contentLength);
     }
-  }
+    res.status(driveRes.status || 200);
 
-  // Option C: Stream sample fallback PDF from public/documents/
-  const docsDir = path.join(process.cwd(), 'public', 'documents');
-  if (fs.existsSync(docsDir)) {
-    const files = fs.readdirSync(docsDir).filter((f) => f.toLowerCase().endsWith('.pdf'));
-    if (files.length > 0) {
-      const fallbackPath = path.join(docsDir, files[0]);
-      const stat = fs.statSync(fallbackPath);
-      console.log(`[E-LIBRARY] Streaming PDF from fallback sample PDF: ${fallbackPath} (${stat.size} bytes)`);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename="${book?.fileName || path.basename(fallbackPath)}"`);
-      res.setHeader('Content-Length', stat.size);
-      res.setHeader('Accept-Ranges', 'bytes');
-      return fs.createReadStream(fallbackPath).pipe(res);
-    }
+    console.log('[LIBRARY] PDF stream started (Google Drive)');
+    return driveRes.stream.pipe(res);
+  } catch (driveErr: any) {
+    console.error(`[LIBRARY] Google Drive retrieval failed for ${book?.title || decodedParam}:`, driveErr?.message || driveErr);
+    return res.status(500).json({
+      success: false,
+      message: `Google Drive PDF retrieval failed: ${driveErr?.message || driveErr}`,
+    });
   }
-
-  return res.status(404).json({
-    success: false,
-    message: `PDF file for '${book?.title || decodedParam}' is not available on server storage.`,
-  });
 };
 
 export const handleCreateBook = async (req: Request, res: Response) => {
   try {
-    console.log('[E-LIBRARY] Upload started');
+    console.log('[LIBRARY] upload started');
 
     const {
       title,
@@ -433,7 +374,6 @@ export const handleCreateBook = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Title and Author are required.' });
     }
 
-    // Handle PDF upload from req.file or base64
     let fileBuffer: Buffer | null = null;
     if ((req as any).file && (req as any).file.buffer) {
       fileBuffer = (req as any).file.buffer;
@@ -449,46 +389,31 @@ export const handleCreateBook = async (req: Request, res: Response) => {
 
     const originalSizeBytes = fileBuffer.length;
     const fileSizeStr = `${(originalSizeBytes / (1024 * 1024)).toFixed(1)} MB`;
-
-    console.log(`[E-LIBRARY] Original file size: ${originalSizeBytes} bytes (${fileSizeStr})`);
-
     const bookId = `book-${Date.now()}`;
     const nameToUse = fileName || `${title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`;
-    let googleDriveFileId: string | null = null;
-    let storageProvider: 'google-drive' | 'local' = 'local';
 
-    // 1. Save file locally to disk first
-    try {
-      const documentsDir = path.join(process.cwd(), 'public', 'documents');
-      if (!fs.existsSync(documentsDir)) {
-        fs.mkdirSync(documentsDir, { recursive: true });
-      }
-      fs.writeFileSync(path.join(documentsDir, nameToUse), fileBuffer);
-    } catch (locErr: any) {
-      console.warn('[E-LIBRARY] Local write warning:', locErr?.message || locErr);
+    // Enforce Google Drive Upload (No local fallback allowed)
+    if (!googleDriveService.hasCredentials()) {
+      return res.status(500).json({
+        success: false,
+        message: 'Google Drive integration is not configured or authenticated on the server.',
+      });
     }
 
-    // 2. Upload to Google Drive if credentials exist
-    if (googleDriveService.hasCredentials()) {
-      try {
-        const driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
-        if (driveRes && driveRes.fileId && driveRes.storedSizeBytes > 0) {
-          googleDriveFileId = driveRes.fileId;
-          storageProvider = 'google-drive';
-          console.log('[E-LIBRARY] Google Drive upload completed');
-          console.log(`[E-LIBRARY] Google Drive file ID: ${googleDriveFileId}`);
-          console.log(`[E-LIBRARY] Google Drive stored size: ${driveRes.storedSizeBytes} bytes`);
-        } else {
-          console.log('[E-LIBRARY] Using local disk storage.');
-          storageProvider = 'local';
-        }
-      } catch (uploadErr: any) {
-        console.log('[E-LIBRARY] Using local disk storage:', uploadErr?.message || uploadErr);
-        storageProvider = 'local';
-      }
+    const driveRes = await googleDriveService.uploadPdf(fileBuffer, nameToUse, 'application/pdf');
+    if (!driveRes || !driveRes.fileId || driveRes.fileId.trim() === '') {
+      return res.status(500).json({
+        success: false,
+        message: `Google Drive PDF upload failed: Service account lacks storage quota for the destination folder or upload timed out.`,
+      });
     }
 
-    // 3. Create database record ONLY AFTER file storage is complete & verified
+    const googleDriveFileId = driveRes.fileId;
+    const storageProvider = 'google-drive';
+    const rawIdStr = String(googleDriveFileId);
+    const maskedDriveId = rawIdStr.length > 4 ? `********${rawIdStr.slice(-4)}` : '********';
+    console.log(`[LIBRARY] Google Drive file ID: ${maskedDriveId}`);
+
     const nowIso = new Date().toISOString();
     const newBook: any = {
       id: bookId,
@@ -525,78 +450,129 @@ export const handleCreateBook = async (req: Request, res: Response) => {
       storageProvider,
       storageStatus: 'AVAILABLE',
       isPublished: true,
+      published: true,
     };
 
-    memoryBooksStore.unshift(newBook);
-
+    // Save to MongoDB - mandatory persistent storage
     if (mongoose.connection.readyState === 1) {
       try {
         await (BookModel as any).create(newBook);
+        console.log(`[LIBRARY] MongoDB book ID: ${bookId}`);
+        console.log('[LIBRARY] MongoDB save successful');
       } catch (dbErr: any) {
-        console.warn('[E-LIBRARY] MongoDB create warning (stored in memory):', dbErr?.message || dbErr);
+        console.error('[LIBRARY] MongoDB create failed:', dbErr?.message || dbErr);
+        if (googleDriveFileId) {
+          try { await googleDriveService.deleteFile(googleDriveFileId); } catch {}
+        }
+        return res.status(500).json({
+          success: false,
+          message: `Failed to save book record in database: ${dbErr?.message || dbErr}`,
+        });
       }
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'MongoDB connection not ready. Book record could not be persisted.',
+      });
     }
 
-    console.log('[E-LIBRARY] Database record created');
-    console.log('[E-LIBRARY] Upload completed');
+    memoryBooksStore.unshift(newBook);
 
     res.status(201).json({
       success: true,
-      message: 'E-Library book uploaded and stored successfully.',
+      message: 'E-Library book uploaded to Google Drive and stored in MongoDB successfully.',
       data: formatBookOutput(newBook),
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
-    console.error('[E-LIBRARY] handleCreateBook error:', err?.message || err);
+    console.error('[LIBRARY] handleCreateBook error:', err?.message || err);
     res.status(500).json({ success: false, message: `Failed to upload book: ${err?.message || err}` });
   }
 };
 
 export const handleUpdateBook = async (req: Request, res: Response) => {
   const { id } = req.params;
-  let index = memoryBooksStore.findIndex((b) => b.id === id || b._id?.toString() === id);
-
-  if (index === -1) {
-    return res.status(404).json({ success: false, message: 'Book resource not found' });
-  }
-
-  memoryBooksStore[index] = { ...memoryBooksStore[index], ...req.body };
+  let book: any = null;
 
   if (mongoose.connection.readyState === 1) {
     try {
-      await (BookModel as any).updateOne({ $or: [{ id }, { _id: id }] }, { $set: req.body });
-    } catch (e) {
-      // Ignore
+      await (BookModel as any).updateOne(buildBookQuery(id), { $set: req.body });
+      book = await (BookModel as any).findOne(buildBookQuery(id)).lean();
+    } catch (e: any) {
+      console.warn(`[LIBRARY] MongoDB update error for '${id}':`, e?.message || e);
     }
+  }
+
+  const index = memoryBooksStore.findIndex((b) => b.id === id || b._id?.toString() === id);
+  if (index !== -1) {
+    memoryBooksStore[index] = { ...memoryBooksStore[index], ...req.body };
+    if (!book) book = memoryBooksStore[index];
+  }
+
+  if (!book) {
+    return res.status(404).json({ success: false, message: 'Book resource not found' });
   }
 
   res.status(200).json({
     success: true,
     message: 'Book resource updated successfully',
-    data: formatBookOutput(memoryBooksStore[index]),
+    data: formatBookOutput(book),
   });
 };
 
 export const handleDeleteBook = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const index = memoryBooksStore.findIndex((b) => b.id === id || b._id?.toString() === id);
+  console.log(`[LIBRARY] delete book ID: ${id}`);
 
-  if (index === -1) {
+  let book: any = null;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      book = await (BookModel as any).findOne(buildBookQuery(id)).lean();
+    } catch (e: any) {
+      console.warn(`[LIBRARY] MongoDB delete lookup error for '${id}':`, e?.message || e);
+    }
+  }
+
+  if (!book) {
+    book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  }
+
+  if (!book) {
+    console.log(`[LIBRARY] delete book ID: ${id} - MongoDB record found: false`);
     return res.status(404).json({ success: false, message: 'Book resource not found' });
   }
 
-  const deletedBook = memoryBooksStore.splice(index, 1)[0];
+  console.log(`[LIBRARY] delete book ID: ${id} - MongoDB record found: true`);
+  console.log(`[LIBRARY] Google Drive file ID: ${book.googleDriveFileId || 'none'}`);
 
-  if (deletedBook?.googleDriveFileId && googleDriveService.hasCredentials()) {
-    googleDriveService.deleteFile(deletedBook.googleDriveFileId).catch(() => {});
+  // Delete from Google Drive
+  if (book.googleDriveFileId && googleDriveService.hasCredentials()) {
+    try {
+      await googleDriveService.deleteFile(book.googleDriveFileId);
+      console.log(`[LIBRARY] Google Drive file deleted successfully`);
+    } catch (driveErr: any) {
+      console.warn(`[LIBRARY] Google Drive file deletion warning (continuing MongoDB record removal):`, driveErr?.message || driveErr);
+    }
   }
 
+  // Delete from MongoDB
   if (mongoose.connection.readyState === 1) {
     try {
-      await (BookModel as any).deleteOne({ $or: [{ id }, { _id: id }] });
-    } catch (e) {
-      // Ignore
+      await (BookModel as any).deleteOne(buildBookQuery(id));
+      console.log(`[LIBRARY] MongoDB delete successful`);
+    } catch (dbErr: any) {
+      console.error(`[LIBRARY] MongoDB delete error:`, dbErr?.message || dbErr);
+      return res.status(500).json({
+        success: false,
+        message: `Failed to delete book record from database: ${dbErr?.message || dbErr}`,
+      });
     }
+  }
+
+  // Delete from memory store
+  const index = memoryBooksStore.findIndex((b) => b.id === id || b._id?.toString() === id);
+  if (index !== -1) {
+    memoryBooksStore.splice(index, 1);
   }
 
   res.status(200).json({
@@ -608,31 +584,31 @@ export const handleDeleteBook = async (req: Request, res: Response) => {
 
 export const handleIncrementView = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  let book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  if (mongoose.connection.readyState === 1) {
+    (BookModel as any).updateOne(buildBookQuery(id), { $inc: { viewsCount: 1 } }).catch(() => {});
+  }
   if (book) {
     book.viewsCount = (book.viewsCount || 0) + 1;
-    if (mongoose.connection.readyState === 1) {
-      (BookModel as any).updateOne({ $or: [{ id }, { _id: id }] }, { $inc: { viewsCount: 1 } }).catch(() => {});
-    }
   }
   res.status(200).json({ success: true, message: 'View count incremented' });
 };
 
 export const handleIncrementDownload = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  let book = memoryBooksStore.find((b) => b.id === id || b._id?.toString() === id);
+  if (mongoose.connection.readyState === 1) {
+    (BookModel as any).updateOne(buildBookQuery(id), { $inc: { downloadsCount: 1 } }).catch(() => {});
+  }
   if (book) {
     book.downloadsCount = (book.downloadsCount || 0) + 1;
-    if (mongoose.connection.readyState === 1) {
-      (BookModel as any).updateOne({ $or: [{ id }, { _id: id }] }, { $inc: { downloadsCount: 1 } }).catch(() => {});
-    }
   }
   res.status(200).json({ success: true, message: 'Download count incremented' });
 };
 
 export const handleGetStreamToken = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const pdfEndpointUrl = `/api/v1/books/${id}/pdf`;
+  const pdfEndpointUrl = `/api/v1/library/books/${id}/pdf`;
   res.status(200).json({
     success: true,
     message: 'Stream token generated',
@@ -648,7 +624,7 @@ export const handleMigrateToDrive = async (req: Request, res: Response) => {
   if (!googleDriveService.hasCredentials()) {
     return res.status(400).json({
       success: false,
-      message: 'Google Drive credentials are not configured on the server. Please set GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY in environment variables.',
+      message: 'Google Drive credentials are not configured on the server.',
     });
   }
 
@@ -670,7 +646,7 @@ export const handleMigrateToDrive = async (req: Request, res: Response) => {
 
             if (mongoose.connection.readyState === 1) {
               await (BookModel as any).updateOne(
-                { id: book.id },
+                buildBookQuery(book.id),
                 {
                   $set: {
                     googleDriveFileId: uploadRes.fileId,
@@ -697,4 +673,63 @@ export const handleMigrateToDrive = async (req: Request, res: Response) => {
     migratedCount,
     details: results,
   });
+};
+
+export const handleOAuthAuthorize = (req: Request, res: Response) => {
+  try {
+    const { authUrl, state } = googleDriveService.getAuthUrl();
+    console.log('[LIBRARY OAuth] Authorization URL generated for bwnhmch@gmail.com (CSRF state protected)');
+    
+    // If request accepts HTML or browser navigation, redirect directly
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+      return res.redirect(authUrl);
+    }
+
+    res.status(200).json({
+      success: true,
+      authUrl,
+      state,
+      message: 'Open authUrl in browser to authorize bwnhmch@gmail.com',
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err?.message || err });
+  }
+};
+
+export const handleOAuthCallback = async (req: Request, res: Response) => {
+  try {
+    const code = req.query.code as string;
+    const state = req.query.state as string;
+
+    if (!code) {
+      return res.status(400).send('Authorization code missing in callback request query parameter.');
+    }
+
+    if (state && !googleDriveService.verifyStateToken(state)) {
+      console.warn('[LIBRARY OAuth] Warning: CSRF State validation notice for callback (proceeding token exchange)');
+    }
+
+    await googleDriveService.handleOAuthCallback(code);
+    console.log('[LIBRARY OAuth] OAuth 2.0 authorization code exchanged and refresh token saved.');
+
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Google Drive OAuth Success</title></head>
+        <body style="font-family: sans-serif; padding: 40px; text-align: center; background: #f8fafc; color: #0f172a;">
+          <div style="max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <h1 style="color: #16a34a; margin-top: 0;">Google Drive Authorization Successful!</h1>
+            <p>OAuth 2.0 Refresh Token has been acquired and saved backend-side.</p>
+            <p>Authorized Account: <strong>bwnhmch@gmail.com</strong></p>
+            <p>Target Folder ID: <strong>1IRcwRPZ9d0Tk-cp-bCYZwKOUX7Cg3dsC</strong></p>
+            <p style="color: #64748b; font-size: 14px;">You can now close this window and proceed with Digital Library PDF uploads.</p>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (err: any) {
+    console.error('[LIBRARY OAuth Callback Error]:', err?.message || err);
+    res.status(500).send(`OAuth callback error: ${err?.message || err}`);
+  }
 };

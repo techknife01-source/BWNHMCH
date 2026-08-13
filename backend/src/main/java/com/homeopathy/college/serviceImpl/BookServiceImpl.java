@@ -96,23 +96,25 @@ public class BookServiceImpl implements BookService {
         String safeFileName = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
 
         // 6. Verify Google Drive configuration & upload
-        String driveFileId;
         if (!googleDriveService.isConfigured()) {
-            log.info("[E-LIBRARY] Google Drive Service is not configured. Using fallback simulated storage.");
-            driveFileId = "drive_simulated_" + java.util.UUID.randomUUID().toString();
-        } else {
-            try {
-                log.info("[E-LIBRARY] Uploading file '{}' ({} bytes) to Google Drive...", safeFileName, fileSize);
-                driveFileId = googleDriveService.uploadFile(file.getInputStream(), safeFileName, contentType, fileSize);
-                log.info("[E-LIBRARY] Google Drive upload completed with file ID: {}", driveFileId);
-            } catch (Exception e) {
-                log.warn("[E-LIBRARY] Google Drive upload failed for '{}': {}. Falling back to simulated file ID.", safeFileName, e.getMessage());
-                driveFileId = "drive_simulated_" + java.util.UUID.randomUUID().toString();
-            }
+            log.error("[E-LIBRARY] Google Drive Service is not configured.");
+            throw new FileUploadException("Google Drive service is not configured on the server.");
+        }
+
+        String driveFileId;
+        try {
+            log.info("[E-LIBRARY] Uploading file '{}' ({} bytes) to Google Drive...", safeFileName, fileSize);
+            driveFileId = googleDriveService.uploadFile(file.getInputStream(), safeFileName, contentType, fileSize);
+            log.info("[E-LIBRARY] Google Drive upload completed with file ID: {}", driveFileId);
+        } catch (FileUploadException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("[E-LIBRARY] Google Drive upload failed for '{}': {}", safeFileName, e.getMessage());
+            throw new FileUploadException("Failed to upload PDF file to Google Drive: " + e.getMessage(), e);
         }
 
         if (driveFileId == null || driveFileId.isBlank()) {
-            driveFileId = "drive_simulated_" + java.util.UUID.randomUUID().toString();
+            throw new FileUploadException("Google Drive returned invalid or blank file ID.");
         }
 
         // 8. Save MongoDB metadata

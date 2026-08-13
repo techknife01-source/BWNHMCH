@@ -6,3 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+gdrive_oauth_credentials.json
+target/
+backend/target/
+

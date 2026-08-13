@@ -1,5 +1,6 @@
 package com.homeopathy.college;
 
+import com.homeopathy.college.config.DotenvLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SmartHomeopathicCollegeApplication {
 
     public static void main(String[] args) {
+        DotenvLoader.loadDotenv();
         log.info("[STARTUP] Starting BWNHMCH backend service...");
         log.info("[STARTUP] Java/Spring Boot initialization in progress...");
         log.info("[STARTUP] Database configuration loaded");

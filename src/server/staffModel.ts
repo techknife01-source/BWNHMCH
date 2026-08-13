@@ -1,47 +1,60 @@
-const getFromStorage = <T>(key: string, defaultValue: T): T => {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (e) {
-    console.error(`Error reading ${key} from storage:`, e);
-    return defaultValue;
-  }
-};
+import mongoose, { Schema, Document } from 'mongoose';
 
-const saveToStorage = <T>(key: string, value: T): void => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error(`Error saving ${key} to storage:`, e);
-  }
-};
-
-export type StaffRoleCategory = 'MEDICAL_STAFF' | 'OFFICE_STAFF' | 'PARAMEDICAL_STAFF' | 'NON_MEDICAL_STAFF';
-
-export interface HospitalStaffMember {
+export interface IStaff extends Document {
   id: string;
   slNo: number;
   empId: string;
   name: string;
-  roleCategory: StaffRoleCategory;
+  roleCategory: 'MEDICAL_STAFF' | 'OFFICE_STAFF' | 'PARAMEDICAL_STAFF' | 'NON_MEDICAL_STAFF';
   department: string;
   designation: string;
-  category?: string;
-  displayOrder?: number;
+  category: string;
+  displayOrder: number;
   qualification?: string;
   contactNumber?: string;
   email?: string;
   photoUrl?: string;
-  availability?: 'AVAILABLE' | 'ON_DUTY' | 'ON_LEAVE' | 'EMERGENCY_DUTY' | 'SHIFT_DUTY';
+  availability?: string;
   dutyShift?: string;
   opdCounter?: string;
   status: 'ACTIVE' | 'INACTIVE';
   joiningYear?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-const STORAGE_KEY = 'bhmch_hospital_staff_directory_pdf_v2';
+const StaffSchema = new Schema<IStaff>(
+  {
+    id: { type: String, required: true, unique: true },
+    slNo: { type: Number, required: true },
+    empId: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
+    roleCategory: {
+      type: String,
+      required: true,
+      enum: ['MEDICAL_STAFF', 'OFFICE_STAFF', 'PARAMEDICAL_STAFF', 'NON_MEDICAL_STAFF'],
+      default: 'OFFICE_STAFF',
+    },
+    department: { type: String, required: true, trim: true },
+    designation: { type: String, required: true, trim: true },
+    category: { type: String, required: true, trim: true, default: 'STAFF' },
+    displayOrder: { type: Number, required: true, index: true },
+    qualification: { type: String },
+    contactNumber: { type: String },
+    email: { type: String },
+    photoUrl: { type: String },
+    availability: { type: String, default: 'AVAILABLE' },
+    dutyShift: { type: String },
+    opdCounter: { type: String },
+    status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
+    joiningYear: { type: Number },
+  },
+  { timestamps: true }
+);
 
-export const OFFICIAL_HOSPITAL_STAFF: HospitalStaffMember[] = [
+export const StaffModel = mongoose.models.Staff || mongoose.model<IStaff>('Staff', StaffSchema);
+
+export const SEED_STAFF = [
   {
     id: 'hs-001',
     slNo: 1,
@@ -571,171 +584,3 @@ export const OFFICIAL_HOSPITAL_STAFF: HospitalStaffMember[] = [
     status: 'ACTIVE',
   },
 ];
-
-class HospitalStaffService {
-  private staffList: HospitalStaffMember[] = getFromStorage(STORAGE_KEY, OFFICIAL_HOSPITAL_STAFF);
-
-  async fetchStaffAsync(): Promise<HospitalStaffMember[]> {
-    try {
-      const res = await fetch('/api/v1/staff');
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.success && Array.isArray(json.data)) {
-          this.staffList = json.data.map((item: any, idx: number) => ({
-            ...item,
-            slNo: idx + 1,
-            empId: item.empId || `SL-${String(idx + 1).padStart(2, '0')}`,
-          }));
-          saveToStorage(STORAGE_KEY, this.staffList);
-        }
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] API fetch warning:', err);
-    }
-    return this.getAllStaff();
-  }
-
-  getAllStaff(): HospitalStaffMember[] {
-    return [...this.staffList].sort((a, b) => (a.slNo || 0) - (b.slNo || 0));
-  }
-
-  getStaffById(id: string): HospitalStaffMember | undefined {
-    return this.staffList.find((s) => s.id === id);
-  }
-
-  async addStaffMemberAsync(data: Omit<HospitalStaffMember, 'id'>): Promise<HospitalStaffMember> {
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch('/api/v1/staff', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          ...data,
-          category: data.roleCategory === 'OFFICE_STAFF' ? 'ADMINISTRATIVE STAFF' : data.department,
-        }),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.success) {
-          await this.fetchStaffAsync();
-          return json.data;
-        }
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] addStaffMember API warning:', err);
-    }
-
-    const nextSl = (Math.max(...this.staffList.map((s) => s.slNo || 0), 0)) + 1;
-    const newMember: HospitalStaffMember = {
-      ...data,
-      slNo: data.slNo || nextSl,
-      id: `hs-${String(nextSl).padStart(3, '0')}`,
-    };
-    this.staffList.push(newMember);
-    saveToStorage(STORAGE_KEY, this.staffList);
-    return newMember;
-  }
-
-  addStaffMember(data: Omit<HospitalStaffMember, 'id'>): HospitalStaffMember {
-    this.addStaffMemberAsync(data).catch(() => {});
-    const nextSl = (Math.max(...this.staffList.map((s) => s.slNo || 0), 0)) + 1;
-    const newMember: HospitalStaffMember = {
-      ...data,
-      slNo: data.slNo || nextSl,
-      id: `hs-${String(nextSl).padStart(3, '0')}`,
-    };
-    this.staffList.push(newMember);
-    saveToStorage(STORAGE_KEY, this.staffList);
-    return newMember;
-  }
-
-  async updateStaffMemberAsync(id: string, updates: Partial<HospitalStaffMember>): Promise<HospitalStaffMember | undefined> {
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch(`/api/v1/staff/${id}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(updates),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.success) {
-          await this.fetchStaffAsync();
-          return json.data;
-        }
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] updateStaffMember API warning:', err);
-    }
-
-    const idx = this.staffList.findIndex((s) => s.id === id);
-    if (idx !== -1) {
-      this.staffList[idx] = { ...this.staffList[idx], ...updates };
-      saveToStorage(STORAGE_KEY, this.staffList);
-      return this.staffList[idx];
-    }
-    return undefined;
-  }
-
-  updateStaffMember(id: string, updates: Partial<HospitalStaffMember>): HospitalStaffMember | undefined {
-    this.updateStaffMemberAsync(id, updates).catch(() => {});
-    const idx = this.staffList.findIndex((s) => s.id === id);
-    if (idx !== -1) {
-      this.staffList[idx] = { ...this.staffList[idx], ...updates };
-      saveToStorage(STORAGE_KEY, this.staffList);
-      return this.staffList[idx];
-    }
-    return undefined;
-  }
-
-  async deleteStaffMemberAsync(id: string): Promise<boolean> {
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch(`/api/v1/staff/${id}`, {
-        method: 'DELETE',
-        headers,
-      });
-      if (res.ok) {
-        await this.fetchStaffAsync();
-        return true;
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] deleteStaffMember API warning:', err);
-    }
-
-    const initialLength = this.staffList.length;
-    this.staffList = this.staffList.filter((s) => s.id !== id);
-    if (this.staffList.length < initialLength) {
-      saveToStorage(STORAGE_KEY, this.staffList);
-      return true;
-    }
-    return false;
-  }
-
-  deleteStaffMember(id: string): boolean {
-    this.deleteStaffMemberAsync(id).catch(() => {});
-    const initialLength = this.staffList.length;
-    this.staffList = this.staffList.filter((s) => s.id !== id);
-    if (this.staffList.length < initialLength) {
-      saveToStorage(STORAGE_KEY, this.staffList);
-      return true;
-    }
-    return false;
-  }
-
-  resetToDefault(): void {
-    this.staffList = [...OFFICIAL_HOSPITAL_STAFF];
-    saveToStorage(STORAGE_KEY, this.staffList);
-  }
-}
-
-export const hospitalStaffService = new HospitalStaffService();

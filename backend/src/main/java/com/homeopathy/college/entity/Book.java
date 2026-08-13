@@ -2,6 +2,7 @@ package com.homeopathy.college.entity;
 
 import com.homeopathy.college.common.BaseEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -29,9 +30,12 @@ public class Book extends BaseEntity {
     private Long fileSize;
     private String googleDriveFileId;
     private String storageProvider; // e.g. "GOOGLE_DRIVE"
+
     @Builder.Default
     private boolean allowDownload = true;
+
     @Builder.Default
     private boolean published = true;
+
     private String uploadedBy;
 }
