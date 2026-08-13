@@ -2,7 +2,7 @@ services:
   - type: web
     name: smart-homeopathic-college-backend
     env: docker
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
     region: singapore
     plan: free
     healthCheckPath: /api/v1/health
