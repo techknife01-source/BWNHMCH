@@ -46,34 +46,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 
     private volatile Drive driveService;
 
-    private static final String DEFAULT_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n" +
-            "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDZ7HI+ttULYDr0\n" +
-            "TOGFkcl+nQoc0OCEqtUEf0BxpNzeZDbmSkHj2KlCU6i0PXGzRUnrEDVwqjQz58YJ\n" +
-            "6f8RF2zfkh4cU+PmhWU2xotGg41am7Df66vEDmbK1AZlTYVjopkEhyUYS7B1SQLn\n" +
-            "vK5E9EPGWYPNCrHhP2jgmkjeVnQ50ZCFScGVM/4QRmElyOV5KueqYX3sLPprQG5P\n" +
-            "udyUWrnFrSXPnt0qMztqq75dIqG7CC1QSl9vBB7OISYY4EumoJBPmlcG52Jl6Aam\n" +
-            "yNZmOf/ap1qcJinJhQ8Ln/+KtFdlAbptZ29uxGzFeJaCgwTVYvtH3vAhxXcleRSN\n" +
-            "RJpEvecrAgMBAAECggEAVD2YtDGNDYa3g3SswStoDq+6FwWPpPk8uy5NxSCL2NQ4\n" +
-            "fLE7403/sAoS7wnJiBlCx8FORy0kXOQ9o9t2pC7AAXTEewLa2GO8in4ZnLqBzALf\n" +
-            "TtAVaAaBKeroRgS/iZJzQFLVvhyUK+J7YwWHAFTEVkqILpzxwjb23cwGWxxkdWyc\n" +
-            "eQRh48JxXLpXrqsCAz1c23AG6FYn9oSWsBk0IrWlOiI78mxpAOThsSlGr1as4XIE\n" +
-            "3AWWUTND1c9d7zl+lk+mhoQYoAF8wbT+o+xXeSeJ2LHgjAHmH2daoWL5TCPfhtCa\n" +
-            "rV804odSP5ETeC0nzzZrJE0cdnTD3lW+sXdq26pmEQKBgQD3XvQU7pIYvh3MoFvm\n" +
-            "m2oMcrEdjDAoihVfzrD16rmkP4mOEW8dukTvdo5Hb8jtnhw/NlrFaaWhYHCTyQOB\n" +
-            "4QGB6sxuFYk1ncwrKHdlA7h6jOEUqAIBsVCild/hoYqnlXHUmfIRjXMilayHCQsH\n" +
-            "/F3NQbeXFXEZVf7kx2r7LOJS9QKBgQDhhoaNoIu7+ssvhYpAtTfplCk1YnZwyLA1\n" +
-            "R7M6fpq39DVGkqu4wTdzcYdOTIFp+0NLeJhU2rrwsgcdAdZiLXAKETB2aWoCobuI\n" +
-            "diS0PppO6pYuXqnihMII5eZTuAAT52iYLfCVnzqQ3066US8R9qVR+GiJnf2kX2WF\n" +
-            "iCXZq8g9nwKBgHjThW8v9GZnflCzxw/Fu6/m2YIwNlmm0LfiUmdbxl9mtX6SH28q\n" +
-            "y38XrnlQLZl60BtEJmQkrUU8wOA+oBrxV3YoxL/EfyeUMuSluGO7xID/jPU09v3y\n" +
-            "qQsxH5CrAfnHMjmBFE7kg2dSKlou3ZeB+iNGxTDjxUF10rHWgfe7vbR9AoGAa3HC\n" +
-            "8wCU8hb27IoLpu5vV+oNg/CICw2h3ZBuVCTzI0bGhvvjsh7jgy2IUAZk9ZAOrIsk\n" +
-            "z/BxdbDrcKdqctXA9hrgYtmv9tcE2Guo6vKUY5qhuC/Dcjbblo+pHyOfbdwm2bGx\n" +
-            "WCdHKLQq9tssuLswYhAeBcpuh/wnCuolVkHgIXMCgYEA7eEVYuYlbr9K1SetVC8x\n" +
-            "t3/Ws5ypzb5zGHsXKMXGezLx2v/Dht5RgOtBnakwIj4dt4StQpzunJruJytJZOoF\n" +
-            "0h+C34zhjfKf4915iIqu5mlUN9OCcrkhbBHrlE0UKnRzp7QMUhtm792FMjIoMxAf\n" +
-            "9vZl7ROhm8RGjomnN/WJFlk=\n" +
-            "-----END PRIVATE KEY-----";
+    private static final String DEFAULT_PRIVATE_KEY = "";
 
     private Drive getDriveService() {
         if (driveService == null) {
@@ -83,14 +56,14 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
                         log.info("[GOOGLE_DRIVE] Lazily initializing Google Drive Service...");
 
                         String effectiveClientEmail = (clientEmail != null && !clientEmail.isBlank())
-                                ? clientEmail : "bwnhmch-elibrary@bwnhmch.iam.gserviceaccount.com";
+                                ? clientEmail : "";
                         String effectiveClientId = (clientId != null && !clientId.isBlank())
-                                ? clientId : "103352681135595646950";
+                                ? clientId : "";
                         String effectivePrivateKeyId = (privateKeyId != null && !privateKeyId.isBlank())
-                                ? privateKeyId : "4229a58cfd88aa6365d0c0edba09883e0494a0b7";
+                                ? privateKeyId : "";
                         String effectiveProjectId = (projectId != null && !projectId.isBlank())
-                                ? projectId : "bwnhmch";
-                        String pemKey = (privateKey != null && !privateKey.isBlank()) ? privateKey : DEFAULT_PRIVATE_KEY;
+                                ? projectId : "";
+                        String pemKey = (privateKey != null && !privateKey.isBlank()) ? privateKey : "";
 
                         if (pemKey != null && !pemKey.isBlank()) {
                             String raw = pemKey.trim();
