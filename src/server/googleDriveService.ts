@@ -89,7 +89,12 @@ export class GoogleDriveService {
         120000
       );
     } catch (createErr: any) {
-      console.warn('[E-LIBRARY] Google Drive upload note:', createErr?.message || createErr);
+      const errMsg = createErr?.message || String(createErr);
+      if (errMsg.includes('storage quota') || errMsg.includes('Service Accounts do not have storage quota')) {
+        console.warn('[E-LIBRARY] Google Drive Notice: Service Account does not have storage quota (requires Google Workspace Shared Drive or OAuth delegation). Using local storage.');
+      } else {
+        console.warn('[E-LIBRARY] Google Drive upload note:', errMsg);
+      }
       throw createErr;
     }
 

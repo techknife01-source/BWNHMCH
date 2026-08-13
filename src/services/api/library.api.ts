@@ -1,5 +1,7 @@
 import { apiClient } from './apiClient';
 import { ApiResponse, LibraryBook } from '../../types/index';
+import { tokenManager } from '../../utils/tokenManager';
+import { ENV_CONFIG } from '../../config/env.config';
 
 export const mockLibraryBooks: LibraryBook[] = [
   {
@@ -338,18 +340,96 @@ startxref
       if (resourceData.subject) formData.append('subject', resourceData.subject);
       if (resourceData.publisher) formData.append('publisher', resourceData.publisher);
 
-      const response = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', formData, {
-        headers: { 'Content-Type': undefined as any },
-        timeout: 120000,
-      });
-      if (response.data && response.data.data) {
-        const b = response.data.data as any;
+      let responseData: ApiResponse<LibraryBook> | null = null;
+
+      // 1. Primary Attempt: Native browser fetch with FormData
+      try {
+        const token = tokenManager.getAccessToken();
+        const fetchHeaders: Record<string, string> = {};
+        if (token) {
+          fetchHeaders['Authorization'] = `Bearer ${token}`;
+        }
+
+        const baseUrl = ENV_CONFIG.API_BASE_URL.replace(/\/$/, '');
+        const primaryUploadUrl = `${baseUrl}/library/books`;
+        const localUploadUrl = `/api/v1/library/books`;
+
+        let fetchRes: Response | null = null;
+        try {
+          fetchRes = await fetch(primaryUploadUrl, {
+            method: 'POST',
+            headers: fetchHeaders,
+            body: formData,
+          });
+        } catch (netErr: any) {
+          console.warn('[LIBRARY_API] Primary fetch failed due to network error, trying local endpoint:', netErr?.message || netErr);
+        }
+
+        // Retry with local backend if primary failed or returned server error
+        if (!fetchRes || (!fetchRes.ok && fetchRes.status >= 500)) {
+          try {
+            fetchRes = await fetch(localUploadUrl, {
+              method: 'POST',
+              headers: fetchHeaders,
+              body: formData,
+            });
+          } catch (localNetErr: any) {
+            console.warn('[LIBRARY_API] Local fetch failed:', localNetErr?.message || localNetErr);
+          }
+        }
+
+        if (fetchRes && fetchRes.ok) {
+          responseData = await fetchRes.json();
+        } else if (fetchRes) {
+          const errJson = await fetchRes.json().catch(() => ({}));
+          const errMsg = errJson?.message || '';
+          if (fetchRes.status === 415 || errMsg.includes('Content-Type') || errMsg.includes('not supported')) {
+            console.warn('[LIBRARY_API] Native fetch FormData returned Content-Type notice, proceeding with JSON base64 fallback:', errMsg);
+          } else if (errMsg) {
+            throw new Error(errMsg);
+          }
+        }
+      } catch (fetchErr: any) {
+        if (fetchErr.message && !fetchErr.message.includes('Content-Type') && !fetchErr.message.includes('not supported') && !fetchErr.message.includes('415')) {
+          console.warn('[LIBRARY_API] Native fetch notice:', fetchErr.message);
+        }
+      }
+
+      // 2. Fallback Attempt: Base64 JSON upload if FormData request was rejected by remote server
+      if (!responseData) {
+        const base64Content = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(fileToUpload!);
+        });
+
+        const jsonPayload = {
+          title: resourceData.title || '',
+          author: resourceData.author || '',
+          category: resourceData.category || '',
+          semester: resourceData.semester || '',
+          description: resourceData.description || '',
+          department: resourceData.department || '',
+          subject: resourceData.subject || '',
+          publisher: resourceData.publisher || '',
+          fileDataUrl: base64Content,
+          fileData: base64Content,
+          fileName: fileToUpload.name,
+        };
+
+        const jsonResponse = await apiClient.post<ApiResponse<LibraryBook>>('/library/books', jsonPayload);
+        responseData = jsonResponse.data;
+      }
+
+      if (responseData && responseData.data) {
+        const b = responseData.data as any;
         const pdfEndpoint = b.pdfUrl || b.streamUrl || b.fileUrl || `/api/v1/library/books/${b.id}/pdf`;
         b.pdfUrl = pdfEndpoint;
         b.streamUrl = pdfEndpoint;
         b.fileUrl = pdfEndpoint;
       }
-      return response.data;
+      return responseData;
     } catch (err: any) {
       const errorMsg = err?.response?.data?.message || err?.message || 'Digital library book upload failed.';
       console.error('[LIBRARY_API] POST /library/books failed:', errorMsg);

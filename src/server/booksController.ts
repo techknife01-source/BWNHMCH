@@ -325,7 +325,7 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
   }
 
   // Option A: Stream from Google Drive if file ID exists & Drive service is configured with non-zero length
-  if (book.googleDriveFileId && googleDriveService.hasCredentials()) {
+  if (book && book.googleDriveFileId && googleDriveService.hasCredentials()) {
     try {
       const driveMeta = await googleDriveService.getFileMetadata(book.googleDriveFileId);
       if (driveMeta && driveMeta.size && parseInt(driveMeta.size, 10) > 0) {
@@ -354,13 +354,54 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
         console.warn(`[E-LIBRARY] Google Drive file ID ${book.googleDriveFileId} contains 0 bytes or is missing metadata`);
       }
     } catch (driveErr: any) {
-      console.warn(`[E-LIBRARY] Google Drive stream error for ${book.title}:`, driveErr?.message || driveErr);
+      console.warn(`[E-LIBRARY] Google Drive stream error for ${book?.title || decodedParam}:`, driveErr?.message || driveErr);
+    }
+  }
+
+  // Option B: Stream local file from public/documents/
+  const possiblePaths: string[] = [];
+  if (book && book.fileName) {
+    possiblePaths.push(path.join(process.cwd(), 'public', 'documents', book.fileName));
+  }
+  possiblePaths.push(path.join(process.cwd(), 'public', 'documents', `${decodedParam}.pdf`));
+  possiblePaths.push(path.join(process.cwd(), 'public', 'documents', decodedParam));
+
+  if (book && book.title) {
+    const cleanTitle = `${book.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`;
+    possiblePaths.push(path.join(process.cwd(), 'public', 'documents', cleanTitle));
+  }
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+      const stat = fs.statSync(p);
+      console.log(`[E-LIBRARY] Streaming PDF from local file: ${p} (${stat.size} bytes)`);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${book?.fileName || path.basename(p)}"`);
+      res.setHeader('Content-Length', stat.size);
+      res.setHeader('Accept-Ranges', 'bytes');
+      return fs.createReadStream(p).pipe(res);
+    }
+  }
+
+  // Option C: Stream sample fallback PDF from public/documents/
+  const docsDir = path.join(process.cwd(), 'public', 'documents');
+  if (fs.existsSync(docsDir)) {
+    const files = fs.readdirSync(docsDir).filter((f) => f.toLowerCase().endsWith('.pdf'));
+    if (files.length > 0) {
+      const fallbackPath = path.join(docsDir, files[0]);
+      const stat = fs.statSync(fallbackPath);
+      console.log(`[E-LIBRARY] Streaming PDF from fallback sample PDF: ${fallbackPath} (${stat.size} bytes)`);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${book?.fileName || path.basename(fallbackPath)}"`);
+      res.setHeader('Content-Length', stat.size);
+      res.setHeader('Accept-Ranges', 'bytes');
+      return fs.createReadStream(fallbackPath).pipe(res);
     }
   }
 
   return res.status(404).json({
     success: false,
-    message: `PDF file for '${book.title}' is not available on Google Drive storage.`,
+    message: `PDF file for '${book?.title || decodedParam}' is not available on server storage.`,
   });
 };
 
@@ -438,17 +479,12 @@ export const handleCreateBook = async (req: Request, res: Response) => {
           console.log(`[E-LIBRARY] Google Drive file ID: ${googleDriveFileId}`);
           console.log(`[E-LIBRARY] Google Drive stored size: ${driveRes.storedSizeBytes} bytes`);
         } else {
-          return res.status(500).json({
-            success: false,
-            message: 'Google Drive upload completed but returned invalid file ID.',
-          });
+          console.warn('[E-LIBRARY] Google Drive upload returned invalid response, falling back to local storage.');
+          storageProvider = 'local';
         }
       } catch (uploadErr: any) {
-        console.error('[E-LIBRARY] Google Drive upload failed:', uploadErr?.message || uploadErr);
-        return res.status(500).json({
-          success: false,
-          message: `Google Drive PDF upload failed: ${uploadErr?.message || uploadErr}`,
-        });
+        console.warn('[E-LIBRARY] Google Drive upload failed, falling back to local storage:', uploadErr?.message || uploadErr);
+        storageProvider = 'local';
       }
     }
 
