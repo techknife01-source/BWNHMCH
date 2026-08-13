@@ -28,6 +28,13 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final GoogleDriveService googleDriveService;
 
+    private Book findBookByIdentifier(String identifier) {
+        if (identifier == null || identifier.isBlank()) return null;
+        String trimmed = identifier.trim();
+        return bookRepository.findByCustomId(trimmed)
+                .orElseGet(() -> bookRepository.findById(trimmed).orElse(null));
+    }
+
     @Override
     public List<BookResponse> getAllPublishedBooks() {
         return bookRepository.findByPublishedTrue().stream()
@@ -37,13 +44,16 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponse getBookById(String id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        Book book = findBookByIdentifier(id);
+        if (book == null) {
+            throw new ResourceNotFoundException("Book", "id", id);
+        }
         return mapToResponse(book);
     }
 
     @Override
     public BookResponse uploadBook(BookRequest request, MultipartFile file, String uploaderUsername) {
+        log.info("[LIBRARY] Upload started");
         log.info("[E-LIBRARY] Upload request received for title='{}', author='{}'", 
                 request != null ? request.getTitle() : "null", 
                 request != null ? request.getAuthor() : "null");
@@ -92,8 +102,10 @@ public class BookServiceImpl implements BookService {
             throw new BadRequestException("Unsupported file type: '" + contentType + "'. Allowed types are PDF, DOCX, and PPTX.");
         }
 
-        // 5. Generate safe storage filename
+        // 5. Generate safe storage filename and book ID
         String safeFileName = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String bookId = "book-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 9000 + 1000);
+        log.info("[LIBRARY] Generated book ID: {}", bookId);
 
         // 6. Verify Google Drive configuration & upload
         if (!googleDriveService.isConfigured()) {
@@ -103,9 +115,10 @@ public class BookServiceImpl implements BookService {
 
         String driveFileId;
         try {
+            log.info("[LIBRARY] Google Drive upload started");
             log.info("[E-LIBRARY] Uploading file '{}' ({} bytes) to Google Drive...", safeFileName, fileSize);
             driveFileId = googleDriveService.uploadFile(file.getInputStream(), safeFileName, contentType, fileSize);
-            log.info("[E-LIBRARY] Google Drive upload completed with file ID: {}", driveFileId);
+            log.info("[LIBRARY] Google Drive file ID: {}", driveFileId);
         } catch (FileUploadException e) {
             throw e;
         } catch (Exception e) {
@@ -119,6 +132,8 @@ public class BookServiceImpl implements BookService {
 
         // 8. Save MongoDB metadata
         Book book = Book.builder()
+                .id(bookId)
+                .customId(bookId)
                 .title(request.getTitle().trim())
                 .author(request.getAuthor().trim())
                 .category(request.getCategory() != null ? request.getCategory().trim() : "General")
@@ -139,8 +154,10 @@ public class BookServiceImpl implements BookService {
 
         Book savedBook;
         try {
+            log.info("[LIBRARY] MongoDB save started");
+            log.info("[LIBRARY] Saving MongoDB book with ID: {}", bookId);
             savedBook = bookRepository.save(book);
-            log.info("[E-LIBRARY] Database record created successfully with MongoDB ID: {}", savedBook.getId());
+            log.info("[LIBRARY] MongoDB save successful");
         } catch (Exception dbErr) {
             log.error("[E-LIBRARY] MongoDB save failed for book '{}': {}. Attempting cleanup of Drive file ID '{}'...", request.getTitle(), dbErr.getMessage(), driveFileId);
             try {
@@ -156,8 +173,10 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponse updateBook(String id, BookRequest request) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        Book book = findBookByIdentifier(id);
+        if (book == null) {
+            throw new ResourceNotFoundException("Book", "id", id);
+        }
 
         if (request.getTitle() != null && !request.getTitle().isBlank()) book.setTitle(request.getTitle().trim());
         if (request.getAuthor() != null && !request.getAuthor().isBlank()) book.setAuthor(request.getAuthor().trim());
@@ -176,37 +195,51 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteBook(String id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        log.info("[LIBRARY] Delete book ID: {}", id);
+        Book book = findBookByIdentifier(id);
+        if (book == null) {
+            throw new ResourceNotFoundException("Book", "id", id);
+        }
         if (book.getGoogleDriveFileId() != null && !book.getGoogleDriveFileId().isBlank()) {
+            log.info("[LIBRARY] Google Drive file ID: {}", book.getGoogleDriveFileId());
             try {
                 googleDriveService.deleteFile(book.getGoogleDriveFileId());
+                log.info("[LIBRARY] Google Drive delete successful");
             } catch (Exception e) {
                 log.warn("[E-LIBRARY] Could not delete Google Drive file ID '{}' on book deletion: {}", book.getGoogleDriveFileId(), e.getMessage());
             }
         }
         bookRepository.delete(book);
+        log.info("[LIBRARY] MongoDB delete successful");
     }
 
     @Override
     public Resource getBookPdfResource(String id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        log.info("[LIBRARY] PDF request book ID: {}", id);
+        Book book = findBookByIdentifier(id);
+        boolean recordFound = (book != null);
+        log.info("[LIBRARY] MongoDB record found: {}", recordFound);
+
+        if (book == null) {
+            throw new ResourceNotFoundException("Book", "id", id);
+        }
 
         String driveFileId = book.getGoogleDriveFileId();
+        log.info("[LIBRARY] Google Drive file ID: {}", driveFileId);
         if (driveFileId == null || driveFileId.isBlank()) {
             log.error("[E-LIBRARY] Book ID '{}' has no associated googleDriveFileId in MongoDB", id);
             throw new ResourceNotFoundException("Book PDF File", "googleDriveFileId", id);
         }
 
         try {
-            log.info("[E-LIBRARY] Requesting Google Drive binary stream for book ID '{}', Drive File ID '{}'", id, driveFileId);
+            log.info("[LIBRARY] Google Drive retrieval started");
             InputStream pdfStream = googleDriveService.downloadFile(driveFileId);
             if (pdfStream == null) {
                 log.error("[E-LIBRARY] Google Drive returned null stream for file ID '{}'", driveFileId);
                 throw new ResourceNotFoundException("Book PDF Stream", "driveFileId", driveFileId);
             }
-            log.info("[E-LIBRARY] PDF retrieval completed for book '{}'", book.getTitle());
+            log.info("[LIBRARY] Google Drive retrieval successful");
+            log.info("[LIBRARY] PDF stream started");
             return new InputStreamResource(pdfStream);
         } catch (ResourceNotFoundException e) {
             throw e;
@@ -218,15 +251,16 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public String getBookFileName(String id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        Book book = findBookByIdentifier(id);
+        if (book == null) return "book.pdf";
         return book.getFileName() != null ? book.getFileName() : "book.pdf";
     }
 
     private BookResponse mapToResponse(Book book) {
-        String pdfUrl = "/api/v1/library/books/" + book.getId() + "/pdf";
+        String primaryId = book.getCustomId() != null ? book.getCustomId() : book.getId();
+        String pdfUrl = "/api/v1/library/books/" + primaryId + "/pdf";
         return BookResponse.builder()
-                .id(book.getId())
+                .id(primaryId)
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .category(book.getCategory())
@@ -248,3 +282,5 @@ public class BookServiceImpl implements BookService {
                 .build();
     }
 }
+
+

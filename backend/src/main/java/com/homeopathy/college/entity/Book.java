@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "books")
 @Data
@@ -16,6 +17,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @SuperBuilder
 public class Book extends BaseEntity {
+
+    @Field("id")
+    private String customId;
 
     private String title;
     private String author;
@@ -39,3 +43,4 @@ public class Book extends BaseEntity {
 
     private String uploadedBy;
 }
+
