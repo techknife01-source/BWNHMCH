@@ -1,4 +1,4 @@
-const defaultBackendUrl = 'https://smart-homeopathic-college-backend.onrender.com/api/v1';
+const defaultBackendUrl = '/api/v1';
 
 const rawApiUrl =
   (import.meta as any).env?.VITE_API_URL ||

@@ -267,6 +267,11 @@ export const FacultyDigitalLibraryView: React.FC = () => {
       return;
     }
 
+    if (!editingBook && !selectedFile) {
+      showToast('PDF file attachment is required for book upload.', 'error');
+      return;
+    }
+
     try {
       if (editingBook) {
         const res = await libraryApi.updateResource(editingBook.id, {

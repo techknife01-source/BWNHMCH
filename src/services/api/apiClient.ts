@@ -4,9 +4,6 @@ import { tokenManager } from '../../utils/tokenManager';
 
 export const apiClient = axios.create({
   baseURL: ENV_CONFIG.API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
   timeout: 120000,
 });
 
@@ -19,6 +16,16 @@ apiClient.interceptors.request.use(
         config.headers = {} as any;
       }
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.data instanceof FormData) {
+      if (config.headers) {
+        if (typeof (config.headers as any).unset === 'function') {
+          (config.headers as any).unset('Content-Type');
+          (config.headers as any).unset('content-type');
+        }
+        delete (config.headers as any)['Content-Type'];
+        delete (config.headers as any)['content-type'];
+      }
     }
     return config;
   },

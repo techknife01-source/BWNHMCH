@@ -88,9 +88,9 @@ public class SecurityConfig {
                 "https://bwnhmch-qu7p.vercel.app",
                 "https://*.vercel.app",
                 "https://*.onrender.com",
+                "https://*.run.app",
                 "http://localhost:*",
-                "http://127.0.0.1:*",
-                "*"
+                "http://127.0.0.1:*"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));

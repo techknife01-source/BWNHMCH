@@ -7,11 +7,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -24,18 +25,17 @@ public class AdminDiagnosticsController {
     private final GoogleDriveService googleDriveService;
 
     @GetMapping("/google-drive")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @Operation(summary = "Diagnostic endpoint for verifying Google Drive connection and folder access")
     public ResponseEntity<Map<String, Object>> checkGoogleDriveDiagnostic() {
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new LinkedHashMap<>();
         boolean isConfigured = googleDriveService.isConfigured();
         response.put("configured", isConfigured);
 
         if (!isConfigured) {
             response.put("authenticated", false);
-            response.put("folderConfigured", false);
             response.put("folderAccessible", false);
-            response.put("googleDriveStatus", "FAILED");
-            response.put("error", "Google Drive service account credentials (GOOGLE_DRIVE_CLIENT_EMAIL, GOOGLE_DRIVE_PRIVATE_KEY) not configured.");
+            response.put("status", "FAILED");
             return ResponseEntity.ok(response);
         }
 
@@ -43,25 +43,18 @@ public class AdminDiagnosticsController {
             File folder = googleDriveService.getFolderMetadata(null);
             if (folder != null && folder.getId() != null) {
                 response.put("authenticated", true);
-                response.put("folderConfigured", true);
                 response.put("folderAccessible", true);
-                response.put("googleDriveStatus", "CONNECTED");
-                response.put("folderId", folder.getId());
-                response.put("folderName", folder.getName());
+                response.put("status", "CONNECTED");
             } else {
                 response.put("authenticated", true);
-                response.put("folderConfigured", true);
                 response.put("folderAccessible", false);
-                response.put("googleDriveStatus", "FAILED");
-                response.put("error", "Google Drive folder not accessible or permission denied.");
+                response.put("status", "FAILED");
             }
         } catch (Exception e) {
             log.error("[AdminDiagnostics] Google Drive check error: {}", e.getMessage());
             response.put("authenticated", false);
-            response.put("folderConfigured", true);
             response.put("folderAccessible", false);
-            response.put("googleDriveStatus", "FAILED");
-            response.put("error", e.getMessage() != null ? e.getMessage() : "Unknown Google Drive error");
+            response.put("status", "FAILED");
         }
 
         return ResponseEntity.ok(response);

@@ -45,7 +45,7 @@ public class LegacyBookController {
         return ResponseEntity.ok(ApiResponse.success(books, "Published books fetched successfully"));
     }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE, "multipart/*", MediaType.ALL_VALUE })
     @Operation(summary = "Upload new book PDF (Alias Endpoint)")
     public ResponseEntity<ApiResponse<BookResponse>> uploadBook(
             @RequestParam(value = "title", required = false) String titleParam,
@@ -53,7 +53,7 @@ public class LegacyBookController {
             @RequestParam(value = "category", required = false) String categoryParam,
             @RequestParam(value = "semester", required = false) String semesterParam,
             @RequestParam(value = "description", required = false) String descriptionParam,
-            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal UserPrincipal currentUser) {
 
         String title = titleParam;

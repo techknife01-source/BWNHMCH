@@ -338,16 +338,15 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
 
         if (contentLength > 0) {
           res.setHeader('Content-Type', 'application/pdf');
-          res.setHeader('Content-Disposition', `inline; filename="${book.fileName || 'Database_Migration_Tool.pdf'}"`);
+          res.setHeader('Content-Disposition', `inline; filename="${book.fileName || 'document.pdf'}"`);
           res.setHeader('Accept-Ranges', 'bytes');
-          res.setHeader('Access-Control-Allow-Origin', '*');
           if (driveRes.headers['content-range']) {
             res.setHeader('Content-Range', driveRes.headers['content-range']);
           }
           res.setHeader('Content-Length', contentLength);
           res.status(driveRes.status || 200);
 
-          console.log('[E-LIBRARY] PDF retrieval completed');
+          console.log('[E-LIBRARY] PDF retrieval completed from Google Drive');
           console.log(`[E-LIBRARY] Bytes streamed: ${contentLength}`);
           return driveRes.stream.pipe(res);
         }
@@ -359,73 +358,9 @@ export const handleStreamBookPdf = async (req: Request, res: Response) => {
     }
   }
 
-  // Option B: Stream from local disk (/public/documents/...)
-  const candidateFiles = Array.from(new Set([
-    book.fileName,
-    decodedParam,
-    `${decodedParam}.pdf`,
-    book.id ? `${book.id}.pdf` : null,
-    'Database_Migration_Tool.pdf',
-    'bhmch_organon_edition6.pdf',
-  ].filter(Boolean))) as string[];
-
-  let localFilePath: string | null = null;
-  for (const cand of candidateFiles) {
-    const p = path.join(process.cwd(), 'public', 'documents', cand);
-    if (fs.existsSync(p)) {
-      const stat = fs.statSync(p);
-      if (stat.size > 0) {
-        localFilePath = p;
-        break;
-      }
-    }
-  }
-
-  if (localFilePath) {
-    const stat = fs.statSync(localFilePath);
-    const fileSize = stat.size;
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${book.fileName || path.basename(localFilePath)}"`);
-    res.setHeader('Accept-Ranges', 'bytes');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-
-    const range = req.headers.range;
-    if (range) {
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-      if (start >= fileSize || end >= fileSize) {
-        res.setHeader('Content-Range', `bytes */${fileSize}`);
-        return res.status(416).end();
-      }
-
-      const chunkSize = end - start + 1;
-      const fileStream = fs.createReadStream(localFilePath, { start, end });
-
-      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
-      res.setHeader('Content-Length', chunkSize);
-      res.status(206);
-
-      console.log('[E-LIBRARY] PDF retrieval completed');
-      console.log(`[E-LIBRARY] Bytes streamed: ${chunkSize}`);
-      return fileStream.pipe(res);
-    } else {
-      res.setHeader('Content-Length', fileSize);
-      res.status(200);
-
-      console.log('[E-LIBRARY] PDF retrieval completed');
-      console.log(`[E-LIBRARY] Bytes streamed: ${fileSize}`);
-      return fs.createReadStream(localFilePath).pipe(res);
-    }
-  }
-
-  // Option C: Return clear 404 error if file is not found on disk or drive (do not return fake PDF)
-  console.log(`[E-LIBRARY] PDF retrieval failed: Content for '${book.title}' unavailable in storage`);
   return res.status(404).json({
     success: false,
-    message: `PDF document '${book.title}' content is unavailable in storage.`,
+    message: `PDF file for '${book.title}' is not available on Google Drive storage.`,
   });
 };
 
