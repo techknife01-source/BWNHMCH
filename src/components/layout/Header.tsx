@@ -6,6 +6,7 @@ import { institutionSettingsService, InstitutionSettings } from '../../services/
 import { ThemeToggle } from './ThemeToggle';
 import { Notifications } from './Notifications';
 import { ProfileMenu } from './ProfileMenu';
+import { CollegeLogo } from '../common/CollegeLogo';
 
 export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -76,11 +77,7 @@ export const Header: React.FC = () => {
       {/* Main Brand Bar */}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6">
         <Link to="/" className="flex items-center space-x-3 group">
-          <img
-            src="/college_logo.svg"
-            alt="Burdwan Homoeopathic Medical College Logo"
-            className="h-11 w-11 object-contain rounded-xl bg-white p-0.5 shadow-md border border-slate-200 shrink-0"
-          />
+          <CollegeLogo size="md" />
           <div>
             <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-[#002147] dark:text-white leading-tight">
               {APP_CONSTANTS.INSTITUTION_NAME}

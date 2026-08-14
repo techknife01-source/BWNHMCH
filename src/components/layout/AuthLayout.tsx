@@ -1,17 +1,15 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import { Building2 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { APP_CONSTANTS } from '../../constants/app.constants';
+import { CollegeLogo } from '../common/CollegeLogo';
 
 export const AuthLayout: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-slate-100 antialiased">
       <header className="flex items-center justify-between p-6">
         <Link to="/" className="flex items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-black">
-            <Building2 className="h-5 w-5" />
-          </div>
+          <CollegeLogo size="sm" />
           <span className="font-extrabold text-sm text-white">{APP_CONSTANTS.SHORT_NAME}</span>
         </Link>
         <ThemeToggle />

@@ -87,9 +87,19 @@ export const HospitalStaffDirectory: React.FC = () => {
     return Array.from(set).sort();
   }, [staffList]);
 
+  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+
   // Filtered staff list
   const filteredStaff = useMemo(() => {
     return staffList.filter((s) => {
+      // Public Mode: ONLY show Active Staff
+      if ((!isAdmin || !showAdminControls) && s.status === 'INACTIVE') {
+        return false;
+      }
+      // Status filter in Admin mode
+      if (isAdmin && showAdminControls && selectedStatus !== 'ALL' && s.status !== selectedStatus) {
+        return false;
+      }
       // Role / Category filter
       if (selectedRoleCategory !== 'ALL' && s.roleCategory !== selectedRoleCategory) {
         return false;
@@ -110,13 +120,14 @@ export const HospitalStaffDirectory: React.FC = () => {
         const matchesEmpId = s.empId.toLowerCase().includes(q);
         const matchesDept = s.department.toLowerCase().includes(q);
         const matchesDesig = s.designation.toLowerCase().includes(q);
-        if (!matchesSlNo && !matchesName && !matchesEmpId && !matchesDept && !matchesDesig) {
+        const matchesQual = (s.qualification || '').toLowerCase().includes(q);
+        if (!matchesSlNo && !matchesName && !matchesEmpId && !matchesDept && !matchesDesig && !matchesQual) {
           return false;
         }
       }
       return true;
     });
-  }, [staffList, selectedRoleCategory, selectedDepartment, selectedDesignation, searchQuery]);
+  }, [staffList, selectedRoleCategory, selectedDepartment, selectedDesignation, selectedStatus, searchQuery, isAdmin, showAdminControls]);
 
   // Counts by Category
   const counts = useMemo(() => {
@@ -162,9 +173,20 @@ export const HospitalStaffDirectory: React.FC = () => {
       dutyShift: member.dutyShift || '',
       opdCounter: member.opdCounter || '',
       status: member.status,
-      joiningYear: member.joiningYear
+      joiningYear: member.joiningYear,
+      specialization: member.specialization || '',
+      experience: member.experience || '',
+      registrationNumber: member.registrationNumber || '',
+      biography: member.biography || '',
     });
     setIsAddModalOpen(true);
+  };
+
+  const handleToggleStaffStatus = async (member: HospitalStaffMember) => {
+    const newStatus = member.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    await hospitalStaffService.updateStaffMemberAsync(member.id, { status: newStatus });
+    showNotification(`Medical staff member '${member.name}' is now ${newStatus}.`);
+    await refreshStaff();
   };
 
   const handleSaveStaff = async (e: React.FormEvent) => {
@@ -180,10 +202,10 @@ export const HospitalStaffDirectory: React.FC = () => {
 
     if (editingStaff) {
       await hospitalStaffService.updateStaffMemberAsync(editingStaff.id, formData);
-      showNotification(`Staff record updated for ${formData.name}`);
+      showNotification('Medical staff updated successfully.');
     } else {
       await hospitalStaffService.addStaffMemberAsync(formData);
-      showNotification(`New staff member ${formData.name} added successfully.`);
+      showNotification('Medical staff added successfully.');
     }
 
     setIsAddModalOpen(false);

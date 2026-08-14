@@ -8,6 +8,7 @@ import {
   ReceptionSettings,
   HospitalStats,
 } from '../types/hospital';
+import { adminHrService } from './adminHrService';
 
 // Initial Mock Data
 const INITIAL_PATIENTS: Patient[] = [
@@ -477,15 +478,177 @@ class HospitalCoreService {
     return this.doctors.filter((d) => {
       const matchesDept = !departmentFilter || departmentFilter === 'ALL' || d.department === departmentFilter;
       const matchesAvail = !availableOnly || d.isAvailable;
-      return matchesDept && matchesAvail;
+      const isActive = d.status !== 'INACTIVE';
+      return matchesDept && matchesAvail && isActive;
     });
+  }
+
+  getAllDoctors(): DoctorSchedule[] {
+    return [...this.doctors];
+  }
+
+  addDoctor(data: Partial<DoctorSchedule>): DoctorSchedule {
+    if (!data.name || !data.name.trim()) throw new Error('Doctor name is required.');
+    if (!data.department || !data.department.trim()) throw new Error('Department is required.');
+    if (!data.roomNo || !data.roomNo.trim()) throw new Error('OPD room / counter is required.');
+
+    // Validate times if provided
+    if (data.startTime && data.endTime) {
+      if (data.startTime >= data.endTime) {
+        throw new Error('End time must be after start time.');
+      }
+    }
+
+    const newDoc: DoctorSchedule = {
+      id: `doc-${Date.now()}`,
+      name: data.name.trim(),
+      qualification: data.qualification || 'M.D. (Hom.)',
+      department: data.department.trim(),
+      designation: data.designation || 'OPD Consultant',
+      roomNo: data.roomNo.trim(),
+      opdSchedule: data.opdSchedule || 'Mon - Fri (09:00 AM - 01:00 PM)',
+      availableDays: data.availableDays || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      isAvailable: data.isAvailable ?? true,
+      maxDailyTokens: data.maxDailyTokens || 30,
+      totalTokensIssued: 0,
+      imageUrl: data.imageUrl || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80',
+      specialization: data.specialization || 'General Homoeopathic Practice',
+      dutyShift: data.dutyShift || 'Morning (9 AM - 1 PM)',
+      registrationNumber: data.registrationNumber || '',
+      experience: data.experience || '',
+      startTime: data.startTime || '09:00',
+      endTime: data.endTime || '13:00',
+      consultationInfo: data.consultationInfo || '',
+      description: data.description || '',
+      availabilityStatus: data.availabilityStatus || 'Available',
+      status: data.status || 'ACTIVE',
+    };
+
+    this.doctors.push(newDoc);
+    saveToStorage(STORAGE_KEYS.DOCTORS, this.doctors);
+
+    this.safeLogAudit({
+      module: 'OPD_MANAGEMENT',
+      action: 'ADD_OPD_DOCTOR',
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Added OPD doctor: ${newDoc.name} (${newDoc.department}, Room: ${newDoc.roomNo})`,
+      status: 'SUCCESS',
+    });
+
+    return newDoc;
+  }
+
+  updateDoctor(id: string, updates: Partial<DoctorSchedule>): DoctorSchedule {
+    const doc = this.doctors.find((d) => d.id === id);
+    if (!doc) throw new Error(`Doctor with ID '${id}' not found.`);
+
+    if (updates.startTime && updates.endTime && updates.startTime >= updates.endTime) {
+      throw new Error('End time must be after start time.');
+    }
+
+    const oldStatus = doc.status;
+    const oldAvailability = doc.availabilityStatus;
+
+    Object.assign(doc, updates);
+
+    // Sync isAvailable boolean with availabilityStatus
+    if (updates.availabilityStatus) {
+      doc.isAvailable = updates.availabilityStatus === 'Available';
+    }
+
+    saveToStorage(STORAGE_KEYS.DOCTORS, this.doctors);
+
+    const action = updates.status && updates.status !== oldStatus
+      ? (updates.status === 'INACTIVE' ? 'DEACTIVATE_OPD_DOCTOR' : 'REACTIVATE_OPD_DOCTOR')
+      : (updates.availabilityStatus && updates.availabilityStatus !== oldAvailability ? 'CHANGE_DOCTOR_AVAILABILITY' : 'UPDATE_OPD_DOCTOR');
+
+    this.safeLogAudit({
+      module: 'OPD_MANAGEMENT',
+      action,
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Updated OPD doctor '${doc.name}' (Department: ${doc.department}, Room: ${doc.roomNo})`,
+      status: 'SUCCESS',
+    });
+
+    return doc;
+  }
+
+  updateOpdSchedule(doctorId: string, scheduleData: {
+    availableDays: string[];
+    startTime: string;
+    endTime: string;
+    roomNo: string;
+    dutyShift: string;
+    opdSchedule?: string;
+  }): DoctorSchedule {
+    const doc = this.doctors.find((d) => d.id === doctorId);
+    if (!doc) throw new Error(`Doctor with ID '${doctorId}' not found.`);
+
+    if (!scheduleData.roomNo || !scheduleData.roomNo.trim()) {
+      throw new Error('OPD Room / Counter number cannot be empty.');
+    }
+
+    if (scheduleData.startTime && scheduleData.endTime && scheduleData.startTime >= scheduleData.endTime) {
+      throw new Error('End time must be after start time.');
+    }
+
+    doc.availableDays = scheduleData.availableDays;
+    doc.startTime = scheduleData.startTime;
+    doc.endTime = scheduleData.endTime;
+    doc.roomNo = scheduleData.roomNo;
+    doc.dutyShift = scheduleData.dutyShift;
+    doc.opdSchedule = scheduleData.opdSchedule || `${scheduleData.availableDays.join(', ')} (${scheduleData.startTime} - ${scheduleData.endTime})`;
+
+    saveToStorage(STORAGE_KEYS.DOCTORS, this.doctors);
+
+    this.safeLogAudit({
+      module: 'OPD_MANAGEMENT',
+      action: 'UPDATE_OPD_SCHEDULE',
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Updated OPD schedule for '${doc.name}' (Days: ${doc.availableDays.join(',')}, Timing: ${doc.startTime}-${doc.endTime}, Room: ${doc.roomNo})`,
+      status: 'SUCCESS',
+    });
+
+    return doc;
+  }
+
+  deleteDoctor(id: string): boolean {
+    const index = this.doctors.findIndex((d) => d.id === id);
+    if (index === -1) return false;
+
+    const [deleted] = this.doctors.splice(index, 1);
+    saveToStorage(STORAGE_KEYS.DOCTORS, this.doctors);
+
+    this.safeLogAudit({
+      module: 'OPD_MANAGEMENT',
+      action: 'DELETE_OPD_DOCTOR',
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Deleted OPD doctor record: ${deleted.name} (${deleted.department})`,
+      status: 'SUCCESS',
+    });
+
+    return true;
   }
 
   toggleDoctorAvailability(doctorId: string, isAvailable: boolean): DoctorSchedule {
     const doc = this.doctors.find((d) => d.id === doctorId);
     if (doc) {
       doc.isAvailable = isAvailable;
+      doc.availabilityStatus = isAvailable ? 'Available' : 'Unavailable';
       saveToStorage(STORAGE_KEYS.DOCTORS, this.doctors);
+
+      this.safeLogAudit({
+        module: 'OPD_MANAGEMENT',
+        action: 'TOGGLE_DOCTOR_AVAILABILITY',
+        performedBy: 'Super Admin',
+        userRole: 'ROLE_SUPER_ADMIN',
+        details: `Toggled availability for '${doc.name}' to ${isAvailable ? 'AVAILABLE' : 'OFF-DUTY'}`,
+        status: 'SUCCESS',
+      });
 
       this.addNotification({
         title: `Doctor ${isAvailable ? 'Available' : 'Unavailable'}`,
@@ -715,6 +878,27 @@ class HospitalCoreService {
     this.settings = { ...this.settings, ...data };
     saveToStorage(STORAGE_KEYS.SETTINGS, this.settings);
     return this.settings;
+  }
+  private safeLogAudit(entry: {
+    module: string;
+    action: string;
+    performedBy: string;
+    userRole?: string;
+    userEmail?: string;
+    details: string;
+    status?: string;
+  }): void {
+    try {
+      if (adminHrService && typeof adminHrService.logAudit === 'function') {
+        adminHrService.logAudit(entry);
+      } else if (adminHrService && typeof adminHrService.addAuditLog === 'function') {
+        adminHrService.addAuditLog(entry);
+      } else {
+        console.warn('[HospitalCore audit notice]: adminHrService audit method unavailable', entry);
+      }
+    } catch (e) {
+      console.warn('[HospitalCore audit notice]: non-fatal audit log error', e);
+    }
   }
 }
 

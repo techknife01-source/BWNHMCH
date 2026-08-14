@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import { adminHrService } from './adminHrService';
 
 export interface GalleryItem {
   id: string;
@@ -10,6 +11,7 @@ export interface GalleryItem {
   uploader: string;
   status: 'PUBLISHED' | 'HIDDEN' | 'DRAFT';
   displayOrder: number;
+  isFeatured?: boolean;
 }
 
 export interface GalleryFilterParams {
@@ -251,13 +253,22 @@ class GalleryService {
         uploader: item.uploader || uploaderName,
         status: item.status || 'PUBLISHED',
         displayOrder: item.displayOrder || maxOrder,
+        isFeatured: item.isFeatured ?? false,
       };
       this.items.unshift(created);
       added.push(created);
     });
 
     this.saveToStorage();
-    toast.success(`${added.length} image(s) uploaded successfully!`);
+    this.safeLogAudit({
+      module: 'GALLERY',
+      action: 'UPLOAD_GALLERY_PHOTO',
+      performedBy: uploaderName || 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Uploaded ${added.length} new photo(s) to gallery category '${added[0]?.category || 'General'}'`,
+      status: 'SUCCESS',
+    });
+    toast.success(`${added.length} gallery photo(s) uploaded successfully!`);
     return added;
   }
 
@@ -275,7 +286,15 @@ class GalleryService {
     };
 
     this.saveToStorage();
-    toast.success('Gallery item updated successfully!');
+    this.safeLogAudit({
+      module: 'GALLERY',
+      action: 'EDIT_GALLERY_PHOTO',
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Edited gallery photo details/description for '${this.items[index].title}' (ID: ${id})`,
+      status: 'SUCCESS',
+    });
+    toast.success('Gallery photo updated successfully!');
     return this.items[index];
   }
 
@@ -285,7 +304,15 @@ class GalleryService {
 
     const [deleted] = this.items.splice(index, 1);
     this.saveToStorage();
-    toast.success(`Image "${deleted.title}" deleted.`);
+    this.safeLogAudit({
+      module: 'GALLERY',
+      action: 'DELETE_GALLERY_PHOTO',
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Deleted gallery photo '${deleted.title}' (ID: ${id})`,
+      status: 'SUCCESS',
+    });
+    toast.success('Gallery photo deleted successfully!');
     return true;
   }
 
@@ -387,6 +414,27 @@ class GalleryService {
     } catch (e: any) {
       toast.error(`Import failed: ${e.message || 'Invalid file format'}`);
       return 0;
+    }
+  }
+  private safeLogAudit(entry: {
+    module: string;
+    action: string;
+    performedBy: string;
+    userRole?: string;
+    userEmail?: string;
+    details: string;
+    status?: string;
+  }): void {
+    try {
+      if (adminHrService && typeof adminHrService.logAudit === 'function') {
+        adminHrService.logAudit(entry);
+      } else if (adminHrService && typeof adminHrService.addAuditLog === 'function') {
+        adminHrService.addAuditLog(entry);
+      } else {
+        console.warn('[Gallery audit notice]: adminHrService audit method unavailable', entry);
+      }
+    } catch (e) {
+      console.warn('[Gallery audit notice]: non-fatal audit log error', e);
     }
   }
 }

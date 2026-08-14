@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { UserRole, UserSession } from '../types';
 import { ShieldAlert, Heart, Lock, Mail, KeyRound, ArrowLeft, RefreshCw, Key } from 'lucide-react';
+import { CollegeLogo } from '../components/common/CollegeLogo';
 
 interface AuthPagesProps {
   onLoginSuccess: (session: UserSession) => void;
@@ -173,12 +174,8 @@ export const AuthPages: React.FC<AuthPagesProps> = ({
         </button>
 
         {/* LOGO AREA */}
-        <div className="text-center space-y-2">
-          <img
-            src="/college_logo.svg"
-            alt="Official College Logo"
-            className="mx-auto w-14 h-14 object-contain shadow-xs rounded-xl bg-white p-1 border border-slate-200"
-          />
+        <div className="text-center space-y-2 flex flex-col items-center">
+          <CollegeLogo size="lg" className="mx-auto" />
           <h2 className="text-lg font-black text-[#002147] dark:text-slate-100 tracking-tight uppercase">
             Burdwan HomoeoERP
           </h2>

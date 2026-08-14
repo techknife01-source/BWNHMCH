@@ -44,6 +44,8 @@ export interface OpdToken {
   };
 }
 
+export type DoctorAvailabilityStatus = 'Available' | 'Unavailable' | 'On Leave' | 'Temporarily Closed';
+
 export interface DoctorSchedule {
   id: string;
   name: string;
@@ -59,7 +61,15 @@ export interface DoctorSchedule {
   totalTokensIssued: number;
   imageUrl?: string;
   specialization: string;
-  dutyShift: 'Morning (9 AM - 1 PM)' | 'Evening (2 PM - 6 PM)' | 'Full Day';
+  dutyShift: string;
+  registrationNumber?: string;
+  experience?: string;
+  startTime?: string;
+  endTime?: string;
+  consultationInfo?: string;
+  description?: string;
+  availabilityStatus?: DoctorAvailabilityStatus;
+  status?: 'ACTIVE' | 'INACTIVE';
 }
 
 export interface DepartmentInfo {

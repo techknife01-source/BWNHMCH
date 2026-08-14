@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { CollegeLogo } from '../../../components/common/CollegeLogo';
 import {
   LayoutDashboard,
   User,
@@ -80,9 +81,7 @@ export const FacultyLayout: React.FC<FacultyLayoutProps> = ({ children, pageTitl
             </button>
 
             <Link to="/faculty/dashboard" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#002147] to-[#00A651] flex items-center justify-center text-white shadow-sm font-black text-lg">
-                F
-              </div>
+              <CollegeLogo size="sm" />
               <div className="hidden sm:block">
                 <span className="font-black text-sm text-slate-900 dark:text-white block leading-none">
                   BHMC Faculty Portal

@@ -29,9 +29,14 @@ export interface HospitalStaffMember {
   category?: string;
   displayOrder?: number;
   qualification?: string;
+  specialization?: string;
+  experience?: string;
+  registrationNumber?: string;
   contactNumber?: string;
   email?: string;
   photoUrl?: string;
+  joiningDate?: string;
+  biography?: string;
   availability?: 'AVAILABLE' | 'ON_DUTY' | 'ON_LEAVE' | 'EMERGENCY_DUTY' | 'SHIFT_DUTY';
   dutyShift?: string;
   opdCounter?: string;
@@ -572,6 +577,8 @@ export const OFFICIAL_HOSPITAL_STAFF: HospitalStaffMember[] = [
   },
 ];
 
+import { adminHrService } from './adminHrService';
+
 class HospitalStaffService {
   private staffList: HospitalStaffMember[] = getFromStorage(STORAGE_KEY, OFFICIAL_HOSPITAL_STAFF);
 
@@ -597,6 +604,10 @@ class HospitalStaffService {
 
   getAllStaff(): HospitalStaffMember[] {
     return [...this.staffList].sort((a, b) => (a.slNo || 0) - (b.slNo || 0));
+  }
+
+  getActiveStaff(): HospitalStaffMember[] {
+    return this.getAllStaff().filter((s) => s.status === 'ACTIVE');
   }
 
   getStaffById(id: string): HospitalStaffMember | undefined {
@@ -636,6 +647,16 @@ class HospitalStaffService {
     };
     this.staffList.push(newMember);
     saveToStorage(STORAGE_KEY, this.staffList);
+
+    this.safeLogAudit({
+      module: 'MEDICAL_STAFF',
+      action: 'ADD_MEDICAL_STAFF',
+      performedBy: 'Super Admin',
+      userRole: 'ROLE_SUPER_ADMIN',
+      details: `Added new staff member: ${newMember.name} (${newMember.department} - ${newMember.designation})`,
+      status: 'SUCCESS',
+    });
+
     return newMember;
   }
 
@@ -676,8 +697,23 @@ class HospitalStaffService {
 
     const idx = this.staffList.findIndex((s) => s.id === id);
     if (idx !== -1) {
+      const oldStatus = this.staffList[idx].status;
       this.staffList[idx] = { ...this.staffList[idx], ...updates };
       saveToStorage(STORAGE_KEY, this.staffList);
+
+      const action = updates.status && updates.status !== oldStatus 
+        ? (updates.status === 'INACTIVE' ? 'DEACTIVATE_MEDICAL_STAFF' : 'REACTIVATE_MEDICAL_STAFF')
+        : 'UPDATE_MEDICAL_STAFF';
+
+      this.safeLogAudit({
+        module: 'MEDICAL_STAFF',
+        action,
+        performedBy: 'Super Admin',
+        userRole: 'ROLE_SUPER_ADMIN',
+        details: `Updated medical staff member '${this.staffList[idx].name}' (ID: ${id})`,
+        status: 'SUCCESS',
+      });
+
       return this.staffList[idx];
     }
     return undefined;
@@ -695,6 +731,7 @@ class HospitalStaffService {
   }
 
   async deleteStaffMemberAsync(id: string): Promise<boolean> {
+    const target = this.staffList.find((s) => s.id === id);
     const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -705,6 +742,16 @@ class HospitalStaffService {
         headers,
       });
       if (res.ok) {
+        if (target) {
+          this.safeLogAudit({
+            module: 'MEDICAL_STAFF',
+            action: 'DELETE_MEDICAL_STAFF',
+            performedBy: 'Super Admin',
+            userRole: 'ROLE_SUPER_ADMIN',
+            details: `Permanently deleted staff member '${target.name}' (ID: ${id})`,
+            status: 'SUCCESS',
+          });
+        }
         await this.fetchStaffAsync();
         return true;
       }
@@ -716,6 +763,16 @@ class HospitalStaffService {
     this.staffList = this.staffList.filter((s) => s.id !== id);
     if (this.staffList.length < initialLength) {
       saveToStorage(STORAGE_KEY, this.staffList);
+      if (target) {
+        this.safeLogAudit({
+          module: 'MEDICAL_STAFF',
+          action: 'DELETE_MEDICAL_STAFF',
+          performedBy: 'Super Admin',
+          userRole: 'ROLE_SUPER_ADMIN',
+          details: `Permanently deleted staff member '${target.name}' (ID: ${id})`,
+          status: 'SUCCESS',
+        });
+      }
       return true;
     }
     return false;
@@ -735,6 +792,27 @@ class HospitalStaffService {
   resetToDefault(): void {
     this.staffList = [...OFFICIAL_HOSPITAL_STAFF];
     saveToStorage(STORAGE_KEY, this.staffList);
+  }
+  private safeLogAudit(entry: {
+    module: string;
+    action: string;
+    performedBy: string;
+    userRole?: string;
+    userEmail?: string;
+    details: string;
+    status?: string;
+  }): void {
+    try {
+      if (adminHrService && typeof adminHrService.logAudit === 'function') {
+        adminHrService.logAudit(entry);
+      } else if (adminHrService && typeof adminHrService.addAuditLog === 'function') {
+        adminHrService.addAuditLog(entry);
+      } else {
+        console.warn('[HospitalStaff audit notice]: adminHrService audit method unavailable', entry);
+      }
+    } catch (e) {
+      console.warn('[HospitalStaff audit notice]: non-fatal audit log error', e);
+    }
   }
 }
 

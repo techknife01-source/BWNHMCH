@@ -5,6 +5,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import { ThemeToggle } from '../../../components/layout/ThemeToggle';
 import { Notifications } from '../../../components/layout/Notifications';
 import { ProfileMenu } from '../../../components/layout/ProfileMenu';
+import { CollegeLogo } from '../../../components/common/CollegeLogo';
 
 interface DashboardHeaderProps {
   sidebarOpen: boolean;
@@ -33,9 +34,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </button>
 
           <Link to="/faculty/dashboard" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#002147] to-[#00A651] flex items-center justify-center text-white shadow-xs font-black text-lg">
-              F
-            </div>
+            <CollegeLogo size="sm" />
             <div className="hidden sm:block">
               <span className="font-black text-sm text-slate-900 dark:text-white block leading-none">
                 BHMC Faculty Portal

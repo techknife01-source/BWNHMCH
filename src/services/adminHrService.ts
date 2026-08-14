@@ -1495,7 +1495,7 @@ class AdminHrService {
     });
   }
 
-  addAuditLog(entry: {
+  addAuditLog = (entry: {
     action: string;
     module: string;
     performedBy: string;
@@ -1503,24 +1503,40 @@ class AdminHrService {
     userEmail?: string;
     details: string;
     status?: string;
-  }): void {
-    const newAudit: SystemAuditLog = {
-      id: `AUD-${String(this.auditLogs.length + 1).padStart(3, '0')}`,
-      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
-      userName: entry.performedBy,
-      performedBy: entry.performedBy,
-      userRole: entry.userRole || 'ROLE_ADMIN',
-      userEmail: entry.userEmail || 'admin@bhmch.com',
-      module: entry.module,
-      action: entry.action,
-      actionType: entry.action,
-      resource: 'Staff Management',
-      status: entry.status || 'SUCCESS',
-      details: entry.details,
-      ipAddress: '192.168.1.10',
-    };
-    this.auditLogs.unshift(newAudit);
-  }
+  }): void => {
+    try {
+      const newAudit: SystemAuditLog = {
+        id: `AUD-${String(this.auditLogs.length + 1).padStart(3, '0')}`,
+        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        userName: entry.performedBy,
+        performedBy: entry.performedBy,
+        userRole: entry.userRole || 'ROLE_ADMIN',
+        userEmail: entry.userEmail || 'admin@bhmch.com',
+        module: entry.module,
+        action: entry.action,
+        actionType: entry.action,
+        resource: 'Staff Management',
+        status: entry.status || 'SUCCESS',
+        details: entry.details,
+        ipAddress: '192.168.1.10',
+      };
+      this.auditLogs.unshift(newAudit);
+    } catch (e) {
+      console.warn('[AdminHrService] addAuditLog internal exception:', e);
+    }
+  };
+
+  logAudit = (entry: {
+    action: string;
+    module: string;
+    performedBy: string;
+    userRole?: string;
+    userEmail?: string;
+    details: string;
+    status?: string;
+  }): void => {
+    this.addAuditLog(entry);
+  };
 
   // ================= DASHBOARD STATISTICS =================
   getAdminStats() {
@@ -1559,3 +1575,19 @@ class AdminHrService {
 }
 
 export const adminHrService = new AdminHrService();
+
+export const logAudit = (entry: {
+  action: string;
+  module: string;
+  performedBy: string;
+  userRole?: string;
+  userEmail?: string;
+  details: string;
+  status?: string;
+}): void => {
+  try {
+    adminHrService.logAudit(entry);
+  } catch (err) {
+    console.warn('[logAudit Helper Warning]:', err);
+  }
+};

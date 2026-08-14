@@ -357,6 +357,19 @@ export const canApproveDocuments = (user: any): boolean => {
   return isSuperAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
 };
 
+// Super Admin Exclusive Permission Guards
+export const canManageMedicalStaff = (user: any): boolean => {
+  return isSuperAdmin(user) || isAdmin(user) || isPrincipal(user);
+};
+
+export const canManageOpdDoctors = (user: any): boolean => {
+  return isSuperAdmin(user) || isAdmin(user);
+};
+
+export const canManageOpdSchedules = (user: any): boolean => {
+  return isSuperAdmin(user) || isAdmin(user);
+};
+
 export const hasRole = (userOrRoles: any = [], requiredRoles: string[] = []): boolean => {
   if (requiredRoles.length === 0 || requiredRoles.includes('ALL')) return true;
 
@@ -367,5 +380,6 @@ export const hasRole = (userOrRoles: any = [], requiredRoles: string[] = []): bo
 };
 
 export { coreHasRole, coreHasAnyRole, coreGetUserRoleCodes };
+
 
 

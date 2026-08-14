@@ -10,14 +10,10 @@ export const galleryApi = {
   uploadImage: async (file: File): Promise<ApiResponse<{ url: string; fileName: string; fileSize: number }>> => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('image', file);
     const response = await apiClient.post<ApiResponse<{ url: string; fileName: string; fileSize: number }>>(
       '/gallery/upload',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     return response.data;
   },

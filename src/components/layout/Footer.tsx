@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Phone, Mail, MapPin, ShieldCheck, Heart, ExternalLink, Globe, HeartPulse } from 'lucide-react';
 import { institutionSettingsService, InstitutionSettings } from '../../services/institutionSettingsService';
+import { CollegeLogo } from '../common/CollegeLogo';
 
 export const Footer: React.FC = () => {
   const [settings, setSettings] = useState<InstitutionSettings>(() => institutionSettingsService.getSettings());
@@ -21,11 +22,7 @@ export const Footer: React.FC = () => {
           {/* Brand & Mission */}
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center space-x-3">
-              <img
-                src="/college_logo.svg"
-                alt="College Logo"
-                className="h-10 w-10 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0"
-              />
+              <CollegeLogo size="md" />
               <div>
                 <span className="font-extrabold text-white text-sm block leading-tight">{settings.collegeName}</span>
                 <span className="text-[10px] text-emerald-400 font-bold uppercase">100-Bed Attached Teaching Hospital & College</span>

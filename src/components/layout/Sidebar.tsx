@@ -38,6 +38,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { hasRole, getUserDisplayDesignation } from '../../utils/permissionHelper';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CollegeLogo } from '../common/CollegeLogo';
 
 interface NavGroup {
   category: string;
@@ -365,9 +366,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
             >
               <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
                 <Link to="/" onClick={onMobileClose} className="flex items-center space-x-3 overflow-hidden">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002147] text-white font-extrabold text-xs shadow-md">
-                    BH
-                  </div>
+                  <CollegeLogo size="sm" />
                   <div className="min-w-0">
                     <span className="font-extrabold text-xs text-[#002147] dark:text-white block truncate uppercase">
                       BHMCH
@@ -398,9 +397,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
         <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
           {!isCollapsed && (
             <Link to="/" className="flex items-center space-x-3 overflow-hidden">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002147] text-white font-extrabold text-xs shadow-md">
-                BH
-              </div>
+              <CollegeLogo size="sm" />
               <div className="min-w-0">
                 <span className="font-extrabold text-xs text-[#002147] dark:text-white block truncate leading-tight uppercase tracking-tight">
                   BHMCH
@@ -410,9 +407,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
             </Link>
           )}
           {isCollapsed && (
-            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#002147] text-white font-black text-xs">
-              BH
-            </div>
+            <Link to="/" title="Burdwan Homoeopathic Medical College">
+              <CollegeLogo size="sm" />
+            </Link>
           )}
 
           <button

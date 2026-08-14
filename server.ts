@@ -741,8 +741,13 @@ const handleGetGallery = (req: Request, res: Response) => {
 app.get('/api/v1/gallery', handleGetGallery);
 app.get('/api/gallery', handleGetGallery);
 
-app.post('/api/v1/gallery/upload', (req: Request, res: Response) => {
-  const { fileData, fileName, mimeType, fileSize } = req.body;
+const handleGalleryUpload = (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
+    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
+  }
+
+  const { fileData, fileName, mimeType, fileSize } = req.body || {};
   if (fileSize && fileSize > 10 * 1024 * 1024) {
     return res.status(400).json({ success: false, message: 'File size exceeds maximum 10MB limit.' });
   }
@@ -750,18 +755,28 @@ app.post('/api/v1/gallery/upload', (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'Invalid file format. Only JPEG, PNG, WEBP, GIF, and SVG images are allowed.' });
   }
 
+  const returnedUrl = fileData || 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800';
+
   res.status(200).json({
     success: true,
     data: {
-      url: fileData || 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
-      fileName: fileName || 'uploaded_image.jpg',
+      url: returnedUrl,
+      fileName: fileName || 'uploaded_campus_image.jpg',
       fileSize: fileSize || 1024000,
     },
     message: 'File upload processed successfully',
   });
-});
+};
+
+app.post('/api/v1/gallery/upload', handleGalleryUpload);
+app.post('/api/gallery/upload', handleGalleryUpload);
 
 app.post('/api/v1/gallery', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
+    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
+  }
+
   const { items, title, imageUrl, category, description, uploader } = req.body;
   const newItemsToAdd = Array.isArray(items) ? items : [{ title, imageUrl, category, description, uploader }];
   const addedList: any[] = [];
@@ -791,24 +806,39 @@ app.post('/api/v1/gallery', (req: Request, res: Response) => {
 });
 
 app.put('/api/v1/gallery/:id', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
+    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
+  }
+
   const index = mockGalleryStore.findIndex((i) => i.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Gallery item not found' });
   }
   mockGalleryStore[index] = { ...mockGalleryStore[index], ...req.body };
-  res.status(200).json({ success: true, data: mockGalleryStore[index], message: 'Gallery item updated successfully' });
+  res.status(200).json({ success: true, data: mockGalleryStore[index], message: 'Gallery photo updated successfully' });
 });
 
 app.delete('/api/v1/gallery/:id', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
+    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
+  }
+
   const index = mockGalleryStore.findIndex((i) => i.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Gallery item not found' });
   }
   mockGalleryStore.splice(index, 1);
-  res.status(200).json({ success: true, message: 'Gallery item deleted successfully' });
+  res.status(200).json({ success: true, message: 'Gallery photo deleted successfully' });
 });
 
 app.post('/api/v1/gallery/bulk-delete', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
+    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
+  }
+
   const { ids } = req.body;
   if (Array.isArray(ids)) {
     for (let i = mockGalleryStore.length - 1; i >= 0; i--) {
@@ -872,8 +902,32 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+    const assetsPath = path.join(distPath, 'assets');
+
+    // Serve /assets with maxAge caching & explicit MIME types
+    app.use('/assets', express.static(assetsPath, {
+      maxAge: '1y',
+      immutable: true,
+      setHeaders: (res, filepath) => {
+        if (filepath.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css; charset=utf-8');
+        } else if (filepath.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        }
+      },
+    }));
+
+    // Prevent SPA fallback for missing static assets
+    app.use('/assets/*', (req: Request, res: Response) => {
+      res.status(404).type('text/css').send('/* Static asset not found */');
+    });
+
     app.use(express.static(distPath));
+
     app.get('*', (req: Request, res: Response) => {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/assets/')) {
+        return res.status(404).json({ success: false, message: 'Resource not found' });
+      }
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
