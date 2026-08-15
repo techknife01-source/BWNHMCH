@@ -14,6 +14,11 @@ export interface IStaff extends Document {
   contactNumber?: string;
   email?: string;
   photoUrl?: string;
+  photo?: {
+    driveFileId: string;
+    fileName: string;
+    mimeType: string;
+  };
   availability?: string;
   dutyShift?: string;
   opdCounter?: string;
@@ -43,6 +48,11 @@ const StaffSchema = new Schema<IStaff>(
     contactNumber: { type: String },
     email: { type: String },
     photoUrl: { type: String },
+    photo: {
+      driveFileId: { type: String },
+      fileName: { type: String },
+      mimeType: { type: String },
+    },
     availability: { type: String, default: 'AVAILABLE' },
     dutyShift: { type: String },
     opdCounter: { type: String },

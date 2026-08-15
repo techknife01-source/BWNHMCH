@@ -13,6 +13,11 @@ export interface DepartmentStaffMember {
   email: string;
   phone: string;
   photoUrl?: string;
+  photo?: {
+    driveFileId?: string;
+    fileName?: string;
+    mimeType?: string;
+  };
   joiningDate?: string;
   experienceYears?: number | string;
   registrationNumber?: string;
@@ -38,6 +43,10 @@ class DepartmentStaffService {
     depts.forEach((dept) => {
       if (Array.isArray(dept.facultyList)) {
         dept.facultyList.forEach((fac) => {
+          const photoUrl = fac.photo?.driveFileId
+            ? `/api/v1/faculty/${fac.id}/photo?v=${fac.photo.driveFileId}`
+            : (fac.photoUrl || fac.imageUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400');
+
           staffList.push({
             id: fac.id,
             name: fac.name,
@@ -47,8 +56,9 @@ class DepartmentStaffService {
             qualification: fac.qualification,
             specialization: fac.specialization || '',
             email: fac.email,
-            phone: fac.phone,
-            photoUrl: fac.imageUrl || fac.photoUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400',
+            phone: fac.phone || '',
+            photoUrl,
+            photo: fac.photo,
             joiningDate: fac.joiningDate || '2018-08-01',
             experienceYears: fac.experienceYears || '10+ Years',
             registrationNumber: fac.registrationNumber || 'WB-NCH-1998-042',
@@ -212,6 +222,7 @@ class DepartmentStaffService {
           phone: updates.phone ?? currentFac.phone,
           imageUrl: updates.photoUrl ?? currentFac.imageUrl ?? currentFac.photoUrl,
           photoUrl: updates.photoUrl ?? currentFac.photoUrl ?? currentFac.imageUrl,
+          photo: updates.photo ?? currentFac.photo,
           joiningDate: updates.joiningDate ?? currentFac.joiningDate,
           experienceYears: String(updates.experienceYears ?? currentFac.experienceYears ?? '5+ Years'),
           registrationNumber: updates.registrationNumber ?? currentFac.registrationNumber,
@@ -240,6 +251,7 @@ class DepartmentStaffService {
       phone: updates.phone ?? currentFac.phone,
       imageUrl: updates.photoUrl ?? currentFac.imageUrl ?? currentFac.photoUrl,
       photoUrl: updates.photoUrl ?? currentFac.photoUrl ?? currentFac.imageUrl,
+      photo: updates.photo ?? currentFac.photo,
       joiningDate: updates.joiningDate ?? currentFac.joiningDate,
       experienceYears: String(updates.experienceYears ?? currentFac.experienceYears ?? '5+ Years'),
       registrationNumber: updates.registrationNumber ?? currentFac.registrationNumber,

@@ -47,6 +47,8 @@ import {
   handleCreateStaff,
   handleUpdateStaff,
   handleDeleteStaff,
+  handleUploadFacultyPhoto,
+  handleGetFacultyPhoto,
 } from './src/server/staffController';
 
 dotenv.config();
@@ -269,8 +271,33 @@ app.get('/api/v1/actuator/health', (req: Request, res: Response) => {
 initBooksDatabaseAndMigration().catch((err) => console.warn('[Books Init Warning]:', err));
 initStaffDatabase().catch((err) => console.warn('[Staff Init Warning]:', err));
 
-// Staff Directory REST Endpoints (Public GET, Protected Admin Write Ops)
-const staffRoutes = ['/staff', '/api/staff', '/api/v1/staff', '/api/v1/hospital/staff'];
+// Staff & Faculty Directory REST Endpoints (Public GET, Protected Admin Write Ops)
+const staffRoutes = [
+  '/staff',
+  '/faculty',
+  '/api/staff',
+  '/api/faculty',
+  '/api/v1/staff',
+  '/api/v1/faculty',
+  '/api/v1/hospital/staff',
+];
+
+// Faculty Photo Endpoints (Google Drive Integration)
+const facultyPhotoRoutes = [
+  '/faculty/:facultyId/photo',
+  '/staff/:facultyId/photo',
+  '/api/faculty/:facultyId/photo',
+  '/api/staff/:facultyId/photo',
+  '/api/v1/faculty/:facultyId/photo',
+  '/api/v1/staff/:facultyId/photo',
+];
+
+facultyPhotoRoutes.forEach((route) => {
+  app.get(route, handleGetFacultyPhoto);
+  app.post(route, upload.single('photo'), handleUploadFacultyPhoto);
+  app.post(route, upload.single('file'), handleUploadFacultyPhoto);
+});
+
 staffRoutes.forEach((route) => {
   app.get(route, handleGetStaff);
   app.post(route, handleCreateStaff);

@@ -8,6 +8,11 @@ export interface FacultyMemberCMS {
   phone?: string;
   photoUrl?: string;
   imageUrl?: string;
+  photo?: {
+    driveFileId?: string;
+    fileName?: string;
+    mimeType?: string;
+  };
   joiningDate?: string;
   experienceYears?: string;
   registrationNumber?: string;

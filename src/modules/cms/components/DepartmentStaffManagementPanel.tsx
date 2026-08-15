@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { departmentStaffService, DepartmentStaffMember } from '../../../services/departmentStaffService';
 import { departmentCmsService } from '../../../services/departmentCmsService';
+import { facultyApi } from '../../../services/api/faculty.api';
 import { Card } from '../../../components/common/Card';
 import { useAuth } from '../../../contexts/AuthContext';
 import { isSuperAdmin, isAdmin, isPrincipal, isVicePrincipal } from '../../../utils/permissionHelper';
@@ -34,6 +35,7 @@ import {
   Eye,
   Lock,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -77,6 +79,10 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<{ id?: string; bulk?: boolean } | null>(null);
   const [viewDetailStaff, setViewDetailStaff] = useState<DepartmentStaffMember | null>(null);
+
+  // Photo Upload State
+  const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState<boolean>(false);
 
   // Form State
   const [editingStaff, setEditingStaff] = useState<Partial<DepartmentStaffMember>>({
@@ -134,17 +140,27 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setEditingStaff((prev) => ({
-        ...prev,
-        photoUrl: event.target?.result as string,
-      }));
-    };
-    reader.readAsDataURL(file);
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid image format. Allowed formats: JPEG, PNG, WebP.');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('Image file size exceeds 15MB. Please choose a smaller image.');
+      return;
+    }
+
+    setSelectedPhotoFile(file);
+    const tempPreviewUrl = URL.createObjectURL(file);
+    setEditingStaff((prev) => ({
+      ...prev,
+      photoUrl: tempPreviewUrl,
+    }));
   };
 
-  const handleSaveStaff = (e: React.FormEvent) => {
+  const handleSaveStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthorized) {
       toast.error('Access Denied: Only Super Admin, Admin, Principal, and Vice Principal can manage faculty.');
@@ -155,13 +171,53 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
       return;
     }
 
-    if (editingStaff.id) {
-      departmentStaffService.updateStaff(editingStaff.id, editingStaff);
-    } else {
-      departmentStaffService.addStaff(editingStaff);
+    try {
+      setIsUploadingPhoto(true);
+
+      // Save faculty record metadata
+      let savedMember: DepartmentStaffMember;
+      if (editingStaff.id) {
+        departmentStaffService.updateStaff(editingStaff.id, editingStaff);
+        savedMember = { ...editingStaff } as DepartmentStaffMember;
+      } else {
+        savedMember = departmentStaffService.addStaff(editingStaff);
+      }
+
+      const facultyId = savedMember.id || editingStaff.id;
+
+      // If a new photo file was selected, upload it to Google Drive via backend endpoint
+      if (selectedPhotoFile && facultyId) {
+        const loadingToastId = toast.loading('Uploading photo to Google Drive...');
+        try {
+          const uploadRes: any = await facultyApi.uploadFacultyPhoto(facultyId, selectedPhotoFile);
+          if (uploadRes && uploadRes.success) {
+            const photoObj = uploadRes.photo || uploadRes.data?.photo;
+            const driveFileId = photoObj?.driveFileId;
+            const persistentPhotoUrl = uploadRes.photoUrl || uploadRes.data?.photoUrl || facultyApi.getFacultyPhotoUrl(facultyId, driveFileId);
+
+            departmentStaffService.updateStaff(facultyId, {
+              photoUrl: persistentPhotoUrl,
+              photo: photoObj,
+            });
+
+            toast.success('Photo updated & saved to Google Drive successfully!', { id: loadingToastId });
+          } else {
+            toast.error(uploadRes?.message || 'Photo upload failed. Please try again.', { id: loadingToastId });
+          }
+        } catch (uploadErr: any) {
+          console.error('[Faculty Photo Upload Error]:', uploadErr);
+          toast.error(`Photo upload failed: ${uploadErr?.response?.data?.message || uploadErr?.message || 'Server error'}`, { id: loadingToastId });
+        }
+      } else {
+        toast.success(editingStaff.id ? 'Faculty details updated!' : 'Faculty member record added!');
+      }
+
+      setSelectedPhotoFile(null);
+      setIsModalOpen(false);
+      loadData();
+    } finally {
+      setIsUploadingPhoto(false);
     }
-    setIsModalOpen(false);
-    loadData();
   };
 
   const handleConfirmDelete = () => {
@@ -244,6 +300,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
             <>
               <button
                 onClick={() => {
+                  setSelectedPhotoFile(null);
                   setEditingStaff({
                     name: '',
                     departmentId: departments[0]?.id || 'org',
@@ -253,9 +310,9 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                     email: '',
                     phone: '',
                     photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400',
-                    joiningDate: new Date().toISOString().split('T')[0],
+                    joiningDate: '2020-08-01',
                     experienceYears: '5+ Years',
-                    registrationNumber: 'WB-NCH-2026-001',
+                    registrationNumber: 'WB-NCH-2020-001',
                     biography: '',
                     status: 'Active',
                   });
@@ -542,6 +599,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                               <>
                                 <button
                                   onClick={() => {
+                                    setSelectedPhotoFile(null);
                                     setEditingStaff(staff);
                                     setIsModalOpen(true);
                                   }}
@@ -652,6 +710,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                     <div className="flex gap-1">
                       <button
                         onClick={() => {
+                          setSelectedPhotoFile(null);
                           setEditingStaff(staff);
                           setIsModalOpen(true);
                         }}
@@ -839,12 +898,25 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                     value={editingStaff.photoUrl || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, photoUrl: e.target.value })}
                     className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    disabled={isUploadingPhoto}
                   />
-                  <label className="px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl cursor-pointer">
+                  <label className={`px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl flex items-center gap-1.5 ${isUploadingPhoto ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                    <Upload className="w-4 h-4" />
                     Upload
-                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handlePhotoUpload}
+                      disabled={isUploadingPhoto}
+                      className="hidden"
+                    />
                   </label>
                 </div>
+                {selectedPhotoFile && (
+                  <p className="mt-1 text-xs text-emerald-600 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Photo selected: {selectedPhotoFile.name} (Will upload to Google Drive on save)
+                  </p>
+                )}
               </div>
 
               <div>
@@ -855,6 +927,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                   value={editingStaff.biography || ''}
                   onChange={(e) => setEditingStaff({ ...editingStaff, biography: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                  disabled={isUploadingPhoto}
                 />
               </div>
 
@@ -862,15 +935,24 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl"
+                  disabled={isUploadingPhoto}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#00A651] hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md"
+                  disabled={isUploadingPhoto}
+                  className="px-5 py-2 bg-[#00A651] hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md flex items-center gap-2 disabled:opacity-50"
                 >
-                  Save Faculty Record
+                  {isUploadingPhoto ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Uploading Photo...
+                    </>
+                  ) : (
+                    'Save Faculty Record'
+                  )}
                 </button>
               </div>
             </form>
