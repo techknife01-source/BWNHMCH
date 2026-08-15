@@ -20,6 +20,14 @@
       "dest": "https://bwnhmch.onrender.com/api/v1/$1"
     },
     {
+      "src": "/faculty/(.*)",
+      "dest": "https://bwnhmch.onrender.com/api/v1/faculty/$1"
+    },
+    {
+      "src": "/gallery/(.*)",
+      "dest": "https://bwnhmch.onrender.com/api/v1/gallery/$1"
+    },
+    {
       "src": "/library/books/(.*)",
       "dest": "https://bwnhmch.onrender.com/api/v1/library/books/$1"
     },

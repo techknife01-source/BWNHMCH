@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { StaffModel, SEED_STAFF, IStaff } from './staffModel';
 import { googleDriveService } from './googleDriveService';
+import { departmentCmsService } from '../services/departmentCmsService';
 
 // In-memory store for fallback and rapid sync
 let memoryStaffStore: any[] = JSON.parse(JSON.stringify(SEED_STAFF));
@@ -54,46 +55,45 @@ async function reindexDisplayOrders() {
 export async function initStaffDatabase() {
   try {
     if (mongoose.connection.readyState === 1) {
-      const count = await (StaffModel as any).countDocuments();
-      if (count === 0) {
-        console.log('[Staff DB] Seeding initial 44 staff records into MongoDB...');
-        await (StaffModel as any).insertMany(SEED_STAFF);
-      } else {
-        // Ensure Prof. (Dr.) Pronab Bhattacharjee is present at displayOrder 2
-        const pronab = await (StaffModel as any).findOne({
-          name: { $regex: /Pronab Bhattacharjee/i },
-        });
+      // 1. Remove test/debug records from MongoDB Atlas
+      const deleteTestRes = await (StaffModel as any).deleteMany({
+        $or: [
+          { name: { $regex: /test/i } },
+          { name: { $regex: /diagnostic/i } },
+          { id: { $regex: /^fac-/i } },
+          { empId: { $regex: /^fac-/i } },
+        ],
+      });
+      if (deleteTestRes.deletedCount > 0) {
+        console.log(`[Staff DB Sync] Cleaned up ${deleteTestRes.deletedCount} test/debug records from MongoDB Atlas.`);
+      }
 
-        if (!pronab) {
-          console.log('[Staff DB] Adding Prof. (Dr.) Pronab Bhattacharjee at displayOrder 2...');
-          // Shift existing records with displayOrder >= 2 up by 1
-          await (StaffModel as any).updateMany(
-            { displayOrder: { $gte: 2 } },
-            { $inc: { displayOrder: 1, slNo: 1 } }
-          );
+      // 2. Idempotent sync of all 83 SEED_STAFF records
+      const existingList = await (StaffModel as any).find({}).lean();
+      let insertedCount = 0;
+      let preservedCount = 0;
 
-          const pronabDoc = {
-            id: 'hs-002-v',
-            slNo: 2,
-            empId: 'SL-02',
-            name: 'Prof. (Dr.) Pronab Bhattacharjee',
-            roleCategory: 'MEDICAL_STAFF',
-            department: 'ADMINISTRATION / ACADEMIC SECTION',
-            designation: 'VICE PRINCIPAL / ACADEMIC IN-CHARGE',
-            category: 'MEDICAL STAFF',
-            displayOrder: 2,
-            status: 'ACTIVE',
-          };
-          await (StaffModel as any).create(pronabDoc);
+      for (const seed of SEED_STAFF) {
+        const existing = existingList.find(
+          (f: any) =>
+            (f.id && String(f.id).toLowerCase() === String(seed.id).toLowerCase()) ||
+            (seed.empId && f.empId && String(f.empId).toLowerCase() === String(seed.empId).toLowerCase()) ||
+            (seed.registrationNumber && f.registrationNumber && String(f.registrationNumber).trim().toLowerCase() === String(seed.registrationNumber).trim().toLowerCase()) ||
+            (seed.name && f.name && String(f.name).trim().toLowerCase() === String(seed.name).trim().toLowerCase())
+        );
+
+        if (!existing) {
+          await (StaffModel as any).create(seed);
+          insertedCount++;
         } else {
-          // Normalize fields if already present
-          pronab.department = 'ADMINISTRATION / ACADEMIC SECTION';
-          pronab.designation = 'VICE PRINCIPAL / ACADEMIC IN-CHARGE';
-          pronab.category = 'MEDICAL STAFF';
-          pronab.roleCategory = 'MEDICAL_STAFF';
-          await pronab.save();
+          preservedCount++;
         }
       }
+
+      const totalCount = await (StaffModel as any).countDocuments();
+      console.log(
+        `[Staff DB Sync] Idempotent sync complete. Inserted: ${insertedCount}, Preserved: ${preservedCount}, Total in MongoDB: ${totalCount}`
+      );
 
       const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
       if (dbStaff && dbStaff.length > 0) {
@@ -109,16 +109,21 @@ export async function initStaffDatabase() {
     console.warn('[Staff DB Sync Notice]: Using memory store:', err?.message || err);
   }
 
-  // Ensure initial memory store is properly ordered and indexed
   await reindexDisplayOrders();
 }
 
 // Format staff output for REST API
 function formatStaffOutput(s: any, index: number) {
   const staffId = s.id || s._id?.toString();
-  const photoUrl = s.photo?.driveFileId
+  let photoUrl = s.photo?.driveFileId
     ? `/api/v1/faculty/${staffId}/photo?v=${s.photo.driveFileId}`
-    : s.photoUrl || '';
+    : (s.photoUrl || '');
+
+  if (photoUrl.startsWith('blob:')) {
+    photoUrl = s.photo?.driveFileId
+      ? `/api/v1/faculty/${staffId}/photo?v=${s.photo.driveFileId}`
+      : '';
+  }
 
   return {
     id: staffId,
@@ -127,6 +132,7 @@ function formatStaffOutput(s: any, index: number) {
     name: s.name,
     roleCategory: s.roleCategory || 'OFFICE_STAFF',
     department: s.department,
+    departmentName: s.department,
     designation: s.designation,
     category: s.category || 'STAFF',
     displayOrder: s.displayOrder || index + 1,
@@ -136,6 +142,13 @@ function formatStaffOutput(s: any, index: number) {
     email: s.email || '',
     photoUrl,
     photo: s.photo || null,
+    registrationNumber: s.registrationNumber || s.registrationNo || '',
+    registrationNo: s.registrationNumber || s.registrationNo || '',
+    joiningDate: s.joiningDate || s.dateOfJoining || '',
+    promotionDate: s.promotionDate || '',
+    experienceYears: s.experienceYears !== undefined && s.experienceYears !== null ? String(s.experienceYears) : '',
+    specialization: s.specialization || '',
+    biography: s.biography || s.bio || '',
     availability: s.availability || 'AVAILABLE',
     dutyShift: s.dutyShift || '',
     opdCounter: s.opdCounter || '',
@@ -203,6 +216,74 @@ export const handleGetStaff = async (req: Request, res: Response) => {
   }
 };
 
+// PUBLIC GET /api/v1/staff/:id - Fetch single faculty/staff member by ID
+export const handleGetSingleStaff = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    let staffDoc: any = null;
+
+    if (mongoose.connection.readyState === 1) {
+      staffDoc = await (StaffModel as any).findOne({
+        $or: [
+          { id: { $regex: new RegExp(`^${id}$`, 'i') } },
+          { empId: { $regex: new RegExp(`^${id}$`, 'i') } },
+          { _id: mongoose.Types.ObjectId.isValid(id) ? id : null },
+        ],
+      }).lean();
+    }
+
+    if (!staffDoc) {
+      const q = String(id).toLowerCase().trim();
+      staffDoc = memoryStaffStore.find(
+        (s) =>
+          String(s.id).toLowerCase() === q ||
+          String(s.empId).toLowerCase() === q ||
+          String(s._id).toLowerCase() === q
+      );
+    }
+
+    if (!staffDoc) {
+      const depts = departmentCmsService.getDepartments();
+      for (const dept of depts) {
+        if (Array.isArray(dept.facultyList)) {
+          const fac = dept.facultyList.find(
+            (f: any) => String(f.id).toLowerCase() === String(id).toLowerCase()
+          );
+          if (fac) {
+            staffDoc = {
+              ...fac,
+              department: dept.name,
+              departmentId: dept.id,
+            };
+            break;
+          }
+        }
+      }
+    }
+
+    if (!staffDoc) {
+      return res.status(404).json({
+        success: false,
+        message: `Faculty/Staff member with ID '${id}' not found.`,
+      });
+    }
+
+    const output = formatStaffOutput(staffDoc, 0);
+
+    return res.status(200).json({
+      success: true,
+      data: output,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    console.error('[Staff Controller] handleGetSingleStaff error:', err?.message || err);
+    return res.status(500).json({
+      success: false,
+      message: `Failed to fetch faculty member: ${err?.message || err}`,
+    });
+  }
+};
+
 // PROTECTED POST /api/v1/staff - Requires Admin Authorization
 export const handleCreateStaff = async (req: Request, res: Response) => {
   if (!checkAdminAuthHeader(req)) {
@@ -227,17 +308,16 @@ export const handleCreateStaff = async (req: Request, res: Response) => {
     availability,
   } = req.body;
 
-  if (!name || !name.trim()) {
+  const finalCategory = (category && String(category).trim().length > 0) ? String(category).trim() : 'ACADEMIC FACULTY';
+
+  if (!name || !String(name).trim()) {
     return res.status(400).json({ success: false, message: 'Staff name is mandatory.' });
   }
-  if (!department || !department.trim()) {
+  if (!department || !String(department).trim()) {
     return res.status(400).json({ success: false, message: 'Department is mandatory.' });
   }
-  if (!designation || !designation.trim()) {
+  if (!designation || !String(designation).trim()) {
     return res.status(400).json({ success: false, message: 'Designation is mandatory.' });
-  }
-  if (!category || !category.trim()) {
-    return res.status(400).json({ success: false, message: 'Category is mandatory.' });
   }
 
   try {
@@ -250,6 +330,8 @@ export const handleCreateStaff = async (req: Request, res: Response) => {
       }
     });
 
+    const normStatus = String(status || 'ACTIVE').trim().toUpperCase() === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
+
     const newId = `hs-${Date.now()}`;
     const newStaff: any = {
       id: newId,
@@ -258,7 +340,7 @@ export const handleCreateStaff = async (req: Request, res: Response) => {
       name: name.trim(),
       department: department.trim(),
       designation: designation.trim(),
-      category: category.trim(),
+      category: finalCategory,
       roleCategory: roleCategory || 'OFFICE_STAFF',
       displayOrder: targetOrder,
       qualification: qualification || '',
@@ -266,7 +348,7 @@ export const handleCreateStaff = async (req: Request, res: Response) => {
       email: email || '',
       photoUrl: photoUrl || '',
       availability: availability || 'AVAILABLE',
-      status: status || 'ACTIVE',
+      status: normStatus,
     };
 
     memoryStaffStore.push(newStaff);
@@ -307,10 +389,24 @@ export const handleUpdateStaff = async (req: Request, res: Response) => {
   const updates = req.body;
 
   try {
-    let staffIdx = memoryStaffStore.findIndex((s) => s.id === id);
+    const q = String(id).toLowerCase().trim();
+    let staffIdx = memoryStaffStore.findIndex(
+      (s) =>
+        String(s.id).toLowerCase() === q ||
+        String(s.empId).toLowerCase() === q ||
+        String(s._id).toLowerCase() === q
+    );
+
     if (staffIdx === -1) {
       if (mongoose.connection.readyState === 1) {
-        const dbDoc = await (StaffModel as any).findOne({ id });
+        const dbDoc = await (StaffModel as any).findOne({
+          $or: [
+            { id: id },
+            { id: { $regex: new RegExp(`^${id}$`, 'i') } },
+            { empId: { $regex: new RegExp(`^${id}$`, 'i') } },
+            { _id: mongoose.Types.ObjectId.isValid(id) ? id : null },
+          ],
+        }).lean();
         if (!dbDoc) {
           return res.status(404).json({ success: false, message: `Staff record with ID '${id}' not found.` });
         }
@@ -332,6 +428,10 @@ export const handleUpdateStaff = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Category cannot be empty.' });
     }
 
+    if (updates.status !== undefined) {
+      updates.status = String(updates.status).trim().toUpperCase() === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    }
+
     if (staffIdx !== -1) {
       const current = memoryStaffStore[staffIdx];
       const updatedItem = {
@@ -351,15 +451,33 @@ export const handleUpdateStaff = async (req: Request, res: Response) => {
       await reindexDisplayOrders();
     }
 
+    let updatedDbDoc: any = null;
     if (mongoose.connection.readyState === 1) {
-      await (StaffModel as any).updateOne({ id }, { $set: updates });
+      updatedDbDoc = await (StaffModel as any).findOneAndUpdate(
+        {
+          $or: [
+            { id: id },
+            { id: { $regex: new RegExp(`^${id}$`, 'i') } },
+            { empId: { $regex: new RegExp(`^${id}$`, 'i') } },
+            { _id: mongoose.Types.ObjectId.isValid(id) ? id : null },
+          ],
+        },
+        { $set: updates },
+        { returnDocument: 'after', new: true }
+      ).lean();
+
+      if (updatedDbDoc) {
+        console.log(`[Staff Controller] MongoDB Atlas updated document ID '${id}' successfully.`);
+        if (staffIdx !== -1) {
+          memoryStaffStore[staffIdx] = { ...memoryStaffStore[staffIdx], ...updatedDbDoc };
+        }
+      } else {
+        console.warn(`[Staff Controller] Mongo findOneAndUpdate matched 0 documents for ID '${id}'`);
+      }
     }
 
-    const updatedIndex = memoryStaffStore.findIndex((s) => s.id === id);
-    const output = formatStaffOutput(
-      memoryStaffStore[updatedIndex] || { id, ...updates },
-      updatedIndex >= 0 ? updatedIndex : 0
-    );
+    const finalRecord = updatedDbDoc || (staffIdx >= 0 ? memoryStaffStore[staffIdx] : { id, ...updates });
+    const output = formatStaffOutput(finalRecord, staffIdx >= 0 ? staffIdx : 0);
 
     res.status(200).json({
       success: true,

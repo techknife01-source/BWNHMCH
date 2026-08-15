@@ -1,3 +1,5 @@
+import { ENV_CONFIG } from '../config/env.config';
+
 const getFromStorage = <T>(key: string, defaultValue: T): T => {
   try {
     const item = localStorage.getItem(key);
@@ -584,7 +586,7 @@ class HospitalStaffService {
 
   async fetchStaffAsync(): Promise<HospitalStaffMember[]> {
     try {
-      const res = await fetch('/api/v1/staff');
+      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff`);
       if (res.ok) {
         const json = await res.json();
         if (json && json.success && Array.isArray(json.data)) {
@@ -620,7 +622,7 @@ class HospitalStaffService {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch('/api/v1/staff', {
+      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -679,7 +681,7 @@ class HospitalStaffService {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`/api/v1/staff/${id}`, {
+      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff/${id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(updates),
@@ -737,7 +739,7 @@ class HospitalStaffService {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`/api/v1/staff/${id}`, {
+      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff/${id}`, {
         method: 'DELETE',
         headers,
       });

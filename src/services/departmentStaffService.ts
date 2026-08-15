@@ -1,12 +1,15 @@
 import toast from 'react-hot-toast';
+import { facultyApi } from './api/faculty.api';
 import { departmentCmsService } from './departmentCmsService';
-import { FacultyMemberCMS, DepartmentCMSData } from '../types/departmentCms';
+import { FacultyMemberCMS } from '../types/departmentCms';
 
 export interface DepartmentStaffMember {
   id: string;
   name: string;
+  facultyName?: string;
   departmentId: string;
   departmentName: string;
+  department?: string;
   designation: string;
   qualification: string;
   specialization?: string;
@@ -19,8 +22,10 @@ export interface DepartmentStaffMember {
     mimeType?: string;
   };
   joiningDate?: string;
+  promotionDate?: string;
   experienceYears?: number | string;
   registrationNumber?: string;
+  registrationNo?: string;
   biography?: string;
   status: 'Active' | 'Inactive';
 }
@@ -35,51 +40,142 @@ export interface StaffFilterParams {
   pageSize?: number;
 }
 
-class DepartmentStaffService {
-  public getAllStaff(): DepartmentStaffMember[] {
-    const depts = departmentCmsService.getDepartments();
-    const staffList: DepartmentStaffMember[] = [];
+export class DepartmentStaffService {
+  private cachedStaff: DepartmentStaffMember[] | null = null;
 
-    depts.forEach((dept) => {
-      if (Array.isArray(dept.facultyList)) {
-        dept.facultyList.forEach((fac) => {
-          const photoUrl = fac.photo?.driveFileId
-            ? `/api/v1/faculty/${fac.id}/photo?v=${fac.photo.driveFileId}`
-            : (fac.photoUrl || fac.imageUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400');
+  public static normalizeFacultyForApi(data: Partial<DepartmentStaffMember>): Record<string, any> {
+    const name = data.name || data.facultyName || '';
+    const departmentName = data.departmentName || data.department || '';
+    const registrationNumber = data.registrationNumber || data.registrationNo || '';
+    const joiningDate = data.joiningDate || (data as any).dateOfJoining || '';
 
-          staffList.push({
-            id: fac.id,
-            name: fac.name,
-            departmentId: dept.id,
-            departmentName: dept.name,
-            designation: fac.designation,
-            qualification: fac.qualification,
-            specialization: fac.specialization || '',
-            email: fac.email,
-            phone: fac.phone || '',
-            photoUrl,
-            photo: fac.photo,
-            joiningDate: fac.joiningDate || '2018-08-01',
-            experienceYears: fac.experienceYears || '10+ Years',
-            registrationNumber: fac.registrationNumber || 'WB-NCH-1998-042',
-            biography: fac.biography || `${fac.designation} in ${dept.name} with academic and clinical experience.`,
-            status: (fac.status as any) === 'Inactive' || (fac.status as any) === 'INACTIVE' ? 'Inactive' : 'Active',
-          });
-        });
-      }
-    });
+    let cleanPhotoUrl = data.photoUrl || '';
+    if (cleanPhotoUrl.startsWith('blob:')) {
+      cleanPhotoUrl = '';
+    }
 
-    return staffList;
+    return {
+      name,
+      facultyName: name,
+      department: departmentName,
+      departmentName: departmentName,
+      departmentId: data.departmentId,
+      designation: data.designation || '',
+      qualification: data.qualification || '',
+      specialization: data.specialization || '',
+      email: data.email || '',
+      phone: data.phone || (data as any).mobile || '',
+      registrationNumber,
+      registrationNo: registrationNumber,
+      joiningDate,
+      promotionDate: data.promotionDate || '',
+      experienceYears: data.experienceYears !== undefined ? data.experienceYears : '',
+      biography: data.biography || (data as any).bio || '',
+      status: data.status || 'Active',
+      photoUrl: cleanPhotoUrl,
+      photo: data.photo,
+    };
   }
 
-  public getFilteredStaff(params: StaffFilterParams = {}): {
+
+
+  public mapSingleFacultyFromApi(fac: any): DepartmentStaffMember {
+    if (!fac) {
+      return {
+        id: `fac-${Date.now()}`,
+        name: 'Faculty Member',
+        facultyName: 'Faculty Member',
+        departmentId: 'org',
+        departmentName: 'Organon of Medicine',
+        department: 'Organon of Medicine',
+        designation: 'Faculty Member',
+        qualification: 'M.D. (Hom.)',
+        specialization: '',
+        email: '',
+        phone: '',
+        registrationNumber: 'WB-NCH-1998-042',
+        registrationNo: 'WB-NCH-1998-042',
+        joiningDate: '2018-08-01',
+        promotionDate: '',
+        experienceYears: '10+ Years',
+        biography: '',
+        status: 'Active',
+      };
+    }
+
+    const facId = fac.id || fac._id || `fac-${Date.now()}`;
+    const name = fac.name || fac.facultyName || fac.fullName || '';
+    const departmentName = fac.department || fac.departmentName || '';
+    const departmentId = fac.departmentId || 'org';
+    const designation = fac.designation || '';
+    const qualification = fac.qualification !== undefined && fac.qualification !== null ? fac.qualification : '';
+    const specialization = fac.specialization !== undefined && fac.specialization !== null ? fac.specialization : '';
+    const email = fac.email !== undefined && fac.email !== null ? fac.email : '';
+    const phone = fac.phone !== undefined && fac.phone !== null ? fac.phone : (fac.mobile || fac.phoneNumber || '');
+    const registrationNumber = fac.registrationNumber !== undefined && fac.registrationNumber !== null ? fac.registrationNumber : (fac.registrationNo || fac.regNo || '');
+    const joiningDate = fac.joiningDate !== undefined && fac.joiningDate !== null ? fac.joiningDate : (fac.dateOfJoining || '');
+    const promotionDate = fac.promotionDate !== undefined && fac.promotionDate !== null ? fac.promotionDate : '';
+    const experienceYears = fac.experienceYears !== undefined && fac.experienceYears !== null ? String(fac.experienceYears) : (fac.experience || '');
+    const biography = fac.biography !== undefined && fac.biography !== null ? fac.biography : (fac.bio || '');
+    const status = (fac.status as any) === 'Inactive' || (fac.status as any) === 'INACTIVE' ? 'Inactive' : 'Active';
+
+    const photoUrl = fac.photo?.driveFileId
+      ? facultyApi.getFacultyPhotoUrl(facId, fac.photo.driveFileId)
+      : (fac.photoUrl || fac.imageUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400');
+
+    return {
+      id: facId,
+      name,
+      facultyName: name,
+      departmentId,
+      departmentName,
+      department: departmentName,
+      designation,
+      qualification,
+      specialization,
+      email,
+      phone,
+      photoUrl,
+      photo: fac.photo,
+      joiningDate,
+      promotionDate,
+      experienceYears,
+      registrationNumber,
+      registrationNo: registrationNumber,
+      biography,
+      status,
+    };
+  }
+
+  public async fetchStaffFromBackend(): Promise<DepartmentStaffMember[]> {
+    try {
+      const res = await facultyApi.getFacultyList();
+      const rawList = Array.isArray(res)
+        ? res
+        : (Array.isArray(res?.data)
+          ? res.data
+          : (Array.isArray(res?.data?.content) ? res.data.content : []));
+
+      if (rawList && rawList.length > 0) {
+        const mapped: DepartmentStaffMember[] = rawList.map((fac: any) => this.mapSingleFacultyFromApi(fac));
+        this.cachedStaff = mapped;
+        return mapped;
+      }
+    } catch (err) {
+      console.warn('[DepartmentStaffService] Backend API fetch notice, falling back to CMS service:', err);
+    }
+    return this.getAllStaff();
+  }
+
+  public async getFilteredStaffAsync(params: StaffFilterParams = {}): Promise<{
     data: DepartmentStaffMember[];
     total: number;
     page: number;
     pageSize: number;
     totalPages: number;
-  } {
-    let result = this.getAllStaff();
+  }> {
+    const list = await this.fetchStaffFromBackend();
+    let result = [...list];
 
     // Search filter
     if (params.search && params.search.trim() !== '') {
@@ -132,6 +228,200 @@ class DepartmentStaffService {
       pageSize,
       totalPages,
     };
+  }
+
+  public async getFacultyByIdAsync(id: string): Promise<DepartmentStaffMember | null> {
+    try {
+      const res = await facultyApi.getFacultyById(id);
+      const target = res?.data || res;
+      if (target) {
+        return this.mapSingleFacultyFromApi(target);
+      }
+    } catch (err) {
+      console.warn('[DepartmentStaffService] Single faculty API fetch notice:', err);
+    }
+    return null;
+  }
+
+  public getAllStaff(): DepartmentStaffMember[] {
+    const depts = departmentCmsService.getDepartments();
+    const staffList: DepartmentStaffMember[] = [];
+
+    depts.forEach((dept) => {
+      if (Array.isArray(dept.facultyList)) {
+        dept.facultyList.forEach((fac) => {
+          const photoUrl = fac.photo?.driveFileId
+            ? facultyApi.getFacultyPhotoUrl(fac.id, fac.photo.driveFileId)
+            : (fac.photoUrl || fac.imageUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400');
+
+          staffList.push({
+            id: fac.id,
+            name: fac.name,
+            departmentId: dept.id,
+            departmentName: dept.name,
+            designation: fac.designation,
+            qualification: fac.qualification,
+            specialization: fac.specialization || '',
+            email: fac.email,
+            phone: fac.phone || '',
+            photoUrl,
+            photo: fac.photo,
+            joiningDate: fac.joiningDate || '2018-08-01',
+            experienceYears: fac.experienceYears || '10+ Years',
+            registrationNumber: fac.registrationNumber || 'WB-NCH-1998-042',
+            biography: fac.biography || `${fac.designation} in ${dept.name} with academic and clinical experience.`,
+            status: (fac.status as any) === 'Inactive' || (fac.status as any) === 'INACTIVE' ? 'Inactive' : 'Active',
+          });
+        });
+      }
+    });
+
+    return staffList;
+  }
+
+  public getFilteredStaff(params: StaffFilterParams = {}): {
+    data: DepartmentStaffMember[];
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  } {
+    let result = this.getAllStaff();
+
+    if (params.search && params.search.trim() !== '') {
+      const q = params.search.toLowerCase().trim();
+      result = result.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.departmentName.toLowerCase().includes(q) ||
+          s.designation.toLowerCase().includes(q) ||
+          s.qualification.toLowerCase().includes(q) ||
+          s.email.toLowerCase().includes(q) ||
+          s.phone.includes(q) ||
+          (s.registrationNumber && s.registrationNumber.toLowerCase().includes(q))
+      );
+    }
+
+    if (params.departmentId && params.departmentId !== 'ALL' && params.departmentId !== 'All') {
+      result = result.filter((s) => s.departmentId === params.departmentId);
+    }
+
+    if (params.status && params.status !== 'ALL') {
+      result = result.filter((s) => s.status === params.status);
+    }
+
+    const sortBy = params.sortBy || 'name';
+    const sortOrder = params.sortOrder || 'asc';
+    result.sort((a, b) => {
+      let comp = 0;
+      if (sortBy === 'name') comp = a.name.localeCompare(b.name);
+      else if (sortBy === 'department') comp = a.departmentName.localeCompare(b.departmentName);
+      else if (sortBy === 'designation') comp = a.designation.localeCompare(b.designation);
+      return sortOrder === 'desc' ? -comp : comp;
+    });
+
+    const page = params.page || 1;
+    const pageSize = params.pageSize || 10;
+    const total = result.length;
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    const startIndex = (page - 1) * pageSize;
+    const paginated = result.slice(startIndex, startIndex + pageSize);
+
+    return {
+      data: paginated,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
+  }
+
+  public async addStaffAsync(staffData: Partial<DepartmentStaffMember>): Promise<DepartmentStaffMember> {
+    try {
+      const name = (staffData as any).name || (staffData as any).facultyName || 'New Faculty Member';
+      const department = staffData.departmentName || (staffData as any).department || 'Organon of Medicine';
+      const registrationNumber = staffData.registrationNumber || (staffData as any).registrationNo || '';
+
+      const category = (staffData as any).category || 'ACADEMIC FACULTY';
+      const roleCategory = (staffData as any).roleCategory || 'MEDICAL_STAFF';
+
+      // Clean photoUrl to ensure blob URLs are never sent to API
+      let cleanPhotoUrl = staffData.photoUrl || '';
+      if (cleanPhotoUrl.startsWith('blob:')) {
+        cleanPhotoUrl = '';
+      }
+
+      const payload = {
+        name,
+        facultyName: name,
+        designation: staffData.designation || 'Assistant Professor',
+        department,
+        departmentName: department,
+        departmentId: staffData.departmentId || 'org',
+        category,
+        roleCategory,
+        qualification: staffData.qualification || 'M.D. (Hom.)',
+        specialization: staffData.specialization || '',
+        email: staffData.email || '',
+        phone: staffData.phone || '',
+        registrationNumber,
+        registrationNo: registrationNumber,
+        joiningDate: staffData.joiningDate || new Date().toISOString().split('T')[0],
+        promotionDate: staffData.promotionDate || '',
+        experienceYears: String(staffData.experienceYears || '5+ Years'),
+        biography: staffData.biography || '',
+        status: staffData.status || 'Active',
+        photoUrl: cleanPhotoUrl,
+      };
+      const res = await facultyApi.createFaculty(payload);
+      const target = res?.data || res;
+      if (target && (target.id || target._id || target.name || target.facultyName)) {
+        toast.success(`Faculty member "${name}" saved to MongoDB!`);
+        return this.mapSingleFacultyFromApi(target);
+      }
+      throw new Error(res?.message || 'Failed to create faculty member on backend');
+    } catch (err: any) {
+      console.error('[DepartmentStaffService] Add faculty API error:', err);
+      throw err;
+    }
+  }
+
+
+  public async updateStaffAsync(id: string, updates: Partial<DepartmentStaffMember>): Promise<DepartmentStaffMember> {
+    try {
+      const payload = DepartmentStaffService.normalizeFacultyForApi(updates);
+      if (updates.department || updates.departmentName) {
+        const deptStr = (updates.department || updates.departmentName)!.trim();
+        payload.department = deptStr;
+        payload.departmentName = deptStr;
+      }
+
+      console.log('[FACULTY SERVICE] updateStaffAsync payload:', { id, payload });
+
+      const res = await facultyApi.updateFaculty(id, payload);
+      const target = res?.data || res;
+      if (target && (target.id || target._id || target.name || target.facultyName)) {
+        return this.mapSingleFacultyFromApi(target);
+      }
+      throw new Error(res?.message || 'Failed to update faculty member in MongoDB Atlas');
+    } catch (err: any) {
+      console.error('[DepartmentStaffService] Update faculty API error:', err);
+      throw err;
+    }
+  }
+
+  public async deleteStaffAsync(id: string): Promise<boolean> {
+    try {
+      const res = await facultyApi.deleteFaculty(id);
+      if (res && res.success) {
+        toast.success(`Faculty record deleted from MongoDB Atlas.`);
+        return true;
+      }
+      throw new Error(res?.message || 'Failed to delete faculty record from MongoDB Atlas');
+    } catch (err: any) {
+      console.error('[DepartmentStaffService] Delete faculty API error:', err);
+      throw err;
+    }
   }
 
   public addStaff(staffData: Partial<DepartmentStaffMember>): DepartmentStaffMember {

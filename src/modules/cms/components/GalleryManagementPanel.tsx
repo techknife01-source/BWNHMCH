@@ -155,70 +155,58 @@ export const GalleryManagementPanel: React.FC = () => {
       return;
     }
 
-    let processed = 0;
-    const newItems: Array<{ title: string; description: string; category: string; imageUrl: string }> = [];
-
     validFiles.forEach((file: File) => {
-      const reader = new FileReader();
-      reader.onerror = () => {
-        toast.error(`Failed to read file "${file.name}". Storage or filesystem error.`);
-      };
+      const previewUrl = URL.createObjectURL(file);
+      const autoTitle = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase());
 
-      reader.onload = (event) => {
-        const url = event.target?.result as string;
-        const autoTitle = file.name
-          .replace(/\.[^/.]+$/, '')
-          .replace(/[-_]/g, ' ')
-          .replace(/\b\w/g, (l) => l.toUpperCase());
-
-        if (typeof index === 'number') {
-          // Specific slot replace/upload
-          setBatchUploadItems((prev) => {
-            const list = [...prev];
-            if (list[index]) {
-              list[index] = {
-                ...list[index],
-                imageUrl: url,
-                title: list[index].title || autoTitle,
-              };
-            }
-            return list;
-          });
-        } else if (validFiles.length === 1 && !isUploadModalOpen) {
-          // Single Edit Modal
-          setCurrentItem((prev) => ({
-            ...prev,
-            imageUrl: url,
-            title: prev.title || autoTitle,
-          }));
-        } else {
-          // Batch upload multiple photos
-          newItems.push({
-            title: autoTitle,
-            description: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL campus photograph.',
-            category: 'Hospital & OPD',
-            imageUrl: url,
-          });
-
-          processed++;
-          if (processed === validFiles.length) {
-            setBatchUploadItems((prev) => {
-              const existingFilled = prev.filter((i) => i.imageUrl.trim() || i.title.trim());
-              return [...existingFilled, ...newItems];
-            });
-            setIsUploadModalOpen(true);
-            toast.success(`${newItems.length} photo(s) selected & ready for upload! Click "Save & Publish" to complete.`);
+      if (typeof index === 'number') {
+        setBatchUploadItems((prev) => {
+          const list = [...prev];
+          if (list[index]) {
+            list[index] = {
+              ...list[index],
+              imageUrl: previewUrl,
+              title: list[index].title || autoTitle,
+              file: file,
+            } as any;
           }
+          return list;
+        });
+      } else if (validFiles.length === 1 && !isUploadModalOpen) {
+        setCurrentItem((prev) => ({
+          ...prev,
+          imageUrl: previewUrl,
+          title: prev.title || autoTitle,
+          file: file,
+        } as any));
+      } else {
+        newItems.push({
+          title: autoTitle,
+          description: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL campus photograph.',
+          category: 'Hospital & OPD',
+          imageUrl: previewUrl,
+          file: file,
+        } as any);
+
+        if (newItems.length === validFiles.length) {
+          setBatchUploadItems((prev) => {
+            const existingFilled = prev.filter((i) => i.imageUrl.trim() || i.title.trim());
+            return [...existingFilled, ...newItems];
+          });
+          setIsUploadModalOpen(true);
+          toast.success(`${newItems.length} photo(s) selected & ready for upload! Click "Save & Publish" to upload to Google Drive.`);
         }
-      };
-      reader.readAsDataURL(file);
+      }
     });
 
     e.target.value = '';
   };
 
   // Handlers
-  const handleSaveItem = (e: React.FormEvent) => {
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthorized) {
       toast.error('Permission denied: Only Super Admin, Admin, Principal, and Vice Principal can manage gallery photos.');
@@ -230,24 +218,58 @@ export const GalleryManagementPanel: React.FC = () => {
     }
 
     const uploader = getUploaderInfo();
+    const itemFile = (currentItem as any).file as File | undefined;
 
-    if (currentItem.id) {
-      galleryService.updateItem(currentItem.id, {
-        ...currentItem,
-        uploader,
-      });
+    if (itemFile) {
+      const loadingToastId = toast.loading('Uploading gallery photo to Google Drive...');
+      try {
+        const uploadRes: any = await galleryApi.uploadImage(itemFile);
+        let persistentUrl = uploadRes?.url || uploadRes?.data?.url || (uploadRes?.id ? `/api/v1/gallery/${uploadRes.id}/image` : '');
+        if (!persistentUrl && currentItem.imageUrl && !currentItem.imageUrl.startsWith('blob:')) {
+          persistentUrl = currentItem.imageUrl;
+        }
+
+        if (currentItem.id) {
+          galleryService.updateItem(currentItem.id, {
+            ...currentItem,
+            imageUrl: persistentUrl,
+            uploader,
+          });
+        } else {
+          galleryService.addMultiple(
+            [{ ...currentItem, imageUrl: persistentUrl, uploader }],
+            uploader
+          );
+        }
+        if (currentItem.imageUrl && currentItem.imageUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(currentItem.imageUrl);
+        }
+        toast.success('Gallery photo uploaded & saved to Google Drive!', { id: loadingToastId });
+      } catch (err: any) {
+        toast.error(`Photo upload failed: ${err?.message || 'Server error'}`, { id: loadingToastId });
+      }
     } else {
-      galleryService.addMultiple(
-        [{ ...currentItem, uploader }],
-        uploader
-      );
+      const cleanUrl = currentItem.imageUrl && currentItem.imageUrl.startsWith('blob:') ? '' : currentItem.imageUrl;
+      if (currentItem.id) {
+        galleryService.updateItem(currentItem.id, {
+          ...currentItem,
+          imageUrl: cleanUrl,
+          uploader,
+        });
+      } else {
+        galleryService.addMultiple(
+          [{ ...currentItem, imageUrl: cleanUrl, uploader }],
+          uploader
+        );
+      }
     }
+
     setIsEditModalOpen(false);
     setCurrentItem({ title: '', description: '', category: 'Hospital & OPD', imageUrl: '', status: 'PUBLISHED' });
     loadData();
   };
 
-  const handleBatchSave = (e: React.FormEvent) => {
+  const handleBatchSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthorized) {
       toast.error('Permission denied: Only Super Admin, Admin, Principal, and Vice Principal can upload gallery photos.');
@@ -261,13 +283,32 @@ export const GalleryManagementPanel: React.FC = () => {
     }
 
     const uploader = getUploaderInfo();
-    const itemsToSave = valid.map((i) => ({
-      ...i,
-      uploader,
-      status: 'PUBLISHED' as const,
-    }));
+    const loadingToastId = toast.loading(`Uploading ${valid.length} photo(s) to Google Drive...`);
+
+    const itemsToSave: Array<Partial<GalleryItem>> = [];
+    for (const item of valid) {
+      const itemFile = (item as any).file as File | undefined;
+      let finalUrl = item.imageUrl;
+
+      if (itemFile) {
+        try {
+          const uploadRes: any = await galleryApi.uploadImage(itemFile);
+          finalUrl = uploadRes?.url || uploadRes?.data?.url || (uploadRes?.id ? `/api/v1/gallery/${uploadRes.id}/image` : item.imageUrl);
+        } catch (err) {
+          console.warn('[Gallery Upload Error]:', err);
+        }
+      }
+
+      itemsToSave.push({
+        ...item,
+        imageUrl: finalUrl,
+        uploader,
+        status: 'PUBLISHED' as const,
+      });
+    }
 
     galleryService.addMultiple(itemsToSave, uploader);
+    toast.success(`${itemsToSave.length} gallery photo(s) uploaded & saved to Google Drive!`, { id: loadingToastId });
     setIsUploadModalOpen(false);
     setBatchUploadItems([{ title: '', description: '', category: 'Hospital & OPD', imageUrl: '' }]);
     loadData();

@@ -109,17 +109,19 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
     private PrivateKey parsePrivateKey(String keyPem) {
         if (keyPem != null && !keyPem.isBlank()) {
             try {
-                String cleanPem = keyPem.replace("-----BEGIN PRIVATE KEY-----", "")
+                String sanitized = keyPem.replace("\\n", "\n").replace("\\r", "").trim();
+                String cleanPem = sanitized.replace("-----BEGIN PRIVATE KEY-----", "")
                         .replace("-----END PRIVATE KEY-----", "")
                         .replaceAll("\\s+", "");
                 byte[] decoded = java.util.Base64.getDecoder().decode(cleanPem);
                 return java.security.KeyFactory.getInstance("RSA")
                         .generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(decoded));
             } catch (Exception e) {
-                log.error("[LIBRARY] Failed to parse private key: {}", e.getMessage());
+                log.error("[GOOGLE DRIVE] Failed to parse private key PEM: {}", e.getMessage(), e);
+                throw new IllegalArgumentException("Invalid RSA private key PEM: " + e.getMessage(), e);
             }
         }
-        throw new IllegalArgumentException("Invalid RSA private key PEM");
+        throw new IllegalArgumentException("Invalid or empty RSA private key PEM");
     }
 
     @Override
@@ -209,7 +211,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 
     @Override
     public InputStream downloadFile(String fileId) {
-        log.info("[LIBRARY] Google Drive retrieval started for file ID: {}", fileId);
+        log.info("[GOOGLE DRIVE] File stream retrieval started for file ID: {}", fileId);
         if (fileId == null || fileId.isBlank()) {
             throw new IllegalArgumentException("Google Drive file ID cannot be blank.");
         }
@@ -220,14 +222,14 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
         }
 
         try {
-            InputStream pdfStream = drive.files().get(fileId)
+            InputStream mediaStream = drive.files().get(fileId)
                     .setSupportsAllDrives(true)
                     .executeMediaAsInputStream();
-            log.info("[LIBRARY] Google Drive retrieval successful for file ID: {}", fileId);
-            return pdfStream;
+            log.info("[GOOGLE DRIVE] File stream retrieval successful for file ID: {}", fileId);
+            return mediaStream;
         } catch (Exception e) {
-            log.error("[LIBRARY] Google Drive retrieval failed for file ID '{}': {}", fileId, e.getMessage(), e);
-            throw new RuntimeException("Failed to stream PDF from Google Drive: " + e.getMessage(), e);
+            log.error("[GOOGLE DRIVE] File stream retrieval failed for file ID '{}': {}", fileId, e.getMessage(), e);
+            throw new RuntimeException("Failed to stream file from Google Drive: " + e.getMessage(), e);
         }
     }
 

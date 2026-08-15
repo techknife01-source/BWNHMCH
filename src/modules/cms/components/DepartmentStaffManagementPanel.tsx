@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { departmentStaffService, DepartmentStaffMember } from '../../../services/departmentStaffService';
+import { departmentStaffService, DepartmentStaffService, DepartmentStaffMember } from '../../../services/departmentStaffService';
 import { departmentCmsService } from '../../../services/departmentCmsService';
 import { facultyApi } from '../../../services/api/faculty.api';
 import { Card } from '../../../components/common/Card';
@@ -80,9 +80,19 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<{ id?: string; bulk?: boolean } | null>(null);
   const [viewDetailStaff, setViewDetailStaff] = useState<DepartmentStaffMember | null>(null);
 
-  // Photo Upload State
+  // Photo Upload & Form Saving State
   const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl) {
+        URL.revokeObjectURL(photoPreviewUrl);
+      }
+    };
+  }, [photoPreviewUrl]);
 
   // Form State
   const [editingStaff, setEditingStaff] = useState<Partial<DepartmentStaffMember>>({
@@ -101,8 +111,8 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
     status: 'Active',
   });
 
-  const loadData = () => {
-    const res = departmentStaffService.getFilteredStaff({
+  const loadData = async () => {
+    const res = await departmentStaffService.getFilteredStaffAsync({
       search,
       departmentId: deptFilter,
       status: statusFilter,
@@ -153,87 +163,136 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
     }
 
     setSelectedPhotoFile(file);
+
+    // Clean up previous blob preview URL if any
+    if (photoPreviewUrl) {
+      URL.revokeObjectURL(photoPreviewUrl);
+    }
     const tempPreviewUrl = URL.createObjectURL(file);
-    setEditingStaff((prev) => ({
-      ...prev,
-      photoUrl: tempPreviewUrl,
-    }));
+    setPhotoPreviewUrl(tempPreviewUrl);
   };
 
-  const handleSaveStaff = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveStaff = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+
     if (!isAuthorized) {
       toast.error('Access Denied: Only Super Admin, Admin, Principal, and Vice Principal can manage faculty.');
       return;
     }
-    if (!editingStaff.name || !editingStaff.email) {
-      toast.error('Please enter name and email.');
+    if (!editingStaff || !editingStaff.name || !editingStaff.name.trim()) {
+      toast.error('Full Name is required. Please enter faculty name.');
       return;
     }
 
-    try {
-      setIsUploadingPhoto(true);
+    const isEditMode = Boolean(editingStaff?.id && String(editingStaff.id).trim().length > 0);
 
-      // Save faculty record metadata
-      let savedMember: DepartmentStaffMember;
-      if (editingStaff.id) {
-        departmentStaffService.updateStaff(editingStaff.id, editingStaff);
-        savedMember = { ...editingStaff } as DepartmentStaffMember;
+    try {
+      setIsSaving(true);
+
+      let savedMember: DepartmentStaffMember | null = null;
+      let activeId: string = '';
+
+      if (isEditMode) {
+        const id = editingStaff.id!.trim();
+        console.log('[FACULTY EDIT] EXISTING RECORD ID:', id);
+
+        const payload = DepartmentStaffService.normalizeFacultyForApi(editingStaff);
+        console.log('[FACULTY EDIT] CALLING REAL PUT:', `/api/v1/faculty/${id}`, payload);
+
+        savedMember = await departmentStaffService.updateStaffAsync(id, editingStaff);
+        console.log('[FACULTY EDIT] REAL PUT RESPONSE:', savedMember);
+        activeId = id;
       } else {
-        savedMember = departmentStaffService.addStaff(editingStaff);
+        console.log('[FACULTY CREATE] CALLING REAL POST');
+
+        const payload = DepartmentStaffService.normalizeFacultyForApi(editingStaff);
+        console.log('[FACULTY CREATE] POST PAYLOAD:', payload);
+
+        savedMember = await departmentStaffService.addStaffAsync(editingStaff);
+        console.log('[FACULTY CREATE] REAL POST RESPONSE:', savedMember);
+
+        if (!savedMember || !savedMember.id) {
+          throw new Error('Faculty created but backend did not return a valid record ID.');
+        }
+        activeId = savedMember.id;
       }
 
-      const facultyId = savedMember.id || editingStaff.id;
-
-      // If a new photo file was selected, upload it to Google Drive via backend endpoint
-      if (selectedPhotoFile && facultyId) {
+      // Handle photo upload ONLY if a new photo file was selected
+      if (selectedPhotoFile && activeId) {
         const loadingToastId = toast.loading('Uploading photo to Google Drive...');
         try {
-          const uploadRes: any = await facultyApi.uploadFacultyPhoto(facultyId, selectedPhotoFile);
+          setIsUploadingPhoto(true);
+          const uploadRes: any = await facultyApi.uploadFacultyPhoto(activeId, selectedPhotoFile);
           if (uploadRes && uploadRes.success) {
-            const photoObj = uploadRes.photo || uploadRes.data?.photo;
-            const driveFileId = photoObj?.driveFileId;
-            const persistentPhotoUrl = uploadRes.photoUrl || uploadRes.data?.photoUrl || facultyApi.getFacultyPhotoUrl(facultyId, driveFileId);
-
-            departmentStaffService.updateStaff(facultyId, {
-              photoUrl: persistentPhotoUrl,
-              photo: photoObj,
-            });
-
-            toast.success('Photo updated & saved to Google Drive successfully!', { id: loadingToastId });
+            toast.success('Photo uploaded & saved to Google Drive successfully!', { id: loadingToastId });
           } else {
             toast.error(uploadRes?.message || 'Photo upload failed. Please try again.', { id: loadingToastId });
           }
         } catch (uploadErr: any) {
-          console.error('[Faculty Photo Upload Error]:', uploadErr);
+          console.error('[FACULTY PHOTO] UPLOAD FAILED:', uploadErr);
           toast.error(`Photo upload failed: ${uploadErr?.response?.data?.message || uploadErr?.message || 'Server error'}`, { id: loadingToastId });
+        } finally {
+          setIsUploadingPhoto(false);
         }
-      } else {
-        toast.success(editingStaff.id ? 'Faculty details updated!' : 'Faculty member record added!');
       }
 
+      // Mandatory Database Verification: Re-fetch directly from database API before claiming success
+      const verifiedMember = await departmentStaffService.getFacultyByIdAsync(activeId);
+      console.log(isEditMode ? '[FACULTY EDIT] DATABASE VERIFICATION:' : '[FACULTY CREATE] DATABASE VERIFICATION:', verifiedMember);
+      if (!verifiedMember) {
+        throw new Error(`Database verification failed: Could not re-fetch faculty ID '${activeId}' from MongoDB Atlas.`);
+      }
+
+      // Reload entire list from MongoDB Atlas API to refresh React state
+      await loadData();
+
       setSelectedPhotoFile(null);
+      if (photoPreviewUrl) {
+        URL.revokeObjectURL(photoPreviewUrl);
+        setPhotoPreviewUrl(null);
+      }
       setIsModalOpen(false);
-      loadData();
+
+      toast.success(isEditMode ? 'Faculty details updated & verified in MongoDB Atlas!' : 'Faculty member record added & verified!');
+    } catch (saveErr: any) {
+      console.error(isEditMode ? '[FACULTY EDIT] UPDATE FAILED:' : '[FACULTY CREATE] CREATE FAILED:', saveErr);
+      toast.error(isEditMode ? `Faculty update failed: ${saveErr?.message || 'Database was not confirmed.'}` : `Faculty creation failed: ${saveErr?.message || 'Database was not confirmed.'}`);
     } finally {
+      setIsSaving(false);
       setIsUploadingPhoto(false);
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!isAuthorized) {
       toast.error('Access Denied: Only Super Admin, Admin, Principal, and Vice Principal can delete faculty.');
       return;
     }
     if (!deleteConfirmTarget) return;
     if (deleteConfirmTarget.bulk) {
-      departmentStaffService.bulkDelete(selectedIds);
+      for (const id of selectedIds) {
+        await departmentStaffService.deleteStaffAsync(id);
+      }
       setSelectedIds([]);
     } else if (deleteConfirmTarget.id) {
-      departmentStaffService.deleteStaff(deleteConfirmTarget.id);
+      await departmentStaffService.deleteStaffAsync(deleteConfirmTarget.id);
     }
     setDeleteConfirmTarget(null);
-    loadData();
+    await loadData();
+  };
+
+  const handleOpenEditModal = async (staff: DepartmentStaffMember) => {
+    setSelectedPhotoFile(null);
+    const fullRecord = await departmentStaffService.getFacultyByIdAsync(staff.id);
+    setEditingStaff(fullRecord || staff);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenViewModal = async (staff: DepartmentStaffMember) => {
+    const fullRecord = await departmentStaffService.getFacultyByIdAsync(staff.id);
+    setViewDetailStaff(fullRecord || staff);
   };
 
   const handleBulkTransfer = () => {
@@ -487,6 +546,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                   <th className="p-3.5">Email & Phone</th>
                   <th className="p-3.5">Reg. No</th>
                   <th className="p-3.5">Joining Date</th>
+                  <th className="p-3.5">Promotion Date</th>
                   <th className="p-3.5">Status</th>
                   <th className="p-3.5 text-right">Actions</th>
                 </tr>
@@ -494,7 +554,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {staffData.data.length === 0 ? (
                   <tr>
-                    <td colSpan={isAuthorized ? 11 : 10} className="p-8 text-center text-slate-500">
+                    <td colSpan={isAuthorized ? 12 : 11} className="p-8 text-center text-slate-500">
                       No faculty records found matching your search filters.
                     </td>
                   </tr>
@@ -523,8 +583,9 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                         <td className="p-3.5">
                           <img
                             src={
-                              staff.photoUrl ||
-                              'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400'
+                              staff.photoUrl && !staff.photoUrl.startsWith('blob:')
+                                ? staff.photoUrl
+                                : facultyApi.getFacultyPhotoUrl(staff.id, staff.photo?.driveFileId)
                             }
                             alt={staff.name}
                             className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-2xs"
@@ -573,6 +634,10 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                           {staff.joiningDate || '2020-08-01'}
                         </td>
 
+                        <td className="p-3.5 text-slate-500 font-medium font-mono text-2xs">
+                          {staff.promotionDate || '—'}
+                        </td>
+
                         <td className="p-3.5">
                           <span
                             className={`px-2.5 py-0.5 text-[10px] font-black rounded-full ${
@@ -588,7 +653,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                         <td className="p-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
-                              onClick={() => setViewDetailStaff(staff)}
+                              onClick={() => handleOpenViewModal(staff)}
                               className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
                               title="View Full Profile"
                             >
@@ -598,11 +663,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                             {isAuthorized && (
                               <>
                                 <button
-                                  onClick={() => {
-                                    setSelectedPhotoFile(null);
-                                    setEditingStaff(staff);
-                                    setIsModalOpen(true);
-                                  }}
+                                  onClick={() => handleOpenEditModal(staff)}
                                   className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg cursor-pointer"
                                   title="Edit Faculty Member"
                                 >
@@ -650,8 +711,9 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
 
                   <img
                     src={
-                      staff.photoUrl ||
-                      'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400'
+                      staff.photoUrl && !staff.photoUrl.startsWith('blob:')
+                        ? staff.photoUrl
+                        : facultyApi.getFacultyPhotoUrl(staff.id, staff.photo?.driveFileId)
                     }
                     alt={staff.name}
                     className="w-14 h-14 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
@@ -700,7 +762,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <button
-                    onClick={() => setViewDetailStaff(staff)}
+                    onClick={() => handleOpenViewModal(staff)}
                     className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-2xs rounded-xl flex items-center gap-1 hover:bg-slate-200 cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5" /> Details
@@ -709,11 +771,7 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                   {isAuthorized && (
                     <div className="flex gap-1">
                       <button
-                        onClick={() => {
-                          setSelectedPhotoFile(null);
-                          setEditingStaff(staff);
-                          setIsModalOpen(true);
-                        }}
+                        onClick={() => handleOpenEditModal(staff)}
                         className="px-3 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-extrabold text-2xs rounded-xl flex items-center gap-1 hover:bg-blue-100 cursor-pointer"
                       >
                         <Edit2 className="w-3.5 h-3.5" /> Edit
@@ -877,6 +935,16 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                 </div>
 
                 <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Promotion Date</label>
+                  <input
+                    type="date"
+                    value={editingStaff.promotionDate || ''}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, promotionDate: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Status</label>
                   <select
                     value={editingStaff.status || 'Active'}
@@ -941,14 +1009,18 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  disabled={isUploadingPhoto}
-                  className="px-5 py-2 bg-[#00A651] hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md flex items-center gap-2 disabled:opacity-50"
+                  type="button"
+                  onClick={(e) => {
+                    console.log('[FACULTY EDIT] SAVE BUTTON CLICKED DIRECTLY VIA ONCLICK');
+                    void handleSaveStaff(e);
+                  }}
+                  disabled={isSaving || isUploadingPhoto}
+                  className="px-5 py-2 bg-[#00A651] hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
-                  {isUploadingPhoto ? (
+                  {isSaving || isUploadingPhoto ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Uploading Photo...
+                      Saving Record...
                     </>
                   ) : (
                     'Save Faculty Record'
@@ -1047,8 +1119,9 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
             <div className="flex items-start gap-4">
               <img
                 src={
-                  viewDetailStaff.photoUrl ||
-                  'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400'
+                  viewDetailStaff.photoUrl && !viewDetailStaff.photoUrl.startsWith('blob:')
+                    ? viewDetailStaff.photoUrl
+                    : facultyApi.getFacultyPhotoUrl(viewDetailStaff.id, viewDetailStaff.photo?.driveFileId)
                 }
                 alt={viewDetailStaff.name}
                 className="w-20 h-20 rounded-2xl object-cover border-2 border-[#00A651] shadow-md shrink-0"
@@ -1084,6 +1157,12 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                 <div className="flex items-center gap-2 text-2xs text-slate-500">
                   <Calendar className="w-4 h-4 text-purple-500 shrink-0" />
                   <span>Joining Date: {viewDetailStaff.joiningDate}</span>
+                </div>
+              )}
+              {viewDetailStaff.promotionDate && (
+                <div className="flex items-center gap-2 text-2xs text-slate-500">
+                  <Award className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Promotion Date: {viewDetailStaff.promotionDate}</span>
                 </div>
               )}
             </div>

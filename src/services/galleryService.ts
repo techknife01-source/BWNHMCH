@@ -25,7 +25,7 @@ export interface GalleryFilterParams {
   role?: string;
 }
 
-const STORAGE_KEY = 'bhmch_gallery_management_v1';
+
 
 const INITIAL_GALLERY_ITEMS: GalleryItem[] = [
   {
@@ -118,37 +118,53 @@ const INITIAL_GALLERY_ITEMS: GalleryItem[] = [
   },
 ];
 
+import { galleryApi } from './api/gallery.api';
+
+const STORAGE_KEY = 'bhmch_gallery_management_v1';
+
 class GalleryService {
   private items: GalleryItem[] = [];
 
   constructor() {
-    this.loadFromStorage();
+    this.cleanObsoleteStorage();
+    this.items = [...INITIAL_GALLERY_ITEMS];
+    this.syncFromBackend();
   }
 
-  private loadFromStorage() {
+  private cleanObsoleteStorage() {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.items = parsed;
-          return;
-        }
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Ignore if localStorage is restricted
+    }
+  }
+
+  public async syncFromBackend() {
+    try {
+      const res = await galleryApi.getGalleryItems();
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const fetched: GalleryItem[] = res.data.map((item: any, idx: number) => ({
+          id: item.id || `g-${idx}`,
+          title: item.title || 'Campus Gallery Photograph',
+          description: item.description || '',
+          category: item.category || 'Hospital & OPD',
+          imageUrl: item.imageUrl || (item.image?.driveFileId ? `/api/v1/gallery/${item.id}/image?v=${item.image.driveFileId}` : 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800'),
+          uploadDate: item.uploadDate || new Date().toISOString().split('T')[0],
+          uploader: item.uploader || 'Administration',
+          status: (item.status as any) || 'PUBLISHED',
+          displayOrder: item.displayOrder || idx + 1,
+          isFeatured: item.isFeatured ?? false,
+        }));
+        this.items = fetched;
+        window.dispatchEvent(new Event('bhmch_gallery_updated'));
       }
     } catch (e) {
-      console.error('Failed to parse gallery storage:', e);
+      console.warn('[GalleryService] Backend sync notice:', e);
     }
-    this.items = [...INITIAL_GALLERY_ITEMS];
-    this.saveToStorage();
   }
 
-  private saveToStorage() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items));
-      window.dispatchEvent(new Event('bhmch_gallery_updated'));
-    } catch (e) {
-      console.error('Failed to persist gallery to storage:', e);
-    }
+  private notifyUpdate() {
+    window.dispatchEvent(new Event('bhmch_gallery_updated'));
   }
 
   public getItems(params: GalleryFilterParams = {}): {
@@ -259,7 +275,7 @@ class GalleryService {
       added.push(created);
     });
 
-    this.saveToStorage();
+    this.notifyUpdate();
     this.safeLogAudit({
       module: 'GALLERY',
       action: 'UPLOAD_GALLERY_PHOTO',
@@ -285,7 +301,7 @@ class GalleryService {
       uploadDate: `${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (Updated)`,
     };
 
-    this.saveToStorage();
+    this.notifyUpdate();
     this.safeLogAudit({
       module: 'GALLERY',
       action: 'EDIT_GALLERY_PHOTO',
@@ -303,7 +319,7 @@ class GalleryService {
     if (index === -1) return false;
 
     const [deleted] = this.items.splice(index, 1);
-    this.saveToStorage();
+    this.notifyUpdate();
     this.safeLogAudit({
       module: 'GALLERY',
       action: 'DELETE_GALLERY_PHOTO',
@@ -320,7 +336,7 @@ class GalleryService {
     const item = this.items.find((i) => i.id === id);
     if (item) {
       item.status = item.status === 'PUBLISHED' ? 'HIDDEN' : 'PUBLISHED';
-      this.saveToStorage();
+      this.notifyUpdate();
       toast.success(item.status === 'PUBLISHED' ? 'Image unhidden & published!' : 'Image hidden from public gallery.');
     }
   }
@@ -341,7 +357,7 @@ class GalleryService {
     }
 
     this.items = sorted;
-    this.saveToStorage();
+    this.notifyUpdate();
     toast.success('Gallery display order updated.');
   }
 
@@ -349,7 +365,7 @@ class GalleryService {
   public bulkDelete(ids: string[]): boolean {
     if (ids.length === 0) return false;
     this.items = this.items.filter((i) => !ids.includes(i.id));
-    this.saveToStorage();
+    this.notifyUpdate();
     toast.success(`${ids.length} gallery image(s) deleted.`);
     return true;
   }
@@ -359,7 +375,7 @@ class GalleryService {
     this.items.forEach((i) => {
       if (ids.includes(i.id)) i.status = 'PUBLISHED';
     });
-    this.saveToStorage();
+    this.notifyUpdate();
     toast.success(`${ids.length} image(s) published.`);
   }
 
@@ -368,7 +384,7 @@ class GalleryService {
     this.items.forEach((i) => {
       if (ids.includes(i.id)) i.status = 'HIDDEN';
     });
-    this.saveToStorage();
+    this.notifyUpdate();
     toast.success(`${ids.length} image(s) hidden.`);
   }
 
@@ -377,7 +393,7 @@ class GalleryService {
     this.items.forEach((i) => {
       if (ids.includes(i.id)) i.category = category;
     });
-    this.saveToStorage();
+    this.notifyUpdate();
     toast.success(`${ids.length} image(s) moved to ${category}.`);
   }
 
@@ -408,7 +424,7 @@ class GalleryService {
           count++;
         }
       });
-      this.saveToStorage();
+      this.notifyUpdate();
       toast.success(`${count} gallery image(s) imported successfully!`);
       return count;
     } catch (e: any) {

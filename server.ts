@@ -44,6 +44,7 @@ import {
 import {
   initStaffDatabase,
   handleGetStaff,
+  handleGetSingleStaff,
   handleCreateStaff,
   handleUpdateStaff,
   handleDeleteStaff,
@@ -189,6 +190,7 @@ const connectMongoDB = async (retries = 3, delayMs = 2000) => {
       });
       console.log('Successfully connected to MongoDB Atlas');
       isConnecting = false;
+      await initStaffDatabase();
       return;
     } catch (err) {
       const errMsg = (err as Error).message || '';
@@ -300,6 +302,7 @@ facultyPhotoRoutes.forEach((route) => {
 
 staffRoutes.forEach((route) => {
   app.get(route, handleGetStaff);
+  app.get(`${route}/:id`, handleGetSingleStaff);
   app.post(route, handleCreateStaff);
   app.put(`${route}/:id`, handleUpdateStaff);
   app.patch(`${route}/:id`, handleUpdateStaff);
