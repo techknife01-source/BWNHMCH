@@ -86,9 +86,24 @@ public class GalleryController {
             @RequestPart(value = "file", required = false) MultipartFile filePart) {
 
         MultipartFile targetFile = (image != null && !image.isEmpty()) ? image : filePart;
-        log.info("[GALLERY API] Received new gallery image upload request title='{}'", title);
-        GalleryItem created = galleryService.createGalleryItemWithImage(title, description, category, targetFile);
-        return ResponseEntity.ok(ApiResponse.success(created, "Gallery image uploaded successfully"));
+        log.info("[GALLERY UPLOAD] request received title='{}'", title);
+        if (targetFile != null) {
+            log.info("[GALLERY UPLOAD] filename='{}', contentType='{}', size={} bytes",
+                    targetFile.getOriginalFilename(), targetFile.getContentType(), targetFile.getSize());
+        } else {
+            log.warn("[GALLERY UPLOAD] No image or file MultipartFile target found in request!");
+        }
+
+        try {
+            GalleryItem created = galleryService.createGalleryItemWithImage(title, description, category, targetFile);
+            log.info("[GALLERY UPLOAD] SUCCESS id='{}'", created.getId());
+            return ResponseEntity.ok(ApiResponse.success(created, "Gallery image uploaded successfully"));
+        } catch (Exception e) {
+            log.error("[GALLERY UPLOAD] FAILED title='{}': {}", title, e.getMessage(), e);
+            log.error("[GALLERY UPLOAD] FAILED exceptionClass={} exceptionMessage={} rootCause={}",
+                    e.getClass().getName(), e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "None");
+            throw e;
+        }
     }
 
     @PostMapping(value = "/{galleryId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -100,9 +115,20 @@ public class GalleryController {
             @RequestPart(value = "file", required = false) MultipartFile filePart) {
 
         MultipartFile targetFile = (image != null && !image.isEmpty()) ? image : filePart;
-        log.info("[GALLERY API] Received image upload request for galleryId='{}'", galleryId);
-        GalleryItem updated = galleryService.uploadGalleryImage(galleryId, targetFile);
-        return ResponseEntity.ok(ApiResponse.success(updated, "Gallery image uploaded successfully"));
+        log.info("[GALLERY UPLOAD] request received for galleryId='{}'", galleryId);
+        if (targetFile != null) {
+            log.info("[GALLERY UPLOAD] filename='{}', contentType='{}', size={} bytes",
+                    targetFile.getOriginalFilename(), targetFile.getContentType(), targetFile.getSize());
+        }
+
+        try {
+            GalleryItem updated = galleryService.uploadGalleryImage(galleryId, targetFile);
+            log.info("[GALLERY UPLOAD] SUCCESS for galleryId='{}'", galleryId);
+            return ResponseEntity.ok(ApiResponse.success(updated, "Gallery image uploaded successfully"));
+        } catch (Exception e) {
+            log.error("[GALLERY UPLOAD] FAILED galleryId='{}': {}", galleryId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @GetMapping("/{galleryId}/image")
