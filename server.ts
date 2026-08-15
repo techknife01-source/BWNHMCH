@@ -50,7 +50,22 @@ import {
   handleDeleteStaff,
   handleUploadFacultyPhoto,
   handleGetFacultyPhoto,
+  handleDeleteFacultyPhoto,
 } from './src/server/staffController';
+import {
+  initGalleryDatabase,
+  handleGetGallery,
+  handleGetGalleryById,
+  handleCreateGallery,
+  handleUploadGalleryImage,
+  handleStreamGalleryImage,
+  handleUpdateGallery,
+  handleDeleteGallery,
+  handleDeleteGalleryImage,
+  handleBulkDeleteGallery,
+  handleBulkCategoryGallery,
+  handleBulkStatusGallery,
+} from './src/server/galleryController';
 
 dotenv.config();
 
@@ -128,9 +143,16 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
-app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    return next();
+  }
+  express.json({ limit: '50mb' })(req, res, (err) => {
+    if (err) return next(err);
+    express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
+  });
+});
 
 // Ensure E-Library PDFs exist on server startup
 const organonPdfPath = path.join(process.cwd(), 'public', 'documents', 'bhmch_organon_edition6.pdf');
@@ -269,35 +291,49 @@ app.get('/api/v1/actuator/health', (req: Request, res: Response) => {
   });
 });
 
-// Initialize E-Library Books Database & Google Drive Auto-Sync
+// Initialize E-Library Books, Staff & Gallery Databases with Google Drive Auto-Sync
 initBooksDatabaseAndMigration().catch((err) => console.warn('[Books Init Warning]:', err));
 initStaffDatabase().catch((err) => console.warn('[Staff Init Warning]:', err));
+initGalleryDatabase().catch((err) => console.warn('[Gallery Init Warning]:', err));
 
-// Staff & Faculty Directory REST Endpoints (Public GET, Protected Admin Write Ops)
+// Staff, Faculty & Doctor Directory REST Endpoints (Public GET, Protected Admin Write Ops)
 const staffRoutes = [
   '/staff',
   '/faculty',
+  '/doctors',
   '/api/staff',
   '/api/faculty',
+  '/api/doctors',
   '/api/v1/staff',
   '/api/v1/faculty',
+  '/api/v1/doctors',
   '/api/v1/hospital/staff',
+  '/api/v1/hospital/doctors',
 ];
 
-// Faculty Photo Endpoints (Google Drive Integration)
+// Faculty, Staff & Doctor Photo Endpoints (Google Drive Integration)
 const facultyPhotoRoutes = [
   '/faculty/:facultyId/photo',
   '/staff/:facultyId/photo',
+  '/doctors/:facultyId/photo',
   '/api/faculty/:facultyId/photo',
   '/api/staff/:facultyId/photo',
+  '/api/doctors/:facultyId/photo',
   '/api/v1/faculty/:facultyId/photo',
   '/api/v1/staff/:facultyId/photo',
+  '/api/v1/doctors/:facultyId/photo',
+  '/faculty/:id/photo',
+  '/staff/:id/photo',
+  '/doctors/:id/photo',
+  '/api/v1/faculty/:id/photo',
+  '/api/v1/staff/:id/photo',
+  '/api/v1/doctors/:id/photo',
 ];
 
 facultyPhotoRoutes.forEach((route) => {
   app.get(route, handleGetFacultyPhoto);
-  app.post(route, upload.single('photo'), handleUploadFacultyPhoto);
-  app.post(route, upload.single('file'), handleUploadFacultyPhoto);
+  app.post(route, upload.any(), handleUploadFacultyPhoto);
+  app.delete(route, handleDeleteFacultyPhoto);
 });
 
 staffRoutes.forEach((route) => {
@@ -692,213 +728,64 @@ app.delete('/api/v1/notices/:id', (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'Notice deleted successfully' });
 });
 
-// Gallery Store & API Endpoints
-const mockGalleryStore: any[] = [
-  {
-    id: 'g1',
-    title: '50-Bed Attached Teaching Hospital & OPD Building',
-    category: 'Hospital & OPD',
-    imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
-    description: 'Front facade of the hospital housing daily outpatient departments, casualty, and inpatient wards.',
-    uploadDate: '2026-07-01 10:00:00',
-    uploader: 'Dr. Susmita Chatterjee (Principal)',
-    status: 'PUBLISHED',
-    displayOrder: 1,
-  },
-  {
-    id: 'g2',
-    title: 'Homoeopathic Pharmacy & HPLC Drug Standardization Lab',
-    category: 'Labs & Classrooms',
-    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
-    description: 'Students performing potentization and vehicle testing under senior pharmacy professors.',
-    uploadDate: '2026-07-02 11:30:00',
-    uploader: 'Dr. R. N. Mukherjee (Vice Principal)',
-    status: 'PUBLISHED',
-    displayOrder: 2,
-  },
-  {
-    id: 'g3',
-    title: 'Annual Hahnemannian Oath Ceremony & Induction 2026',
-    category: 'Events & Seminars',
-    imageUrl: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&q=80&w=800',
-    description: 'Fresh BHMS 2026 scholars taking the Hahnemannian Oath at the 250-seater air-conditioned auditorium.',
-    uploadDate: '2026-07-05 09:15:00',
-    uploader: 'System Administrator (Admin)',
-    status: 'PUBLISHED',
-    displayOrder: 3,
-  },
-  {
-    id: 'g4',
-    title: 'Botanical Herbal Garden & Medicinal Flora Reserve',
-    category: 'Herbal Garden',
-    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=800',
-    description: '250+ species of medicinal herbs preserved for practical drug identification and pharmacognosy study.',
-    uploadDate: '2026-07-10 14:00:00',
-    uploader: 'Dr. Susmita Chatterjee (Principal)',
-    status: 'PUBLISHED',
-    displayOrder: 4,
-  },
+// Gallery REST API Endpoints (MongoDB Atlas + Google Drive Binary Streaming)
+const galleryRoutes = [
+  '/gallery',
+  '/api/gallery',
+  '/api/v1/gallery',
 ];
 
-const handleGetGallery = (req: Request, res: Response) => {
-  const { category, search, status } = req.query;
-  let list = [...mockGalleryStore];
-
-  if (category && category !== 'All' && category !== 'ALL') {
-    list = list.filter((i) => i.category === category);
-  }
-  if (status && status !== 'ALL') {
-    list = list.filter((i) => i.status === status);
-  }
-  if (search) {
-    const q = String(search).toLowerCase();
-    list = list.filter(
-      (i) =>
-        i.title.toLowerCase().includes(q) ||
-        i.description.toLowerCase().includes(q) ||
-        i.category.toLowerCase().includes(q) ||
-        i.uploader.toLowerCase().includes(q)
-    );
-  }
-
-  res.status(200).json({
-    success: true,
-    data: list,
-    timestamp: new Date().toISOString(),
-  });
-};
-
-app.get('/api/v1/gallery', handleGetGallery);
-app.get('/api/gallery', handleGetGallery);
-
-const handleGalleryUpload = (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
-    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
-  }
-
-  const { fileData, fileName, mimeType, fileSize } = req.body || {};
-  if (fileSize && fileSize > 10 * 1024 * 1024) {
-    return res.status(400).json({ success: false, message: 'File size exceeds maximum 10MB limit.' });
-  }
-  if (mimeType && !mimeType.startsWith('image/')) {
-    return res.status(400).json({ success: false, message: 'Invalid file format. Only JPEG, PNG, WEBP, GIF, and SVG images are allowed.' });
-  }
-
-  const returnedUrl = fileData || 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800';
-
-  res.status(200).json({
-    success: true,
-    data: {
-      url: returnedUrl,
-      fileName: fileName || 'uploaded_campus_image.jpg',
-      fileSize: fileSize || 1024000,
-    },
-    message: 'File upload processed successfully',
-  });
-};
-
-app.post('/api/v1/gallery/upload', handleGalleryUpload);
-app.post('/api/gallery/upload', handleGalleryUpload);
-
-app.post('/api/v1/gallery', (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
-    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
-  }
-
-  const { items, title, imageUrl, category, description, uploader } = req.body;
-  const newItemsToAdd = Array.isArray(items) ? items : [{ title, imageUrl, category, description, uploader }];
-  const addedList: any[] = [];
-
-  newItemsToAdd.forEach((item: any, idx: number) => {
-    if (!item.imageUrl || !item.title) return;
-    const newItem = {
-      id: `g-${Date.now()}-${idx}`,
-      title: item.title,
-      description: item.description || 'Campus gallery photograph.',
-      category: item.category || 'Hospital & OPD',
-      imageUrl: item.imageUrl,
-      uploadDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      uploader: item.uploader || uploader || 'Authorized Admin',
-      status: item.status || 'PUBLISHED',
-      displayOrder: mockGalleryStore.length + 1,
-    };
-    mockGalleryStore.unshift(newItem);
-    addedList.push(newItem);
-  });
-
-  res.status(201).json({
-    success: true,
-    data: addedList,
-    message: `${addedList.length} image(s) published successfully.`,
-  });
+galleryRoutes.forEach((route) => {
+  app.get(route, handleGetGallery);
+  app.post(route, handleCreateGallery);
 });
 
-app.put('/api/v1/gallery/:id', (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
-    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
-  }
+const galleryUploadRoutes = [
+  '/gallery/upload',
+  '/api/gallery/upload',
+  '/api/v1/gallery/upload',
+  '/gallery/:id/image',
+  '/api/gallery/:id/image',
+  '/api/v1/gallery/:id/image',
+  '/gallery/:id/photo',
+  '/api/gallery/:id/photo',
+  '/api/v1/gallery/:id/photo',
+];
 
-  const index = mockGalleryStore.findIndex((i) => i.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ success: false, message: 'Gallery item not found' });
-  }
-  mockGalleryStore[index] = { ...mockGalleryStore[index], ...req.body };
-  res.status(200).json({ success: true, data: mockGalleryStore[index], message: 'Gallery photo updated successfully' });
+galleryUploadRoutes.forEach((route) => {
+  app.post(route, upload.any(), handleUploadGalleryImage);
 });
 
-app.delete('/api/v1/gallery/:id', (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
-    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
-  }
+const galleryStreamRoutes = [
+  '/gallery/:id/image',
+  '/api/gallery/:id/image',
+  '/api/v1/gallery/:id/image',
+  '/gallery/:id/photo',
+  '/api/gallery/:id/photo',
+  '/api/v1/gallery/:id/photo',
+];
 
-  const index = mockGalleryStore.findIndex((i) => i.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ success: false, message: 'Gallery item not found' });
-  }
-  mockGalleryStore.splice(index, 1);
-  res.status(200).json({ success: true, message: 'Gallery photo deleted successfully' });
+galleryStreamRoutes.forEach((route) => {
+  app.get(route, handleStreamGalleryImage);
+  app.delete(route, handleDeleteGalleryImage);
 });
 
-app.post('/api/v1/gallery/bulk-delete', (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.length < 15) {
-    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
-  }
+const galleryItemRoutes = [
+  '/gallery/:id',
+  '/api/gallery/:id',
+  '/api/v1/gallery/:id',
+];
 
-  const { ids } = req.body;
-  if (Array.isArray(ids)) {
-    for (let i = mockGalleryStore.length - 1; i >= 0; i--) {
-      if (ids.includes(mockGalleryStore[i].id)) {
-        mockGalleryStore.splice(i, 1);
-      }
-    }
-  }
-  res.status(200).json({ success: true, message: 'Selected images deleted successfully' });
+galleryItemRoutes.forEach((route) => {
+  app.get(route, handleGetGalleryById);
+  app.put(route, handleUpdateGallery);
+  app.patch(route, handleUpdateGallery);
+  app.delete(route, handleDeleteGallery);
 });
 
-app.post('/api/v1/gallery/bulk-category', (req: Request, res: Response) => {
-  const { ids, category } = req.body;
-  if (Array.isArray(ids) && category) {
-    mockGalleryStore.forEach((item) => {
-      if (ids.includes(item.id)) item.category = category;
-    });
-  }
-  res.status(200).json({ success: true, message: 'Category updated for selected images' });
-});
-
-app.post('/api/v1/gallery/bulk-status', (req: Request, res: Response) => {
-  const { ids, status } = req.body;
-  if (Array.isArray(ids) && status) {
-    mockGalleryStore.forEach((item) => {
-      if (ids.includes(item.id)) item.status = status;
-    });
-  }
-  res.status(200).json({ success: true, message: 'Status updated for selected images' });
-});
+app.post('/api/v1/gallery/bulk-delete', handleBulkDeleteGallery);
+app.post('/api/v1/gallery/bulk-category', handleBulkCategoryGallery);
+app.post('/api/v1/gallery/bulk-status', handleBulkStatusGallery);
 
 // API Unhandled Routes Proxy & Fallback Handler
 app.use('/api/v1', async (req: Request, res: Response) => {

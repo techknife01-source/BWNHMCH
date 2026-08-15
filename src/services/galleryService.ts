@@ -27,96 +27,7 @@ export interface GalleryFilterParams {
 
 
 
-const INITIAL_GALLERY_ITEMS: GalleryItem[] = [
-  {
-    id: 'g1',
-    title: '50-Bed Attached Teaching Hospital & OPD Building',
-    category: 'Hospital & OPD',
-    imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800',
-    description: 'Front facade of the hospital housing daily outpatient departments, casualty, and inpatient wards.',
-    uploadDate: '2026-07-01',
-    uploader: 'Principal Desk',
-    status: 'PUBLISHED',
-    displayOrder: 1,
-  },
-  {
-    id: 'g2',
-    title: 'Homoeopathic Pharmacy & HPLC Drug Standardization Lab',
-    category: 'Labs & Classrooms',
-    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
-    description: 'Students performing potentization and vehicle testing under senior pharmacy professors.',
-    uploadDate: '2026-07-02',
-    uploader: 'HOD Pharmacy',
-    status: 'PUBLISHED',
-    displayOrder: 2,
-  },
-  {
-    id: 'g3',
-    title: 'Annual Hahnemannian Oath Ceremony & Induction 2026',
-    category: 'Events & Seminars',
-    imageUrl: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&q=80&w=800',
-    description: 'Fresh BHMS 2026 scholars taking the Hahnemannian Oath at the 250-seater air-conditioned auditorium.',
-    uploadDate: '2026-07-05',
-    uploader: 'Academic Administrator',
-    status: 'PUBLISHED',
-    displayOrder: 3,
-  },
-  {
-    id: 'g4',
-    title: 'Botanical Herbal Garden & Medicinal Flora Reserve',
-    category: 'Herbal Garden',
-    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=800',
-    description: '250+ species of medicinal herbs preserved for practical drug identification and pharmacognosy study.',
-    uploadDate: '2026-07-10',
-    uploader: 'Materia Medica Dept',
-    status: 'PUBLISHED',
-    displayOrder: 4,
-  },
-  {
-    id: 'g5',
-    title: 'Central Digital Medical Library & E-Learning Workstations',
-    category: 'Labs & Classrooms',
-    imageUrl: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=800',
-    description: 'Housing 12,000+ volumes of rare Homoeopathic treatises, WBUHS journals, and online databases.',
-    uploadDate: '2026-07-12',
-    uploader: 'Head Librarian',
-    status: 'PUBLISHED',
-    displayOrder: 5,
-  },
-  {
-    id: 'g6',
-    title: 'Free Rural Homoeopathic Medical Camp - Memari Village',
-    category: 'Events & Seminars',
-    imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800',
-    description: 'Interns and faculty doctors delivering free healthcare to over 600 rural patients in Purba Bardhaman.',
-    uploadDate: '2026-07-15',
-    uploader: 'NSS Coordinator',
-    status: 'PUBLISHED',
-    displayOrder: 6,
-  },
-  {
-    id: 'g7',
-    title: 'Anatomy Dissection Hall & Histology Microscope Room',
-    category: 'Labs & Classrooms',
-    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
-    description: 'First year BHMS medical students exploring cadaveric dissection and tissue histology.',
-    uploadDate: '2026-07-18',
-    uploader: 'Anatomy HOD',
-    status: 'PUBLISHED',
-    displayOrder: 7,
-  },
-  {
-    id: 'g8',
-    title: 'Clinical Pathology Diagnostic & Culture Suite',
-    category: 'Hospital & OPD',
-    imageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',
-    description: 'Equipped for hematology, biochemistry panels, and bacterial culture sensitivity testing.',
-    uploadDate: '2026-07-20',
-    uploader: 'Pathology Incharge',
-    status: 'PUBLISHED',
-    displayOrder: 8,
-  },
-];
+const INITIAL_GALLERY_ITEMS: GalleryItem[] = [];
 
 import { galleryApi } from './api/gallery.api';
 
@@ -127,7 +38,7 @@ class GalleryService {
 
   constructor() {
     this.cleanObsoleteStorage();
-    this.items = [...INITIAL_GALLERY_ITEMS];
+    this.items = [];
     this.syncFromBackend();
   }
 
@@ -142,13 +53,13 @@ class GalleryService {
   public async syncFromBackend() {
     try {
       const res = await galleryApi.getGalleryItems();
-      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      if (res && res.success && Array.isArray(res.data)) {
         const fetched: GalleryItem[] = res.data.map((item: any, idx: number) => ({
           id: item.id || `g-${idx}`,
           title: item.title || 'Campus Gallery Photograph',
           description: item.description || '',
           category: item.category || 'Hospital & OPD',
-          imageUrl: item.imageUrl || (item.image?.driveFileId ? `/api/v1/gallery/${item.id}/image?v=${item.image.driveFileId}` : 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=800'),
+          imageUrl: item.imageUrl || (item.image?.driveFileId ? `/api/v1/gallery/${item.id}/image?v=${item.image.driveFileId}` : ''),
           uploadDate: item.uploadDate || new Date().toISOString().split('T')[0],
           uploader: item.uploader || 'Administration',
           status: (item.status as any) || 'PUBLISHED',
@@ -314,22 +225,39 @@ class GalleryService {
     return this.items[index];
   }
 
-  public deleteItem(id: string): boolean {
-    const index = this.items.findIndex((i) => i.id === id);
-    if (index === -1) return false;
+  public async deleteItem(id: string): Promise<boolean> {
+    console.log('[Gallery Delete] BUTTON CLICKED');
+    console.log('[Gallery Delete] ID:', id);
+    console.log('[Gallery Delete] DELETE URL:', `/api/v1/gallery/${id}`);
+    console.log('[Gallery Delete] CALLING BACKEND');
+    try {
+      const res = await galleryApi.deleteGalleryItem(id);
+      console.log('[Gallery Delete] BACKEND RESPONSE:', res);
+      console.log('[Gallery Delete] VERIFYING GET:');
+      await this.syncFromBackend();
+      const exists = this.items.some((item) => item.id === id);
+      console.log('[Gallery Delete] VERIFY RESULT:', exists ? 'ID PRESENT (FAIL)' : 'ID ABSENT (PASS)');
 
-    const [deleted] = this.items.splice(index, 1);
-    this.notifyUpdate();
-    this.safeLogAudit({
-      module: 'GALLERY',
-      action: 'DELETE_GALLERY_PHOTO',
-      performedBy: 'Super Admin',
-      userRole: 'ROLE_SUPER_ADMIN',
-      details: `Deleted gallery photo '${deleted.title}' (ID: ${id})`,
-      status: 'SUCCESS',
-    });
-    toast.success('Gallery photo deleted successfully!');
-    return true;
+      if (exists) {
+        toast.error('Unable to delete photo. Server deletion failed.');
+        return false;
+      }
+
+      this.safeLogAudit({
+        module: 'GALLERY',
+        action: 'DELETE_GALLERY_PHOTO',
+        performedBy: 'Super Admin',
+        userRole: 'ROLE_SUPER_ADMIN',
+        details: `Deleted gallery photo ID '${id}'`,
+        status: 'SUCCESS',
+      });
+      toast.success('Gallery photo deleted successfully!');
+      return true;
+    } catch (err: any) {
+      console.error('[Gallery Delete Error]:', err);
+      toast.error(`Unable to delete photo: ${err?.message || 'Server error'}`);
+      return false;
+    }
   }
 
   public toggleHide(id: string): void {
@@ -362,12 +290,19 @@ class GalleryService {
   }
 
   // Bulk Actions
-  public bulkDelete(ids: string[]): boolean {
+  public async bulkDelete(ids: string[]): Promise<boolean> {
     if (ids.length === 0) return false;
-    this.items = this.items.filter((i) => !ids.includes(i.id));
-    this.notifyUpdate();
-    toast.success(`${ids.length} gallery image(s) deleted.`);
-    return true;
+    console.log('[Gallery Bulk Delete] BUTTON CLICKED, IDs:', ids);
+    try {
+      await galleryApi.bulkDeleteGalleryItems(ids);
+      await this.syncFromBackend();
+      toast.success(`${ids.length} gallery image(s) deleted.`);
+      return true;
+    } catch (err: any) {
+      console.error('[Gallery Bulk Delete Error]:', err);
+      toast.error(`Unable to delete photos: ${err?.message || 'Server error'}`);
+      return false;
+    }
   }
 
   public bulkPublish(ids: string[]): void {

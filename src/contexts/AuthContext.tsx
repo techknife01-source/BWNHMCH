@@ -27,9 +27,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const res = await authApi.getCurrentUser();
           if (res.data) {
-            tokenManager.setUser(res.data);
+            const userData = res.data;
+            const userObj: any = {
+              ...userData,
+              roles: Array.isArray(userData.roles)
+                ? Array.from(userData.roles)
+                : typeof (userData as any).role === 'string'
+                ? [(userData as any).role]
+                : ['ROLE_STUDENT'],
+              role: (userData as any).role || (Array.isArray(userData.roles) ? Array.from(userData.roles)[0] : undefined),
+              authorities: (userData as any).authorities || userData.roles,
+            };
+            tokenManager.setUser(userObj);
             setState({
-              user: res.data,
+              user: userObj,
               token,
               refreshToken: tokenManager.getRefreshToken(),
               isAuthenticated: true,
@@ -71,12 +82,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { accessToken, refreshToken, userId, username, email, fullName, roles, department, avatar } = loginData;
 
-    const userObj: User = {
-      id: userId || 'usr-current',
+    const userObj: any = {
+      id: userId || (loginData as any).id || 'usr-current',
       username: username || usernameOrEmail,
       email: email || usernameOrEmail,
       fullName: fullName || username || 'User',
-      roles: (roles || ['ROLE_STUDENT']) as any,
+      roles: Array.isArray(roles)
+        ? roles
+        : typeof (loginData as any).role === 'string'
+        ? [(loginData as any).role]
+        : ['ROLE_STUDENT'],
+      role: (loginData as any).role || (Array.isArray(roles) ? roles[0] : undefined),
+      authorities: (loginData as any).authorities || roles,
+      userType: (loginData as any).userType || (loginData as any).role,
       department: department || '',
       designation: (loginData as any).designation,
       avatar,

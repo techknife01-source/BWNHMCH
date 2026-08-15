@@ -54,13 +54,28 @@ import {
   Award,
   Layers,
   MapPin,
-  ListOrdered,
   Tag,
   Users,
   Pin,
 } from 'lucide-react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
-export const CmsDashboardPage: React.FC = () => {
+interface CmsDashboardPageProps {
+  defaultTab?: any;
+}
+
+export const CmsDashboardPage: React.FC<CmsDashboardPageProps> = ({ defaultTab }) => {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const getInitialTab = () => {
+    if (defaultTab) return defaultTab;
+    if (location.pathname.includes('gallery')) return 'gallery';
+    const tab = searchParams.get('tab');
+    if (tab) return tab as any;
+    return 'overview';
+  };
+
   const [activeTab, setActiveTab] = useState<
     | 'overview'
     | 'banners'
@@ -76,7 +91,16 @@ export const CmsDashboardPage: React.FC = () => {
     | 'downloads'
     | 'hospital'
     | 'contact_seo'
-  >('overview');
+  >(getInitialTab);
+
+  useEffect(() => {
+    if (location.pathname.includes('gallery')) {
+      setActiveTab('gallery');
+    } else {
+      const tab = searchParams.get('tab');
+      if (tab) setActiveTab(tab as any);
+    }
+  }, [location.pathname, searchParams]);
 
   // Loading & notification states
   const [isLoading, setIsLoading] = useState(false);

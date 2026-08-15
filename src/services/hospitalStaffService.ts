@@ -44,6 +44,7 @@ export interface HospitalStaffMember {
   opdCounter?: string;
   status: 'ACTIVE' | 'INACTIVE';
   joiningYear?: number;
+  promotionDate?: string;
 }
 
 const STORAGE_KEY = 'bhmch_hospital_staff_directory_pdf_v2';
@@ -579,29 +580,57 @@ export const OFFICIAL_HOSPITAL_STAFF: HospitalStaffMember[] = [
   },
 ];
 
+import { staffApi } from './api/staff.api';
 import { adminHrService } from './adminHrService';
 
 class HospitalStaffService {
-  private staffList: HospitalStaffMember[] = getFromStorage(STORAGE_KEY, OFFICIAL_HOSPITAL_STAFF);
+  private staffList: HospitalStaffMember[] = OFFICIAL_HOSPITAL_STAFF;
 
   async fetchStaffAsync(): Promise<HospitalStaffMember[]> {
     try {
-      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.success && Array.isArray(json.data)) {
-          this.staffList = json.data.map((item: any, idx: number) => ({
-            ...item,
-            slNo: idx + 1,
-            empId: item.empId || `SL-${String(idx + 1).padStart(2, '0')}`,
-          }));
-          saveToStorage(STORAGE_KEY, this.staffList);
-        }
+      const res = await staffApi.getStaffList();
+      const rawList = Array.isArray(res)
+        ? res
+        : (Array.isArray(res?.data)
+          ? res.data
+          : (Array.isArray(res?.data?.content) ? res.data.content : []));
+
+      if (rawList && rawList.length > 0) {
+        this.staffList = rawList.map((item: any, idx: number) => ({
+          ...item,
+          id: item.id || item._id,
+          slNo: idx + 1,
+          empId: item.empId || `SL-${String(idx + 1).padStart(2, '0')}`,
+          name: item.name || item.facultyName || 'Staff Member',
+          department: item.department || item.departmentName || 'General',
+          designation: item.designation || 'Staff',
+          roleCategory: item.roleCategory || (item.category === 'ACADEMIC FACULTY' ? 'MEDICAL_STAFF' : 'OFFICE_STAFF'),
+          status: (item.status || 'ACTIVE').toUpperCase() === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+        }));
+        return this.staffList;
       }
     } catch (err) {
-      console.warn('[HospitalStaffService] API fetch warning:', err);
+      console.warn('[HospitalStaffService] API fetch notice:', err);
     }
     return this.getAllStaff();
+  }
+
+  async getStaffByIdAsync(id: string): Promise<HospitalStaffMember | undefined> {
+    try {
+      const res = await staffApi.getStaffById(id);
+      const target = res?.data || res;
+      if (target) {
+        return {
+          ...target,
+          id: target.id || target._id,
+          name: target.name || target.facultyName,
+          department: target.department || target.departmentName,
+        };
+      }
+    } catch (err) {
+      console.warn('[HospitalStaffService] getStaffByIdAsync notice:', err);
+    }
+    return this.staffList.find((s) => s.id === id);
   }
 
   getAllStaff(): HospitalStaffMember[] {
@@ -617,183 +646,68 @@ class HospitalStaffService {
   }
 
   async addStaffMemberAsync(data: Omit<HospitalStaffMember, 'id'>): Promise<HospitalStaffMember> {
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          ...data,
-          category: data.roleCategory === 'OFFICE_STAFF' ? 'ADMINISTRATIVE STAFF' : data.department,
-        }),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.success) {
-          await this.fetchStaffAsync();
-          return json.data;
-        }
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] addStaffMember API warning:', err);
-    }
-
-    const nextSl = (Math.max(...this.staffList.map((s) => s.slNo || 0), 0)) + 1;
-    const newMember: HospitalStaffMember = {
+    const payload = {
       ...data,
-      slNo: data.slNo || nextSl,
-      id: `hs-${String(nextSl).padStart(3, '0')}`,
+      category: data.roleCategory === 'OFFICE_STAFF' ? 'ADMINISTRATIVE STAFF' : data.department,
     };
-    this.staffList.push(newMember);
-    saveToStorage(STORAGE_KEY, this.staffList);
-
-    this.safeLogAudit({
-      module: 'MEDICAL_STAFF',
-      action: 'ADD_MEDICAL_STAFF',
-      performedBy: 'Super Admin',
-      userRole: 'ROLE_SUPER_ADMIN',
-      details: `Added new staff member: ${newMember.name} (${newMember.department} - ${newMember.designation})`,
-      status: 'SUCCESS',
-    });
-
-    return newMember;
+    const res = await staffApi.createStaff(payload);
+    const target = res?.data || res;
+    if (target && (target.id || target._id)) {
+      await this.fetchStaffAsync();
+      return target;
+    }
+    throw new Error(res?.message || 'Failed to create staff member in backend');
   }
 
   addStaffMember(data: Omit<HospitalStaffMember, 'id'>): HospitalStaffMember {
-    this.addStaffMemberAsync(data).catch(() => {});
     const nextSl = (Math.max(...this.staffList.map((s) => s.slNo || 0), 0)) + 1;
-    const newMember: HospitalStaffMember = {
+    return {
       ...data,
       slNo: data.slNo || nextSl,
       id: `hs-${String(nextSl).padStart(3, '0')}`,
     };
-    this.staffList.push(newMember);
-    saveToStorage(STORAGE_KEY, this.staffList);
-    return newMember;
   }
 
   async updateStaffMemberAsync(id: string, updates: Partial<HospitalStaffMember>): Promise<HospitalStaffMember | undefined> {
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff/${id}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(updates),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.success) {
-          await this.fetchStaffAsync();
-          return json.data;
-        }
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] updateStaffMember API warning:', err);
+    console.log('[STAFF EDIT] CALLING PUT:', `/api/v1/staff/${id}`);
+    const res = await staffApi.updateStaff(id, updates);
+    console.log('[STAFF EDIT] PUT RESPONSE:', res);
+    const target = res?.data || res;
+    if (target && (target.id || target._id)) {
+      await this.fetchStaffAsync();
+      return target;
     }
-
-    const idx = this.staffList.findIndex((s) => s.id === id);
-    if (idx !== -1) {
-      const oldStatus = this.staffList[idx].status;
-      this.staffList[idx] = { ...this.staffList[idx], ...updates };
-      saveToStorage(STORAGE_KEY, this.staffList);
-
-      const action = updates.status && updates.status !== oldStatus 
-        ? (updates.status === 'INACTIVE' ? 'DEACTIVATE_MEDICAL_STAFF' : 'REACTIVATE_MEDICAL_STAFF')
-        : 'UPDATE_MEDICAL_STAFF';
-
-      this.safeLogAudit({
-        module: 'MEDICAL_STAFF',
-        action,
-        performedBy: 'Super Admin',
-        userRole: 'ROLE_SUPER_ADMIN',
-        details: `Updated medical staff member '${this.staffList[idx].name}' (ID: ${id})`,
-        status: 'SUCCESS',
-      });
-
-      return this.staffList[idx];
-    }
-    return undefined;
+    throw new Error(res?.message || `Failed to update staff member '${id}'`);
   }
 
   updateStaffMember(id: string, updates: Partial<HospitalStaffMember>): HospitalStaffMember | undefined {
-    this.updateStaffMemberAsync(id, updates).catch(() => {});
     const idx = this.staffList.findIndex((s) => s.id === id);
     if (idx !== -1) {
       this.staffList[idx] = { ...this.staffList[idx], ...updates };
-      saveToStorage(STORAGE_KEY, this.staffList);
       return this.staffList[idx];
     }
     return undefined;
   }
 
   async deleteStaffMemberAsync(id: string): Promise<boolean> {
-    const target = this.staffList.find((s) => s.id === id);
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch(`${ENV_CONFIG.API_BASE_URL}/staff/${id}`, {
-        method: 'DELETE',
-        headers,
-      });
-      if (res.ok) {
-        if (target) {
-          this.safeLogAudit({
-            module: 'MEDICAL_STAFF',
-            action: 'DELETE_MEDICAL_STAFF',
-            performedBy: 'Super Admin',
-            userRole: 'ROLE_SUPER_ADMIN',
-            details: `Permanently deleted staff member '${target.name}' (ID: ${id})`,
-            status: 'SUCCESS',
-          });
-        }
-        await this.fetchStaffAsync();
-        return true;
-      }
-    } catch (err) {
-      console.warn('[HospitalStaffService] deleteStaffMember API warning:', err);
-    }
-
-    const initialLength = this.staffList.length;
-    this.staffList = this.staffList.filter((s) => s.id !== id);
-    if (this.staffList.length < initialLength) {
-      saveToStorage(STORAGE_KEY, this.staffList);
-      if (target) {
-        this.safeLogAudit({
-          module: 'MEDICAL_STAFF',
-          action: 'DELETE_MEDICAL_STAFF',
-          performedBy: 'Super Admin',
-          userRole: 'ROLE_SUPER_ADMIN',
-          details: `Permanently deleted staff member '${target.name}' (ID: ${id})`,
-          status: 'SUCCESS',
-        });
-      }
+    console.log('[STAFF DELETE] CALLING DELETE:', `/api/v1/staff/${id}`);
+    const res = await staffApi.deleteStaff(id);
+    console.log('[STAFF DELETE] DELETE RESPONSE:', res);
+    if (res && res.success !== false) {
+      await this.fetchStaffAsync();
       return true;
     }
-    return false;
+    throw new Error(res?.message || `Failed to delete staff member '${id}'`);
   }
 
   deleteStaffMember(id: string): boolean {
-    this.deleteStaffMemberAsync(id).catch(() => {});
     const initialLength = this.staffList.length;
     this.staffList = this.staffList.filter((s) => s.id !== id);
-    if (this.staffList.length < initialLength) {
-      saveToStorage(STORAGE_KEY, this.staffList);
-      return true;
-    }
-    return false;
+    return this.staffList.length < initialLength;
   }
 
   resetToDefault(): void {
     this.staffList = [...OFFICIAL_HOSPITAL_STAFF];
-    saveToStorage(STORAGE_KEY, this.staffList);
   }
   private safeLogAudit(entry: {
     module: string;

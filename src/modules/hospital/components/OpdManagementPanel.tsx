@@ -29,6 +29,8 @@ import {
   Phone,
   FileText,
   RefreshCcw,
+  Eye,
+  Mail,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -50,6 +52,7 @@ export const OpdManagementPanel: React.FC = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState<Partial<DoctorSchedule> | null>(null);
   const [deletingDoctorId, setDeletingDoctorId] = useState<string | null>(null);
+  const [viewDetailDoctor, setViewDetailDoctor] = useState<DoctorSchedule | null>(null);
 
   // Form error state
   const [formError, setFormError] = useState<string | null>(null);
@@ -411,28 +414,41 @@ export const OpdManagementPanel: React.FC = () => {
                   </span>
                 </div>
 
-                {isAuthorized && (
-                  <div className="flex items-center justify-between gap-1.5 pt-1">
-                    <button
-                      onClick={() => handleOpenEditSchedule(doc)}
-                      className="px-2.5 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold text-2xs rounded-xl hover:bg-blue-100 transition flex items-center gap-1 cursor-pointer"
-                    >
-                      <Clock className="w-3.5 h-3.5" /> Schedule
-                    </button>
-                    <button
-                      onClick={() => handleOpenEditDoctor(doc)}
-                      className="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold text-2xs rounded-xl hover:bg-emerald-100 transition flex items-center gap-1 cursor-pointer"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" /> Edit Doctor
-                    </button>
-                    <button
-                      onClick={() => handleToggleStatus(doc)}
-                      className="px-2.5 py-1.5 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold text-2xs rounded-xl hover:bg-slate-200 transition cursor-pointer"
-                    >
-                      {doc.status === 'ACTIVE' ? 'Deactivate' : 'Reactivate'}
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center justify-between gap-1.5 pt-1">
+                  <button
+                    onClick={() => setViewDetailDoctor(doc)}
+                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl flex items-center gap-1.5 hover:bg-slate-200 cursor-pointer"
+                    title="View Profile"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" /> View
+                  </button>
+
+                  {isAuthorized && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleOpenEditSchedule(doc)}
+                        className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition cursor-pointer"
+                        title="Edit OPD Schedule"
+                      >
+                        <Clock className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleOpenEditDoctor(doc)}
+                        className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition cursor-pointer"
+                        title="Edit Doctor Profile"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setDeletingDoctorId(doc.id)}
+                        className="p-1.5 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 rounded-lg transition cursor-pointer"
+                        title="Delete Doctor Record"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
           ))
@@ -440,6 +456,371 @@ export const OpdManagementPanel: React.FC = () => {
       </div>
 
       {/* MODAL 1: ADD / EDIT OPD DOCTOR MODAL */}
+      {isDoctorModalOpen && editingDoctor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full my-8 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-[#002147] dark:text-white flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-emerald-600" />
+                {editingDoctor.id ? 'Edit OPD Doctor Profile' : 'Add New OPD Doctor'}
+              </h3>
+              <button onClick={() => setIsDoctorModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {formError && (
+              <div className="p-3 bg-rose-50 text-rose-700 rounded-xl text-xs font-bold border border-rose-200">
+                {formError}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveDoctor} className="space-y-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Doctor Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Dr. T. K. Maiti, M.D."
+                    value={editingDoctor.name || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, name: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Department *</label>
+                  <select
+                    value={editingDoctor.department || departments[0]?.name}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, department: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  >
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Qualification *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. M.D. (Hom.)"
+                    value={editingDoctor.qualification || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, qualification: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Specialization / Clinical Focus</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Chronic Disease, Organon Specialist"
+                    value={editingDoctor.specialization || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, specialization: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Registration No</label>
+                  <input
+                    type="text"
+                    placeholder="WB-NCH-1998-042"
+                    value={editingDoctor.registrationNumber || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, registrationNumber: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">OPD Room No *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="OPD Room 101"
+                    value={editingDoctor.roomNo || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, roomNo: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Live Status</label>
+                  <select
+                    value={editingDoctor.availabilityStatus || 'Available'}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, availabilityStatus: e.target.value as DoctorAvailabilityStatus })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  >
+                    <option value="Available">Available</option>
+                    <option value="Unavailable">Unavailable</option>
+                    <option value="On Leave">On Leave</option>
+                    <option value="Temporarily Closed">Temporarily Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Doctor Photo URL / Upload</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={editingDoctor.imageUrl || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, imageUrl: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                  />
+                  <label className="px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl flex items-center gap-1.5 cursor-pointer">
+                    <Upload className="w-4 h-4" />
+                    Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsDoctorModalOpen(false)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#00A651] hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md"
+                >
+                  Save Doctor Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: EDIT OPD SCHEDULE MODAL */}
+      {isScheduleModalOpen && editingDoctor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full my-8 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-[#002147] dark:text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-600" />
+                Configure Schedule for {editingDoctor.name}
+              </h3>
+              <button onClick={() => setIsScheduleModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSchedule} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-2">Weekly Consultation Days</label>
+                <div className="flex flex-wrap gap-2">
+                  {weekdays.map((day) => {
+                    const isSelected = (editingDoctor.availableDays || []).includes(day);
+                    return (
+                      <button
+                        type="button"
+                        key={day}
+                        onClick={() => toggleDaySelection(day)}
+                        className={`px-3 py-1.5 rounded-xl font-extrabold transition cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#002147] text-white shadow-xs dark:bg-[#00A651]'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Start Time</label>
+                  <input
+                    type="time"
+                    value={editingDoctor.startTime || '09:00'}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, startTime: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">End Time</label>
+                  <input
+                    type="time"
+                    value={editingDoctor.endTime || '13:00'}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, endTime: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">OPD Room / Counter *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingDoctor.roomNo || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, roomNo: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Shift Hours Label</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Morning (9 AM - 1 PM)"
+                    value={editingDoctor.dutyShift || ''}
+                    onChange={(e) => setEditingDoctor({ ...editingDoctor, dutyShift: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsScheduleModalOpen(false)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-800 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#002147] dark:bg-[#00A651] text-white font-bold rounded-xl"
+                >
+                  Save OPD Schedule
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: VIEW DOCTOR PROFILE DETAIL MODAL */}
+      {viewDetailDoctor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 max-w-lg w-full space-y-6 shadow-2xl relative">
+            <button
+              onClick={() => setViewDetailDoctor(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              title="Close Profile"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <img
+                src={viewDetailDoctor.imageUrl || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80'}
+                alt={viewDetailDoctor.name}
+                className="w-20 h-20 rounded-2xl object-cover border-2 border-[#002147] shadow-md shrink-0"
+              />
+              <div className="space-y-1.5">
+                <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-extrabold text-[10px] rounded-full uppercase">
+                  {viewDetailDoctor.department}
+                </span>
+                <h3 className="text-lg font-black text-[#002147] dark:text-white leading-tight">
+                  {viewDetailDoctor.name}
+                </h3>
+                <p className="text-xs font-extrabold text-blue-600 dark:text-blue-400">{viewDetailDoctor.qualification}</p>
+                <p className="text-2xs text-slate-500 font-semibold">{viewDetailDoctor.specialization}</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl space-y-2.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700 pb-2">
+                <span className="text-2xs font-bold text-slate-400 uppercase">OPD Room / Counter</span>
+                <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{viewDetailDoctor.roomNo}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-2xs font-bold text-slate-400 uppercase">Available Days</span>
+                <span className="font-bold text-slate-900 dark:text-white">{viewDetailDoctor.availableDays ? viewDetailDoctor.availableDays.join(', ') : 'Mon - Sat'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-2xs font-bold text-slate-400 uppercase">Shift / Timing</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">{viewDetailDoctor.dutyShift || viewDetailDoctor.opdSchedule}</span>
+              </div>
+              {viewDetailDoctor.registrationNumber && (
+                <div className="flex items-center justify-between font-mono text-2xs text-slate-500">
+                  <span>Registration No:</span>
+                  <span>{viewDetailDoctor.registrationNumber}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-2xs font-bold text-slate-400 uppercase">Live Availability</span>
+                <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-full ${
+                  viewDetailDoctor.availabilityStatus === 'Available' || viewDetailDoctor.isAvailable
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                    : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                }`}>
+                  {viewDetailDoctor.availabilityStatus || (viewDetailDoctor.isAvailable ? 'Available' : 'Unavailable')}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setViewDetailDoctor(null)}
+                className="px-5 py-2 bg-[#002147] text-white text-xs font-bold rounded-xl shadow-md hover:bg-blue-900 transition cursor-pointer"
+              >
+                Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: DELETE DOCTOR CONFIRMATION MODAL */}
+      {deletingDoctorId && (() => {
+        const targetDoc = doctors.find((d) => d.id === deletingDoctorId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3 text-rose-600">
+                <AlertCircle className="w-7 h-7 shrink-0" />
+                <h3 className="text-base font-black">Delete this doctor?</h3>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Are you sure you want to delete the doctor record for{' '}
+                <strong className="text-slate-900 dark:text-white font-bold underline">
+                  {targetDoc?.name || 'this doctor'}
+                </strong>?
+              </p>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setDeletingDoctorId(null)}
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs hover:bg-slate-200 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       {isDoctorModalOpen && editingDoctor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full my-8 space-y-4">

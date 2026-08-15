@@ -16,6 +16,7 @@ public interface GalleryService {
     GalleryItem uploadGalleryImage(String galleryId, MultipartFile file);
     GalleryItem createGalleryItemWithImage(String title, String description, String category, MultipartFile file);
     GalleryImageStream getGalleryImageStream(String galleryId);
+    GalleryImageStream getGalleryImageStream(String galleryId, String versionOrDriveId);
 
     class GalleryImageStream {
         private final InputStream inputStream;

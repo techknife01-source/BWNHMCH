@@ -531,7 +531,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
       <Modal
         isOpen={!!employeeToDelete}
         onClose={() => setEmployeeToDelete(null)}
-        title="Confirm Staff Member Deletion"
+        title={employeeToDelete?.employeeType === 'TEACHING' || employeeToDelete?.fullName.toLowerCase().includes('dr.') ? "Delete this doctor?" : "Delete this staff member?"}
         size="md"
       >
         {employeeToDelete && (

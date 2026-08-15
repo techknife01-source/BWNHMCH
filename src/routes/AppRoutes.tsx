@@ -141,6 +141,8 @@ export const AppRoutes: React.FC = () => {
           <Route element={<RoleBasedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_PRINCIPAL', 'ROLE_SUPER_ADMIN']} />}>
             <Route path="/portal/admin" element={<AdminPortalPage />} />
             <Route path="/portal/cms" element={<CmsDashboardPage />} />
+            <Route path="/admin/cms/gallery" element={<CmsDashboardPage defaultTab="gallery" />} />
+            <Route path="/portal/cms/gallery" element={<CmsDashboardPage defaultTab="gallery" />} />
           </Route>
 
           {/* Hospital Portal */}

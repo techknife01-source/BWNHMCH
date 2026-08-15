@@ -1116,18 +1116,19 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
 export const departmentCmsService = {
   getDepartments: (): DepartmentCMSData[] => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
         }
       }
     } catch (e) {
       console.error('Error loading department CMS data from storage:', e);
     }
     // Fallback to initial default dataset
-    departmentCmsService.saveAll(INITIAL_DEPARTMENT_CMS_DATA);
     return INITIAL_DEPARTMENT_CMS_DATA;
   },
 
@@ -1158,7 +1159,9 @@ export const departmentCmsService = {
 
   saveAll: (list: DepartmentCMSData[]): void => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      }
     } catch (e) {
       console.error('Error persisting department CMS data:', e);
     }

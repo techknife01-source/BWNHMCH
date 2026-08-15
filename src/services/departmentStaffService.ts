@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { facultyApi } from './api/faculty.api';
 import { departmentCmsService } from './departmentCmsService';
-import { FacultyMemberCMS } from '../types/departmentCms';
+import { FacultyMemberCMS, DepartmentCMSData } from '../types/departmentCms';
 
 export interface DepartmentStaffMember {
   id: string;

@@ -759,29 +759,31 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                     </div>
                   )}
                 </div>
-
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <button
                     onClick={() => handleOpenViewModal(staff)}
                     className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-2xs rounded-xl flex items-center gap-1 hover:bg-slate-200 cursor-pointer"
+                    title="View Profile"
                   >
-                    <Eye className="w-3.5 h-3.5" /> Details
+                    <Eye className="w-3.5 h-3.5" /> View
                   </button>
 
                   {isAuthorized && (
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleOpenEditModal(staff)}
-                        className="px-3 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-extrabold text-2xs rounded-xl flex items-center gap-1 hover:bg-blue-100 cursor-pointer"
+                        className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg cursor-pointer"
+                        title="Edit Record"
                       >
-                        <Edit2 className="w-3.5 h-3.5" /> Edit
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
 
                       <button
                         onClick={() => setDeleteConfirmTarget({ id: staff.id })}
-                        className="px-3 py-1.5 bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 font-extrabold text-2xs rounded-xl flex items-center gap-1 hover:bg-rose-100 cursor-pointer"
+                        className="p-1.5 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 rounded-lg cursor-pointer"
+                        title="Delete Record"
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Remove
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
@@ -799,19 +801,19 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
             Showing Page <strong className="text-slate-900 dark:text-white">{staffData.page}</strong> of{' '}
             <strong className="text-slate-900 dark:text-white">{staffData.totalPages}</strong> ({staffData.total} faculty records)
           </span>
+
           <div className="flex items-center gap-2">
             <button
-              disabled={page <= 1}
-              onClick={() => setPage(page - 1)}
-              className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-40 transition cursor-pointer"
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold disabled:opacity-40"
             >
               Previous
             </button>
-            <span className="text-xs font-black px-2 text-slate-600 dark:text-slate-300">{page}</span>
             <button
               disabled={page >= staffData.totalPages}
-              onClick={() => setPage(page + 1)}
-              className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-40 transition cursor-pointer"
+              onClick={() => setPage((p) => p + 1)}
+              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold disabled:opacity-40"
             >
               Next
             </button>
@@ -821,14 +823,13 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
 
       {/* MODAL 1: Add / Edit Faculty Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full my-8 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="text-base font-extrabold text-[#002147] dark:text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-emerald-600" />
-                {editingStaff.id ? 'Edit Faculty Profile' : 'Add New Faculty Member'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 max-w-xl w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-[#002147] dark:text-white">
+                {editingStaff.id ? `Edit Faculty Member: ${editingStaff.name}` : 'Add New Faculty Member'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-600">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -836,67 +837,69 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
             <form onSubmit={handleSaveStaff} className="space-y-3 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Full Name *</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Full Name</label>
                   <input
                     type="text"
-                    placeholder="e.g. Dr. Samuel Roy"
+                    required
                     value={editingStaff.name || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                    required
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                    placeholder="e.g. Dr. Anup Kumar Maiti"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Department *</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Department</label>
                   <select
                     value={editingStaff.departmentId || departments[0]?.id}
-                    onChange={(e) => setEditingStaff({ ...editingStaff, departmentId: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                    onChange={(e) => {
+                      const dept = departments.find((d) => d.id === e.target.value);
+                      setEditingStaff({
+                        ...editingStaff,
+                        departmentId: e.target.value,
+                        departmentName: dept?.name || '',
+                      });
+                    }}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
                   >
                     {departments.map((d) => (
                       <option key={d.id} value={d.id}>{d.name}</option>
                     ))}
                   </select>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Designation *</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Designation</label>
                   <input
                     type="text"
-                    placeholder="e.g. Professor & HOD, Associate Professor..."
+                    required
                     value={editingStaff.designation || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, designation: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                    required
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                    placeholder="e.g. Professor & HOD"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Qualification *</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Qualification</label>
                   <input
                     type="text"
-                    placeholder="e.g. M.D. (Hom.), B.H.M.S..."
+                    required
                     value={editingStaff.qualification || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, qualification: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                    required
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                    placeholder="e.g. M.D. (Hom.)"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address *</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
                   <input
                     type="email"
-                    placeholder="faculty@bhmch.ac.in"
                     value={editingStaff.email || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, email: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                    required
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                    placeholder="faculty@bhmch.ac.in"
                   />
                 </div>
 
@@ -904,23 +907,21 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                   <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Phone Number</label>
                   <input
                     type="text"
-                    placeholder="+91 98300 00000"
                     value={editingStaff.phone || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, phone: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                    placeholder="+91 98300 00000"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Registration No (Optional)</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Registration Number</label>
                   <input
                     type="text"
-                    placeholder="WB-NCH-2020-001"
                     value={editingStaff.registrationNumber || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, registrationNumber: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                    placeholder="WB-NCH-1998-042"
                   />
                 </div>
 
@@ -930,17 +931,17 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                     type="date"
                     value={editingStaff.joiningDate || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, joiningDate: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Promotion Date</label>
+                  <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Promotion Date (Optional)</label>
                   <input
                     type="date"
                     value={editingStaff.promotionDate || ''}
                     onChange={(e) => setEditingStaff({ ...editingStaff, promotionDate: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
                   />
                 </div>
 
@@ -948,8 +949,8 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
                   <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Status</label>
                   <select
                     value={editingStaff.status || 'Active'}
-                    onChange={(e) => setEditingStaff({ ...editingStaff, status: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                    onChange={(e) => setEditingStaff({ ...editingStaff, status: e.target.value as 'Active' | 'Inactive' })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -958,45 +959,35 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Faculty Photo URL or Upload</label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={editingStaff.photoUrl || ''}
-                    onChange={(e) => setEditingStaff({ ...editingStaff, photoUrl: e.target.value })}
-                    className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                    disabled={isUploadingPhoto}
-                  />
-                  <label className={`px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold rounded-xl flex items-center gap-1.5 ${isUploadingPhoto ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-                    <Upload className="w-4 h-4" />
-                    Upload
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handlePhotoUpload}
-                      disabled={isUploadingPhoto}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                {selectedPhotoFile && (
-                  <p className="mt-1 text-xs text-emerald-600 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Photo selected: {selectedPhotoFile.name} (Will upload to Google Drive on save)
-                  </p>
-                )}
+                <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Biography / Remarks</label>
+                <textarea
+                  rows={2}
+                  value={editingStaff.biography || ''}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, biography: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs"
+                  placeholder="Academic credentials, clinical specializations, publications..."
+                />
               </div>
 
               <div>
-                <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">Academic Biography & Clinical Background</label>
-                <textarea
-                  rows={2}
-                  placeholder="Academic qualifications, specialization, clinical experience..."
-                  value={editingStaff.biography || ''}
-                  onChange={(e) => setEditingStaff({ ...editingStaff, biography: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                  disabled={isUploadingPhoto}
-                />
+                <label className="block text-2xs font-bold text-slate-600 dark:text-slate-300 mb-1">
+                  Faculty Photo (Upload image to Google Drive)
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handlePhotoUpload}
+                    className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                  />
+                  {(photoPreviewUrl || editingStaff.photoUrl) && (
+                    <img
+                      src={photoPreviewUrl || editingStaff.photoUrl}
+                      alt="Preview"
+                      className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                    />
+                  )}
+                </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-3">
@@ -1075,35 +1066,47 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
       )}
 
       {/* MODAL 3: Delete Confirmation Modal */}
-      {deleteConfirmTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 max-w-md w-full space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-rose-600">
-              <Trash2 className="w-6 h-6" />
-              <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">Confirm Removal</h3>
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              {deleteConfirmTarget.bulk
-                ? `Are you sure you want to remove ${selectedIds.length} selected faculty member(s) from the institutional directory?`
-                : 'Are you sure you want to remove this faculty member?'}
-            </p>
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setDeleteConfirmTarget(null)}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-bold rounded-xl"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl shadow-md"
-              >
-                Confirm Delete
-              </button>
+      {deleteConfirmTarget && (() => {
+        const targetMember = deleteConfirmTarget.id ? staffData.data.find((s) => s.id === deleteConfirmTarget.id) : null;
+        const isDoctor = targetMember ? (targetMember.name.toLowerCase().includes('dr.') || (targetMember.qualification || '').toLowerCase().includes('m.d.') || (targetMember.qualification || '').toLowerCase().includes('mbbs') || (targetMember.qualification || '').toLowerCase().includes('bhms')) : false;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 max-w-md w-full space-y-4 shadow-2xl">
+              <div className="flex items-center gap-3 text-rose-600">
+                <Trash2 className="w-6 h-6 shrink-0" />
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  {deleteConfirmTarget.bulk
+                    ? 'Delete Selected Faculty Members?'
+                    : isDoctor
+                    ? 'Delete this doctor?'
+                    : 'Delete this staff member?'}
+                </h3>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                {deleteConfirmTarget.bulk
+                  ? `Are you sure you want to delete ${selectedIds.length} selected faculty member(s) from the directory?`
+                  : targetMember
+                  ? `Are you sure you want to delete ${targetMember.name} (${targetMember.designation}) from the official directory?`
+                  : 'Are you sure you want to delete this member?'}
+              </p>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setDeleteConfirmTarget(null)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-bold rounded-xl hover:bg-slate-300 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl shadow-md cursor-pointer"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* MODAL 4: Faculty Details Profile Modal */}
       {viewDetailStaff && (

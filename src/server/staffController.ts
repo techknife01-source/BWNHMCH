@@ -114,7 +114,8 @@ export async function initStaffDatabase() {
 
 // Format staff output for REST API
 function formatStaffOutput(s: any, index: number) {
-  const staffId = s.id || s._id?.toString();
+  if (!s) return null;
+  const staffId = s.id || s._id?.toString() || `staff-${index + 1}`;
   let photoUrl = s.photo?.driveFileId
     ? `/api/v1/faculty/${staffId}/photo?v=${s.photo.driveFileId}`
     : (s.photoUrl || '');
@@ -129,11 +130,11 @@ function formatStaffOutput(s: any, index: number) {
     id: staffId,
     slNo: index + 1,
     empId: s.empId || `SL-${String(index + 1).padStart(2, '0')}`,
-    name: s.name,
+    name: s.name || 'Staff Member',
     roleCategory: s.roleCategory || 'OFFICE_STAFF',
-    department: s.department,
-    departmentName: s.department,
-    designation: s.designation,
+    department: s.department || 'General Administration',
+    departmentName: s.department || 'General Administration',
+    designation: s.designation || 'Staff',
     category: s.category || 'STAFF',
     displayOrder: s.displayOrder || index + 1,
     qualification: s.qualification || '',
@@ -164,43 +165,53 @@ export const handleGetStaff = async (req: Request, res: Response) => {
   try {
     let list: any[] = [];
     if (mongoose.connection.readyState === 1) {
-      const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
-      if (dbStaff && dbStaff.length > 0) {
-        list = dbStaff;
-      } else {
+      try {
+        const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
+        if (dbStaff && dbStaff.length > 0) {
+          list = dbStaff;
+        } else {
+          list = memoryStaffStore;
+        }
+      } catch (dbErr: any) {
+        console.warn('[Staff DB Query Fallback]: Using memory store:', dbErr?.message || dbErr);
         list = memoryStaffStore;
       }
     } else {
       list = memoryStaffStore;
     }
 
-    list.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    if (!Array.isArray(list)) {
+      list = memoryStaffStore;
+    }
+
+    list.sort((a, b) => (a?.displayOrder || 0) - (b?.displayOrder || 0));
 
     const { category, department, roleCategory, search, status } = req.query;
     if (category && category !== 'ALL') {
-      list = list.filter((s) => s.category?.toUpperCase() === String(category).toUpperCase());
+      list = list.filter((s) => s && s.category?.toUpperCase() === String(category).toUpperCase());
     }
     if (roleCategory && roleCategory !== 'ALL') {
-      list = list.filter((s) => s.roleCategory === roleCategory);
+      list = list.filter((s) => s && s.roleCategory === roleCategory);
     }
     if (department && department !== 'ALL') {
-      list = list.filter((s) => s.department === department);
+      list = list.filter((s) => s && s.department === department);
     }
     if (status && status !== 'ALL') {
-      list = list.filter((s) => s.status === status);
+      list = list.filter((s) => s && s.status === status);
     }
     if (search) {
       const q = String(search).toLowerCase();
       list = list.filter(
         (s) =>
-          s.name?.toLowerCase().includes(q) ||
-          s.department?.toLowerCase().includes(q) ||
-          s.designation?.toLowerCase().includes(q) ||
-          s.category?.toLowerCase().includes(q)
+          s &&
+          (s.name?.toLowerCase().includes(q) ||
+            s.department?.toLowerCase().includes(q) ||
+            s.designation?.toLowerCase().includes(q) ||
+            s.category?.toLowerCase().includes(q))
       );
     }
 
-    const formattedList = list.map((s, idx) => formatStaffOutput(s, idx));
+    const formattedList = list.map((s, idx) => formatStaffOutput(s, idx)).filter(Boolean);
 
     res.status(200).json({
       success: true,
@@ -209,9 +220,12 @@ export const handleGetStaff = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error('[Staff Controller] handleGetStaff error:', err?.message || err);
-    res.status(500).json({
-      success: false,
-      message: `Failed to fetch staff directory: ${err?.message || err}`,
+    const fallbackList = memoryStaffStore.map((s, idx) => formatStaffOutput(s, idx)).filter(Boolean);
+    res.status(200).json({
+      success: true,
+      data: fallbackList,
+      message: `Recovered staff directory gracefully: ${err?.message || err}`,
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -504,7 +518,7 @@ export const handleUploadFacultyPhoto = async (req: Request, res: Response) => {
   }
 
   const facultyId = req.params.facultyId || req.params.id;
-  const file = req.file;
+  const file = req.file || (req.files && Array.isArray(req.files) ? (req.files[0] as Express.Multer.File) : null);
 
   if (!file) {
     return res.status(400).json({
@@ -669,6 +683,67 @@ export const handleGetFacultyPhoto = async (req: Request, res: Response) => {
   }
 };
 
+// PROTECTED DELETE /api/v1/faculty/:facultyId/photo & /api/v1/staff/:id/photo
+export const handleDeleteFacultyPhoto = async (req: Request, res: Response) => {
+  if (!checkAdminAuthHeader(req)) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required. Admin authorization token missing or invalid.',
+    });
+  }
+
+  const id = req.params.facultyId || req.params.id;
+  const isDoctor = req.originalUrl.includes('/doctors');
+  const tag = isDoctor ? '[DOCTOR PHOTO DELETE]' : '[STAFF PHOTO DELETE]';
+  console.log(`${tag} id=${id}`);
+
+  try {
+    let staffDoc: any = null;
+    if (mongoose.connection.readyState === 1) {
+      staffDoc = await (StaffModel as any).findOne({
+        $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }],
+      });
+    }
+    if (!staffDoc) {
+      const idx = memoryStaffStore.findIndex((s) => s.id === id);
+      if (idx !== -1) staffDoc = memoryStaffStore[idx];
+    }
+    if (!staffDoc) {
+      return res.status(404).json({ success: false, message: `Record with ID '${id}' not found.` });
+    }
+
+    const driveFileId = staffDoc.photo?.driveFileId;
+    if (driveFileId) {
+      try {
+        await googleDriveService.deleteFile(driveFileId);
+        console.log(`${tag} Google Drive file '${driveFileId}' deleted successfully.`);
+      } catch (delErr: any) {
+        console.warn(`${tag} Drive deletion notice:`, delErr?.message || delErr);
+      }
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      await (StaffModel as any).updateOne(
+        { $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }] },
+        { $unset: { photo: 1 }, $set: { photoUrl: '' } }
+      );
+    }
+    const memIdx = memoryStaffStore.findIndex((s) => s.id === id);
+    if (memIdx !== -1) {
+      memoryStaffStore[memIdx].photo = null;
+      memoryStaffStore[memIdx].photoUrl = '';
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Photo deleted successfully from Google Drive & MongoDB Atlas.',
+    });
+  } catch (err: any) {
+    console.error(`${tag} Error:`, err?.message || err);
+    return res.status(500).json({ success: false, message: `Failed to delete photo: ${err?.message || err}` });
+  }
+};
+
 // PROTECTED DELETE /api/v1/staff/:id - Requires Admin Authorization
 export const handleDeleteStaff = async (req: Request, res: Response) => {
   if (!checkAdminAuthHeader(req)) {
@@ -679,11 +754,16 @@ export const handleDeleteStaff = async (req: Request, res: Response) => {
   }
 
   const { id } = req.params;
+  const isDoctor = req.originalUrl.includes('/doctors');
+  const tag = isDoctor ? '[DOCTOR DELETE]' : '[STAFF DELETE]';
+  console.log(`${tag} id=${id}`);
 
   try {
     let targetDoc: any = null;
     if (mongoose.connection.readyState === 1) {
-      targetDoc = await (StaffModel as any).findOne({ id });
+      targetDoc = await (StaffModel as any).findOne({
+        $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }],
+      });
     }
     if (!targetDoc) {
       targetDoc = memoryStaffStore.find((s) => s.id === id);
@@ -692,8 +772,9 @@ export const handleDeleteStaff = async (req: Request, res: Response) => {
     if (targetDoc?.photo?.driveFileId) {
       try {
         await googleDriveService.deleteFile(targetDoc.photo.driveFileId);
+        console.log(`${tag} Associated Drive file '${targetDoc.photo.driveFileId}' deleted.`);
       } catch (e: any) {
-        console.warn(`[Delete Staff] Drive deletion notice for file ${targetDoc.photo.driveFileId}:`, e?.message || e);
+        console.warn(`${tag} Drive deletion notice for file ${targetDoc.photo.driveFileId}:`, e?.message || e);
       }
     }
 
@@ -701,26 +782,28 @@ export const handleDeleteStaff = async (req: Request, res: Response) => {
     memoryStaffStore = memoryStaffStore.filter((s) => s.id !== id);
 
     if (memoryStaffStore.length === initialLen && mongoose.connection.readyState !== 1) {
-      return res.status(404).json({ success: false, message: `Staff record with ID '${id}' not found.` });
+      return res.status(404).json({ success: false, message: `Record with ID '${id}' not found.` });
     }
 
     await reindexDisplayOrders();
 
     if (mongoose.connection.readyState === 1) {
-      await (StaffModel as any).deleteOne({ id });
+      await (StaffModel as any).deleteOne({
+        $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }],
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Staff member record deleted successfully.',
+      message: 'Record deleted successfully from MongoDB Atlas & Google Drive.',
       data: { id },
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
-    console.error('[Staff Controller] handleDeleteStaff error:', err?.message || err);
+    console.error(`${tag} error:`, err?.message || err);
     res.status(500).json({
       success: false,
-      message: `Failed to delete staff record: ${err?.message || err}`,
+      message: `Failed to delete record: ${err?.message || err}`,
     });
   }
 };

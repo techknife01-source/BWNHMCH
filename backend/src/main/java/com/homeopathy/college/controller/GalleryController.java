@@ -107,9 +107,11 @@ public class GalleryController {
 
     @GetMapping("/{galleryId}/image")
     @Operation(summary = "Stream gallery image from Google Drive (Public Endpoint)")
-    public ResponseEntity<InputStreamResource> streamGalleryImage(@PathVariable("galleryId") String galleryId) {
-        log.info("[GALLERY API] Streaming image for galleryId='{}'", galleryId);
-        GalleryService.GalleryImageStream imageStream = galleryService.getGalleryImageStream(galleryId);
+    public ResponseEntity<InputStreamResource> streamGalleryImage(
+            @PathVariable("galleryId") String galleryId,
+            @RequestParam(value = "v", required = false) String v) {
+        log.info("[GALLERY_IMAGE] CONTROLLER HIT id={}", galleryId);
+        GalleryService.GalleryImageStream imageStream = galleryService.getGalleryImageStream(galleryId, v);
 
         MediaType mediaType;
         try {

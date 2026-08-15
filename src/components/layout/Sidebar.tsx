@@ -35,7 +35,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { hasRole, getUserDisplayDesignation } from '../../utils/permissionHelper';
+import { hasRole, isSuperAdmin, getUserDisplayDesignation } from '../../utils/permissionHelper';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CollegeLogo } from '../common/CollegeLogo';
@@ -70,7 +70,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
     'Academic & Campus': true,
     'Hospital & Healthcare': true,
   });
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
   const [recentItems, setRecentItems] = useState<{ label: string; href: string }[]>([]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/portal/cms') || location.pathname.startsWith('/admin/cms')) {
+      setOpenSubmenus((prev) => ({ ...prev, 'CMS Content Studio': true }));
+    }
+  }, [location.pathname, location.search]);
+
+  const toggleSubmenu = (label: string) => {
+    setOpenSubmenus((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -123,7 +134,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
         { label: 'Faculty & Classes', href: '/portal/faculty', icon: Users, roles: ['ROLE_FACULTY', 'ROLE_PRINCIPAL', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
         { label: 'Principal Executive Desk', href: '/portal/principal', icon: ShieldCheck, roles: ['ROLE_PRINCIPAL', 'ROLE_SUPER_ADMIN'] },
         { label: 'Admin Operations', href: '/portal/admin', icon: Building2, roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
-        { label: 'CMS Content Studio', href: '/portal/cms', icon: Globe, roles: ['ROLE_ADMIN', 'ROLE_PRINCIPAL', 'ROLE_SUPER_ADMIN'], badge: 'CMS' },
+        {
+          label: 'CMS Content Studio',
+          href: '/portal/cms',
+          icon: Globe,
+          roles: ['ROLE_ADMIN', 'ROLE_PRINCIPAL', 'ROLE_SUPER_ADMIN', 'ROLE_SUPERADMIN', 'SUPER_ADMIN', 'ADMIN', 'PRINCIPAL'],
+          badge: 'CMS',
+          subItems: [
+            { label: 'Gallery Management', href: '/portal/cms?tab=gallery' },
+            { label: 'Notices', href: '/portal/cms?tab=notices' },
+            { label: 'Results', href: '/portal/cms?tab=notice_board' },
+            { label: 'Events', href: '/portal/cms?tab=events' },
+            { label: 'Content Settings', href: '/portal/cms?tab=contact_seo' },
+          ],
+        },
       ],
     },
     {
@@ -149,12 +173,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
     }
   ];
 
-  const userRoles = user?.roles || ['ROLE_STUDENT'];
+  useEffect(() => {
+    if (user) {
+      console.log("[SUPER ADMIN DEBUG]", {
+        user,
+        role: (user as any)?.role,
+        roles: user?.roles,
+        authorities: (user as any)?.authorities,
+        isSuperAdmin: isSuperAdmin(user)
+      });
+    }
+  }, [user]);
 
   // Filter items based on role AND search query
   const filteredGroups = menuGroups.map((group) => {
     const validItems = group.items.filter((item) => {
-      const roleAllowed = hasRole(userRoles, item.roles);
+      const isSuper = isSuperAdmin(user);
+      const isSuperRequired = item.roles.some(r => r.toUpperCase().includes('SUPER'));
+      const roleAllowed = item.roles.includes('ALL') || (isSuper && isSuperRequired) || hasRole(user, item.roles);
       const matchesSearch = item.label.toLowerCase().includes(searchQuery.toLowerCase());
       return roleAllowed && matchesSearch;
     });
@@ -241,43 +277,96 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onMobileCl
                 <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
-                    const isActive = location.pathname === item.href;
+                    const hasSubItems = Boolean(item.subItems && item.subItems.length > 0);
+                    const isSubExpanded = openSubmenus[item.label] ?? (hasSubItems && (location.pathname.startsWith('/portal/cms') || location.pathname.startsWith('/admin/cms')));
+                    const isItemActive = location.pathname === item.href || (hasSubItems && (location.pathname.startsWith('/portal/cms') || location.pathname.startsWith('/admin/cms')));
                     const isFav = favorites.includes(item.href);
 
-                    return (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        onClick={() => onMobileClose?.()}
-                        className={cn(
-                          'flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all group relative',
-                          isActive
-                            ? 'bg-[#002147] text-white shadow-sm dark:bg-[#002147]'
-                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
-                        )}
-                        title={collapsedState ? item.label : undefined}
-                      >
-                        <div className="flex items-center space-x-3 min-w-0">
-                          <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#002147] dark:group-hover:text-[#00A651]')} />
-                          {!collapsedState && <span className="truncate">{item.label}</span>}
-                        </div>
+                    const handleItemClick = (e: React.MouseEvent) => {
+                      if (hasSubItems && !collapsedState) {
+                        e.preventDefault();
+                        toggleSubmenu(item.label);
+                      } else {
+                        onMobileClose?.();
+                      }
+                    };
 
-                        {!collapsedState && (
-                          <div className="flex items-center gap-1.5">
-                            {item.badge && (
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                {item.badge}
-                              </span>
-                            )}
-                            <button
-                              onClick={(e) => toggleFavorite(item.href, e)}
-                              className="opacity-0 group-hover:opacity-100 transition p-1 text-slate-400 hover:text-amber-500"
-                            >
-                              <Star className={cn('w-3.5 h-3.5', isFav && 'text-amber-500 fill-amber-500 opacity-100')} />
-                            </button>
+                    return (
+                      <React.Fragment key={item.href}>
+                        <Link
+                          to={item.href}
+                          onClick={handleItemClick}
+                          className={cn(
+                            'flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all group relative cursor-pointer',
+                            isItemActive
+                              ? 'bg-[#002147] text-white shadow-sm dark:bg-[#002147]'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                          )}
+                          title={collapsedState ? item.label : undefined}
+                        >
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <Icon className={cn('h-4 w-4 shrink-0', isItemActive ? 'text-white' : 'text-slate-400 group-hover:text-[#002147] dark:group-hover:text-[#00A651]')} />
+                            {!collapsedState && <span className="truncate">{item.label}</span>}
+                          </div>
+
+                          {!collapsedState && (
+                            <div className="flex items-center gap-1.5">
+                              {item.badge && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                  {item.badge}
+                                </span>
+                              )}
+                              {hasSubItems && (
+                                <span className="p-0.5 text-slate-400 group-hover:text-white transition">
+                                  {isSubExpanded ? (
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  )}
+                                </span>
+                              )}
+                              {!hasSubItems && (
+                                <button
+                                  onClick={(e) => toggleFavorite(item.href, e)}
+                                  className="opacity-0 group-hover:opacity-100 transition p-1 text-slate-400 hover:text-amber-500"
+                                >
+                                  <Star className={cn('w-3.5 h-3.5', isFav && 'text-amber-500 fill-amber-500 opacity-100')} />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </Link>
+
+                        {!collapsedState && hasSubItems && isSubExpanded && (
+                          <div className="ml-7 my-1 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 space-y-1">
+                            {item.subItems!.map((sub) => {
+                              const subTab = sub.href.split('tab=')[1];
+                              const isSubActive =
+                                (subTab && location.search.includes(`tab=${subTab}`)) ||
+                                (sub.href.includes('gallery') &&
+                                  (location.pathname === '/admin/cms/gallery' || location.pathname === '/portal/cms/gallery'));
+                              return (
+                                <Link
+                                  key={sub.href}
+                                  to={sub.href}
+                                  onClick={() => onMobileClose?.()}
+                                  className={cn(
+                                    'flex items-center justify-between px-3 py-1.5 text-2xs font-semibold rounded-lg transition-all cursor-pointer',
+                                    isSubActive
+                                      ? 'text-[#00A651] font-extrabold bg-emerald-50 dark:bg-emerald-950/50 shadow-2xs border border-emerald-500/20'
+                                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <ChevronRight className={cn('w-3 h-3 shrink-0', isSubActive ? 'text-[#00A651]' : 'text-slate-400')} />
+                                    <span className="truncate">{sub.label}</span>
+                                  </div>
+                                </Link>
+                              );
+                            })}
                           </div>
                         )}
-                      </Link>
+                      </React.Fragment>
                     );
                   })}
                 </div>

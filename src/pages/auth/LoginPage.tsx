@@ -5,6 +5,8 @@ import { useNotification } from '../../hooks/useNotification';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { User, Lock, KeyRound } from 'lucide-react';
+import { tokenManager } from '../../utils/tokenManager';
+import { isSuperAdmin } from '../../utils/permissionHelper';
 
 export const LoginPage: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -25,7 +27,12 @@ export const LoginPage: React.FC = () => {
       setIsLoading(true);
       await login({ usernameOrEmail, password });
       notification.success('Signed in successfully');
-      navigate('/portal/dashboard');
+      const loggedInUser = tokenManager.getUser();
+      if (isSuperAdmin(loggedInUser)) {
+        navigate('/portal/super-admin');
+      } else {
+        navigate('/portal/dashboard');
+      }
     } catch (err: any) {
       notification.error(err.response?.data?.message || err.message || 'Invalid authentication credentials');
     } finally {

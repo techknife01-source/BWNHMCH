@@ -36,7 +36,8 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public GalleryItem getItemById(String id) {
-        return galleryRepository.findById(id)
+        return galleryRepository.findByIdOrCustomId(id)
+                .or(() -> galleryRepository.findByDriveFileId(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Gallery item", "id", id));
     }
 
@@ -126,6 +127,7 @@ public class GalleryServiceImpl implements GalleryService {
         try {
             GalleryItem saved = galleryRepository.save(item);
             log.info("[GALLERY IMAGE] MongoDB update successful for galleryId='{}'", galleryId);
+            log.info("[GALLERY_UPLOAD] id={} driveFileId={} mongoSaved=true driveUpload=true", galleryId, newDriveFileId);
 
             if (oldDriveFileId != null && !oldDriveFileId.isBlank() && !oldDriveFileId.equals(newDriveFileId)) {
                 try {
@@ -151,7 +153,9 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public GalleryItem createGalleryItemWithImage(String title, String description, String category, MultipartFile file) {
+        String galleryId = "gal-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 1000);
         GalleryItem newItem = GalleryItem.builder()
+                .id(galleryId)
                 .title(title != null ? title : "Gallery Photo")
                 .description(description != null ? description : "")
                 .category(category != null ? category : "General")
@@ -168,18 +172,68 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public GalleryImageStream getGalleryImageStream(String galleryId) {
-        GalleryItem item = getItemById(galleryId);
-        if (item.getImage() == null || item.getImage().getDriveFileId() == null) {
+        return getGalleryImageStream(galleryId, null);
+    }
+
+    @Override
+    public GalleryImageStream getGalleryImageStream(String galleryId, String versionOrDriveId) {
+        log.info("[GALLERY_IMAGE] CONTROLLER HIT id={}", galleryId);
+        log.info("[GALLERY_IMAGE] REQUEST");
+        log.info("[GALLERY_IMAGE] ID: {}", galleryId);
+        log.info("[GALLERY_IMAGE] DATABASE LOOKUP");
+
+        GalleryItem item = null;
+        try {
+            item = galleryRepository.findByIdOrCustomId(galleryId).orElse(null);
+            if (item == null && versionOrDriveId != null && !versionOrDriveId.isBlank()) {
+                item = galleryRepository.findByDriveFileId(versionOrDriveId).orElse(null);
+            }
+        } catch (Exception e) {
+            log.warn("[GALLERY_IMAGE] Database lookup exception for '{}': {}", galleryId, e.getMessage());
+        }
+
+        log.info("[GALLERY_IMAGE] MONGO FOUND = {}", item != null);
+        if (item != null) {
+            log.info("[GALLERY_IMAGE] APPLICATION ID = {}", item.getId());
+            log.info("[GALLERY_IMAGE] MONGO _id = {}", item.getId());
+            log.info("[GALLERY_IMAGE] DRIVE FILE ID = {}", item.getImage() != null ? item.getImage().getDriveFileId() : "NONE");
+            log.info("[GALLERY_IMAGE] MIME TYPE = {}", item.getImage() != null ? item.getImage().getMimeType() : "NONE");
+            log.info("[GALLERY_IMAGE] IMAGE URL = {}", item.getImageUrl());
+        }
+
+        String driveFileId = null;
+        String mimeType = "image/jpeg";
+
+        if (item != null && item.getImage() != null && item.getImage().getDriveFileId() != null) {
+            driveFileId = item.getImage().getDriveFileId();
+            if (item.getImage().getMimeType() != null) {
+                mimeType = item.getImage().getMimeType();
+            }
+        }
+
+        if ((driveFileId == null || driveFileId.isBlank()) && versionOrDriveId != null && versionOrDriveId.trim().length() > 10) {
+            driveFileId = versionOrDriveId.trim();
+        }
+
+        if (driveFileId == null || driveFileId.isBlank()) {
+            if (item == null) {
+                log.warn("[GALLERY_IMAGE] RECORD NOT FOUND: {}", galleryId);
+            } else {
+                log.warn("[GALLERY_IMAGE] DRIVE FILE ID MISSING: {}", galleryId);
+            }
             throw new ResourceNotFoundException("Gallery image", "galleryId", galleryId);
         }
 
-        String driveFileId = item.getImage().getDriveFileId();
-        String mimeType = item.getImage().getMimeType();
-        if (mimeType == null || mimeType.isBlank()) {
-            mimeType = "image/jpeg";
-        }
+        log.info("[GALLERY_IMAGE] DRIVE DOWNLOAD START");
+        log.info("[GALLERY_IMAGE] DRIVE FILE ID = {}", driveFileId);
 
         InputStream stream = googleDriveService.downloadFile(driveFileId);
+        if (stream == null) {
+            log.error("[GALLERY_IMAGE] DRIVE FILE NOT FOUND: {}", driveFileId);
+            throw new ResourceNotFoundException("Google Drive file", "driveFileId", driveFileId);
+        }
+
+        log.info("[GALLERY_IMAGE] DRIVE DOWNLOAD SUCCESS");
         return new GalleryImageStream(stream, mimeType);
     }
 }
