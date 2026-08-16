@@ -8,6 +8,15 @@ const INITIAL_GALLERY_SEED: any[] = [];
 
 let memoryGalleryStore: any[] = [];
 
+// Safe Mongoose Query Filter Builder to prevent CastError on non-ObjectId string IDs (e.g., gal-123)
+function buildIdFilter(id: string) {
+  const filterOr: any[] = [{ id }];
+  if (id && typeof id === 'string' && mongoose.Types.ObjectId.isValid(id)) {
+    filterOr.push({ _id: id });
+  }
+  return { $or: filterOr };
+}
+
 export async function initGalleryDatabase() {
   try {
     if (mongoose.connection.readyState === 1) {
@@ -98,20 +107,18 @@ export const handleGetGallery = async (req: Request, res: Response) => {
     if (status && status !== 'ALL') {
       list = list.filter((i) => i && i.status === status);
     }
-    if (search) {
-      const q = String(search).toLowerCase();
+    if (search && typeof search === 'string') {
+      const q = search.toLowerCase();
       list = list.filter(
         (i) =>
           i &&
-          (i.title?.toLowerCase().includes(q) ||
-            i.description?.toLowerCase().includes(q) ||
-            i.category?.toLowerCase().includes(q) ||
-            i.uploader?.toLowerCase().includes(q))
+          ((i.title && i.title.toLowerCase().includes(q)) ||
+            (i.description && i.description.toLowerCase().includes(q)) ||
+            (i.category && i.category.toLowerCase().includes(q)))
       );
     }
 
     const formattedList = list.map((g) => formatGalleryOutput(g)).filter(Boolean);
-
     return res.status(200).json({
       success: true,
       data: formattedList,
@@ -136,9 +143,7 @@ export const handleGetGalleryById = async (req: Request, res: Response) => {
   try {
     let item: any = null;
     if (mongoose.connection.readyState === 1) {
-      item = await (GalleryModel as any).findOne({
-        $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }],
-      }).lean();
+      item = await (GalleryModel as any).findOne(buildIdFilter(id)).lean();
     }
     if (!item) {
       item = memoryGalleryStore.find((g) => g.id === id);
@@ -207,62 +212,73 @@ export const handleCreateGallery = async (req: Request, res: Response) => {
 
 // POST /api/v1/gallery/upload OR /api/v1/gallery/:id/image - Upload image to Google Drive & save MongoDB metadata
 export const handleUploadGalleryImage = async (req: Request, res: Response) => {
-  console.log('[GALLERY UPLOAD] request received');
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
-  }
-
-  const file = req.file || (req.files && Array.isArray(req.files) ? (req.files as Express.Multer.File[])[0] : null);
-  console.log('[GALLERY UPLOAD] multer file exists =', Boolean(file));
-
-  if (!file) {
-    console.log('[GALLERY UPLOAD] ERROR: No image file uploaded.');
-    return res.status(400).json({ success: false, message: 'No image file uploaded.' });
-  }
-
-  console.log(`[GALLERY UPLOAD] filename = ${file.originalname}`);
-  console.log(`[GALLERY UPLOAD] mimetype = ${file.mimetype}`);
-  console.log(`[GALLERY UPLOAD] size = ${file.size}`);
-
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-  if (!allowedTypes.includes(file.mimetype)) {
-    return res.status(400).json({ success: false, message: `Invalid image type '${file.mimetype}'. Allowed: JPEG, PNG, WEBP, GIF, SVG` });
-  }
-
-  if (file.size > 15 * 1024 * 1024) {
-    return res.status(400).json({ success: false, message: 'Image size exceeds maximum limit of 15MB.' });
-  }
-
-  const driveInitialized = googleDriveService.hasCredentials();
-  const driveFolderSet = Boolean(process.env.GOOGLE_DRIVE_FOLDER_ID);
-  console.log('[GALLERY UPLOAD] Google Drive initialized =', driveInitialized);
-  console.log('[GALLERY UPLOAD] Google Drive folder =', driveFolderSet);
-
-  const galleryId = req.params.id || req.params.galleryId || `gal-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  const title = req.body.title || file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || 'Campus Gallery Photo';
-  const description = req.body.description || 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL campus photograph.';
-  const category = req.body.category || 'Hospital & OPD';
-  const uploader = req.body.uploader || 'Authorized Admin';
-  const status = req.body.status || 'PUBLISHED';
-  const displayOrder = parseInt(req.body.displayOrder) || (memoryGalleryStore.length + 1);
-  const isFeatured = req.body.isFeatured === true || req.body.isFeatured === 'true';
+  console.log('[GALLERY DEBUG] upload request received');
+  console.log('[GALLERY DEBUG] method=', req.method);
+  console.log('[GALLERY DEBUG] content-type=', req.headers['content-type']);
+  console.log('[GALLERY 1] request received');
 
   try {
-    console.log('[GALLERY UPLOAD] upload started');
+    if (!checkAdminAuth(req)) {
+      console.warn('[GALLERY DEBUG] Authentication missing or invalid token header');
+      return res.status(401).json({ success: false, message: 'Authentication required. Admin authorization token missing or invalid.' });
+    }
+
+    console.log('[GALLERY 2] multipart parsed');
+    const file = req.file || (req.files && Array.isArray(req.files) ? (req.files as Express.Multer.File[])[0] : null);
+    console.log('[GALLERY DEBUG] file=', file ? {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+    } : null);
+    console.log('[GALLERY DEBUG] FormData field names =', Object.keys(req.body || {}));
+
+    if (!file) {
+      console.error('[GALLERY DEBUG] ERROR: No image file uploaded.');
+      return res.status(400).json({ success: false, message: 'No image file uploaded.' });
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      console.error(`[GALLERY DEBUG] Invalid image type '${file.mimetype}'`);
+      return res.status(400).json({ success: false, message: `Invalid image type '${file.mimetype}'. Allowed: JPEG, PNG, WEBP, GIF, SVG` });
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      console.error(`[GALLERY DEBUG] Image size ${file.size} exceeds maximum limit of 15MB`);
+      return res.status(400).json({ success: false, message: 'Image size exceeds maximum limit of 15MB.' });
+    }
+    console.log('[GALLERY 3] file validated');
+
+    const driveInitialized = googleDriveService.hasCredentials();
+    const driveFolderSet = Boolean(process.env.GOOGLE_DRIVE_FOLDER_ID);
+    console.log('[GALLERY 4] Google Drive service initialized =', driveInitialized);
+    console.log('[GALLERY 5] Google Drive folder resolved =', driveFolderSet);
+
+    const galleryId = req.params.id || req.params.galleryId || `gal-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const title = req.body.title || file.originalname.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || 'Campus Gallery Photo';
+    const description = req.body.description || 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL campus photograph.';
+    const category = req.body.category || 'Hospital & OPD';
+    const uploader = req.body.uploader || 'Authorized Admin';
+    const status = req.body.status || 'PUBLISHED';
+    const displayOrder = parseInt(req.body.displayOrder) || (memoryGalleryStore.length + 1);
+    const isFeatured = req.body.isFeatured === true || req.body.isFeatured === 'true';
+
+    console.log('[GALLERY 6] Google Drive upload started');
     const cleanFileName = `gallery-${galleryId}-${Date.now()}.${file.mimetype.split('/')[1] || 'jpg'}`;
 
     let driveRes: any = null;
     try {
       driveRes = await googleDriveService.uploadPdf(file.buffer, cleanFileName, file.mimetype);
     } catch (driveErr: any) {
-      console.warn('[GALLERY UPLOAD] Google Drive upload notice:', driveErr?.message || driveErr);
+      console.warn('[GALLERY DEBUG] Google Drive upload notice:', driveErr?.message || driveErr);
     }
 
     const driveFileId = driveRes?.fileId || driveRes?.id || `gal-drive-${Date.now()}`;
     if (driveRes?.fileId || driveRes?.id) {
-      console.log(`[GALLERY UPLOAD] Google Drive upload completed: ${driveFileId}`);
+      console.log(`[GALLERY 7] Google Drive upload completed: ${driveFileId}`);
     } else {
-      console.warn(`[GALLERY UPLOAD] Google Drive returned no fileId (${driveRes?.error || 'unconfigured'}). Using fallback ID: ${driveFileId}`);
+      console.warn(`[GALLERY 7] Google Drive returned no fileId (${driveRes?.error || 'unconfigured'}). Using fallback ID: ${driveFileId}`);
     }
 
     const imageMetadata = {
@@ -272,6 +288,7 @@ export const handleUploadGalleryImage = async (req: Request, res: Response) => {
     };
     const imageUrl = `/api/v1/gallery/${galleryId}/image?v=${driveFileId}`;
 
+    console.log('[GALLERY 8] MongoDB save started');
     let savedItem: any = null;
     const itemData = {
       id: galleryId,
@@ -288,9 +305,7 @@ export const handleUploadGalleryImage = async (req: Request, res: Response) => {
     };
 
     if (mongoose.connection.readyState === 1) {
-      let existing = await (GalleryModel as any).findOne({
-        $or: [{ id: galleryId }, { _id: mongoose.Types.ObjectId.isValid(galleryId) ? galleryId : null }],
-      });
+      let existing = await (GalleryModel as any).findOne(buildIdFilter(galleryId));
 
       if (existing) {
         existing.image = imageMetadata;
@@ -309,7 +324,7 @@ export const handleUploadGalleryImage = async (req: Request, res: Response) => {
         }
         savedItem = await (GalleryModel as any).create(docToCreate);
       }
-      console.log('[GALLERY UPLOAD] MongoDB save completed');
+      console.log('[GALLERY 9] MongoDB save completed');
     }
 
     const idx = memoryGalleryStore.findIndex((g) => g.id === galleryId);
@@ -321,6 +336,7 @@ export const handleUploadGalleryImage = async (req: Request, res: Response) => {
       if (!savedItem) savedItem = itemData;
     }
 
+    console.log('[GALLERY 10] response sent');
     const output = formatGalleryOutput(savedItem?.toObject ? savedItem.toObject() : savedItem);
 
     return res.status(200).json({
@@ -331,17 +347,16 @@ export const handleUploadGalleryImage = async (req: Request, res: Response) => {
       fileSize: file.size,
       message: 'Gallery image uploaded & saved successfully.',
     });
-  } catch (err: any) {
-    console.error('[GALLERY UPLOAD] ERROR =', {
-      message: err?.message,
-      code: err?.code,
-      stack: err?.stack,
-    });
+  } catch (error) {
+    console.error('[GALLERY FATAL ERROR]');
+    console.error(error);
+    console.error('[GALLERY FATAL MESSAGE]', error instanceof Error ? error.message : error);
+    console.error('[GALLERY FATAL STACK]', error instanceof Error ? error.stack : undefined);
+
     return res.status(500).json({
       success: false,
       message: 'Gallery upload failed',
-      errorCode: 'GOOGLE_DRIVE_UPLOAD_FAILED',
-      error: err?.message || String(err),
+      errorCode: 'GALLERY_UPLOAD_FAILED',
     });
   }
 };
@@ -359,16 +374,20 @@ export const handleStreamGalleryImage = async (req: Request, res: Response) => {
 
     if (mongoose.connection.readyState === 1) {
       const qv = req.query.v as string;
-      const item = await (GalleryModel as any).findOne({
-        $or: [
-          { id },
-          { customId: id },
-          { _id: mongoose.Types.ObjectId.isValid(id) ? id : null },
-          { imageUrl: { $regex: id } },
-          { 'image.driveFileId': qv },
-          { 'image.driveFileId': id },
-        ].filter(Boolean),
-      }).lean();
+      const queryOr: any[] = [
+        { id },
+        { customId: id },
+        { imageUrl: { $regex: id } },
+      ];
+      if (id && mongoose.Types.ObjectId.isValid(id)) {
+        queryOr.push({ _id: id });
+      }
+      if (qv) {
+        queryOr.push({ 'image.driveFileId': qv });
+      }
+      queryOr.push({ 'image.driveFileId': id });
+
+      const item = await (GalleryModel as any).findOne({ $or: queryOr }).lean();
       if (item && item.image?.driveFileId) {
         driveFileId = item.image.driveFileId;
         mimeType = item.image.mimeType || 'image/jpeg';
@@ -386,7 +405,6 @@ export const handleStreamGalleryImage = async (req: Request, res: Response) => {
     }
 
     if (!driveFileId) {
-      // Check query param fallback
       const qDriveId = req.query.v as string;
       if (qDriveId && qDriveId.length > 10) {
         driveFileId = qDriveId;
@@ -433,7 +451,7 @@ export const handleUpdateGallery = async (req: Request, res: Response) => {
     let updatedItem: any = null;
     if (mongoose.connection.readyState === 1) {
       updatedItem = await (GalleryModel as any).findOneAndUpdate(
-        { $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }] },
+        buildIdFilter(id),
         { $set: req.body },
         { returnDocument: 'after', new: true }
       ).lean();
@@ -473,9 +491,7 @@ export const handleDeleteGalleryImage = async (req: Request, res: Response) => {
     let driveFileId: string | null = null;
 
     if (mongoose.connection.readyState === 1) {
-      const item = await (GalleryModel as any).findOne({
-        $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }],
-      });
+      const item = await (GalleryModel as any).findOne(buildIdFilter(id));
       if (item) {
         driveFileId = item.image?.driveFileId || null;
         console.log(`[GALLERY PHOTO DELETE] Google Drive file ID = ${driveFileId || 'NONE'}`);
@@ -526,9 +542,7 @@ export const handleDeleteGallery = async (req: Request, res: Response) => {
     let driveFileId: string | null = null;
 
     if (mongoose.connection.readyState === 1) {
-      const item = await (GalleryModel as any).findOne({
-        $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }],
-      });
+      const item = await (GalleryModel as any).findOne(buildIdFilter(id));
       if (item) {
         driveFileId = item.image?.driveFileId || null;
         console.log(`[GALLERY DELETE] Google Drive file ID = ${driveFileId || 'NONE'}`);
@@ -572,7 +586,7 @@ export const handleBulkDeleteGallery = async (req: Request, res: Response) => {
 
   for (const id of ids) {
     if (mongoose.connection.readyState === 1) {
-      const item = await (GalleryModel as any).findOne({ $or: [{ id }, { _id: mongoose.Types.ObjectId.isValid(id) ? id : null }] });
+      const item = await (GalleryModel as any).findOne(buildIdFilter(id));
       if (item) {
         if (item.image?.driveFileId) await googleDriveService.deleteFile(item.image.driveFileId);
         await (GalleryModel as any).deleteOne({ _id: item._id });
