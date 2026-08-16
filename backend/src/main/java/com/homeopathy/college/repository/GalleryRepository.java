@@ -13,7 +13,7 @@ public interface GalleryRepository extends MongoRepository<GalleryItem, String> 
     List<GalleryItem> findByCategory(String category);
     List<GalleryItem> findByStatus(String status);
 
-    @Query("{ '$or': [ { '_id': ?0 }, { 'id': ?0 }, { 'imageUrl': { '$regex': ?0 } } ] }")
+    @Query("{ '$or': [ { '_id': ?0 }, { 'id': ?0 }, { 'customId': ?0 }, { 'imageUrl': { '$regex': ?0 } } ] }")
     Optional<GalleryItem> findByIdOrCustomId(String id);
 
     @Query("{ '$or': [ { 'image.driveFileId': ?0 }, { 'driveFileId': ?0 } ] }")

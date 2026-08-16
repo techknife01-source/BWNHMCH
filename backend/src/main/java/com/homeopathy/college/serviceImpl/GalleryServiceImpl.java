@@ -7,6 +7,7 @@ import com.homeopathy.college.exception.ResourceNotFoundException;
 import com.homeopathy.college.repository.GalleryRepository;
 import com.homeopathy.college.service.GalleryService;
 import com.homeopathy.college.service.GoogleDriveService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -25,9 +27,37 @@ public class GalleryServiceImpl implements GalleryService {
     private final GoogleDriveService googleDriveService;
 
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
-            "image/jpeg", "image/jpg", "image/png", "image/webp"
+            "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"
     );
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+
+    @PostConstruct
+    public void migrateExistingNullIdRecords() {
+        try {
+            log.info("[GALLERY MIGRATION] Scanning for MongoDB gallery documents missing unique IDs...");
+            List<GalleryItem> items = galleryRepository.findAll();
+            int fixedCount = 0;
+            for (GalleryItem item : items) {
+                boolean updated = false;
+                if (item.getId() == null || item.getId().isBlank()) {
+                    String generatedId = "gal-migrated-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8);
+                    item.setId(generatedId);
+                    item.setCustomId(generatedId);
+                    updated = true;
+                } else if (item.getCustomId() == null || item.getCustomId().isBlank()) {
+                    item.setCustomId(item.getId());
+                    updated = true;
+                }
+                if (updated) {
+                    galleryRepository.save(item);
+                    fixedCount++;
+                }
+            }
+            log.info("[GALLERY MIGRATION] Migration complete. Assigned unique non-null IDs to {} records.", fixedCount);
+        } catch (Exception e) {
+            log.warn("[GALLERY MIGRATION] Migration notice: {}", e.getMessage());
+        }
+    }
 
     @Override
     public List<GalleryItem> getAllItems() {
@@ -43,9 +73,22 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public GalleryItem createItem(GalleryItem item) {
-        if (item.getStatus() == null) {
+        if (item == null) {
+            item = new GalleryItem();
+        }
+        if (item.getId() == null || item.getId().isBlank()) {
+            String uniqueId = "gal-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8);
+            item.setId(uniqueId);
+            item.setCustomId(uniqueId);
+        } else if (item.getCustomId() == null || item.getCustomId().isBlank()) {
+            item.setCustomId(item.getId());
+        }
+
+        if (item.getStatus() == null || item.getStatus().isBlank()) {
             item.setStatus("Active");
         }
+
+        log.info("[GALLERY SERVICE] Saving new GalleryItem with id='{}', customId='{}'", item.getId(), item.getCustomId());
         return galleryRepository.save(item);
     }
 
@@ -56,6 +99,11 @@ public class GalleryServiceImpl implements GalleryService {
         if (details.getDescription() != null) item.setDescription(details.getDescription());
         if (details.getCategory() != null) item.setCategory(details.getCategory());
         if (details.getStatus() != null) item.setStatus(details.getStatus());
+
+        // Preserve existing ID identity on update
+        if (item.getCustomId() == null || item.getCustomId().isBlank()) {
+            item.setCustomId(item.getId());
+        }
 
         return galleryRepository.save(item);
     }
@@ -93,6 +141,13 @@ public class GalleryServiceImpl implements GalleryService {
         }
 
         GalleryItem item = getItemById(galleryId);
+        if (item.getId() == null || item.getId().isBlank()) {
+            item.setId(galleryId);
+            item.setCustomId(galleryId);
+        } else if (item.getCustomId() == null || item.getCustomId().isBlank()) {
+            item.setCustomId(item.getId());
+        }
+
         String oldDriveFileId = (item.getImage() != null) ? item.getImage().getDriveFileId() : null;
 
         String fileName = file.getOriginalFilename();
@@ -153,12 +208,13 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public GalleryItem createGalleryItemWithImage(String title, String description, String category, MultipartFile file) {
-        String galleryId = "gal-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 1000);
+        String galleryId = "gal-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8);
         GalleryItem newItem = GalleryItem.builder()
                 .id(galleryId)
-                .title(title != null ? title : "Gallery Photo")
+                .customId(galleryId)
+                .title(title != null && !title.isBlank() ? title : "Gallery Photo")
                 .description(description != null ? description : "")
-                .category(category != null ? category : "General")
+                .category(category != null && !category.isBlank() ? category : "General")
                 .status("Active")
                 .uploadDate(java.time.LocalDate.now().toString())
                 .build();
@@ -178,9 +234,6 @@ public class GalleryServiceImpl implements GalleryService {
     @Override
     public GalleryImageStream getGalleryImageStream(String galleryId, String versionOrDriveId) {
         log.info("[GALLERY_IMAGE] CONTROLLER HIT id={}", galleryId);
-        log.info("[GALLERY_IMAGE] REQUEST");
-        log.info("[GALLERY_IMAGE] ID: {}", galleryId);
-        log.info("[GALLERY_IMAGE] DATABASE LOOKUP");
 
         GalleryItem item = null;
         try {
@@ -190,15 +243,6 @@ public class GalleryServiceImpl implements GalleryService {
             }
         } catch (Exception e) {
             log.warn("[GALLERY_IMAGE] Database lookup exception for '{}': {}", galleryId, e.getMessage());
-        }
-
-        log.info("[GALLERY_IMAGE] MONGO FOUND = {}", item != null);
-        if (item != null) {
-            log.info("[GALLERY_IMAGE] APPLICATION ID = {}", item.getId());
-            log.info("[GALLERY_IMAGE] MONGO _id = {}", item.getId());
-            log.info("[GALLERY_IMAGE] DRIVE FILE ID = {}", item.getImage() != null ? item.getImage().getDriveFileId() : "NONE");
-            log.info("[GALLERY_IMAGE] MIME TYPE = {}", item.getImage() != null ? item.getImage().getMimeType() : "NONE");
-            log.info("[GALLERY_IMAGE] IMAGE URL = {}", item.getImageUrl());
         }
 
         String driveFileId = null;
@@ -216,24 +260,14 @@ public class GalleryServiceImpl implements GalleryService {
         }
 
         if (driveFileId == null || driveFileId.isBlank()) {
-            if (item == null) {
-                log.warn("[GALLERY_IMAGE] RECORD NOT FOUND: {}", galleryId);
-            } else {
-                log.warn("[GALLERY_IMAGE] DRIVE FILE ID MISSING: {}", galleryId);
-            }
             throw new ResourceNotFoundException("Gallery image", "galleryId", galleryId);
         }
 
-        log.info("[GALLERY_IMAGE] DRIVE DOWNLOAD START");
-        log.info("[GALLERY_IMAGE] DRIVE FILE ID = {}", driveFileId);
-
         InputStream stream = googleDriveService.downloadFile(driveFileId);
         if (stream == null) {
-            log.error("[GALLERY_IMAGE] DRIVE FILE NOT FOUND: {}", driveFileId);
             throw new ResourceNotFoundException("Google Drive file", "driveFileId", driveFileId);
         }
 
-        log.info("[GALLERY_IMAGE] DRIVE DOWNLOAD SUCCESS");
         return new GalleryImageStream(stream, mimeType);
     }
 }

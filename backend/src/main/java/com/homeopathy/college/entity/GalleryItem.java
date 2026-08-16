@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,10 @@ public class GalleryItem {
 
     @Id
     private String id;
+
+    @Field("id")
+    private String customId;
+
     private String title;
     private String description;
     private String category;
@@ -34,6 +39,20 @@ public class GalleryItem {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public void setId(String id) {
+        this.id = id;
+        if (this.customId == null || this.customId.isBlank()) {
+            this.customId = id;
+        }
+    }
+
+    public String getId() {
+        if (this.id != null && !this.id.isBlank()) {
+            return this.id;
+        }
+        return this.customId;
+    }
 
     @Data
     @NoArgsConstructor
