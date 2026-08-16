@@ -4,7 +4,11 @@ import { StaffModel, SEED_STAFF, IStaff } from './staffModel';
 import { googleDriveService } from './googleDriveService';
 
 // In-memory store for fallback and rapid sync
-let memoryStaffStore: any[] = JSON.parse(JSON.stringify(SEED_STAFF));
+let memoryStaffStore: any[] = [];
+
+export function seedMemoryStaffStore(records: any[]) {
+  memoryStaffStore = [...records];
+}
 
 // Helper: Ensure authentication header is present for Admin write ops
 export function checkAdminAuthHeader(req: Request): boolean {
@@ -50,36 +54,24 @@ async function reindexDisplayOrders() {
   }
 }
 
-// Helper: Seed initial staff data only if collection is empty, and sync memory store with MongoDB
+// Helper: Load existing staff records from MongoDB Atlas into in-memory cache (NO AUTO-SEEDING)
 export async function initStaffDatabase() {
   try {
     if (mongoose.connection.readyState === 1) {
-      const seedIds = SEED_STAFF.map((s) => s.id);
-      await (StaffModel as any).deleteMany({ id: { $nin: seedIds } });
-
-      for (const seed of SEED_STAFF) {
-        const existing = await (StaffModel as any).findOne({ id: seed.id });
-        if (!existing) {
-          await (StaffModel as any).create(seed);
-        }
-      }
-
       const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
-      memoryStaffStore = dbStaff.map((s: any, idx: number) => ({
-        ...s,
-        id: s.id || (s._id ? String(s._id) : `staff-${idx + 1}`),
-        slNo: idx + 1,
-        displayOrder: s.displayOrder || idx + 1,
-      }));
-      console.log(`[Staff DB Sync] Idempotent sync complete. Total in MongoDB 'staff' collection: ${dbStaff.length}`);
-    } else {
-      memoryStaffStore = JSON.parse(JSON.stringify(SEED_STAFF));
+      if (dbStaff) {
+        memoryStaffStore = dbStaff.map((s: any, idx: number) => ({
+          ...s,
+          id: s.id || (s._id ? String(s._id) : `staff-${idx + 1}`),
+          slNo: s.slNo || idx + 1,
+          displayOrder: s.displayOrder || idx + 1,
+        }));
+        console.log(`[Staff DB Sync] Loaded ${dbStaff.length} staff records from MongoDB Atlas into memory store.`);
+      }
     }
   } catch (err: any) {
     console.error('[Staff DB Init Error]:', err?.message || err);
   }
-
-  await reindexDisplayOrders();
 }
 
 // Format staff output for REST API
@@ -142,11 +134,7 @@ export const handleGetStaff = async (req: Request, res: Response) => {
     if (mongoose.connection.readyState === 1) {
       try {
         const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
-        if (dbStaff && dbStaff.length > 0) {
-          list = dbStaff;
-        } else {
-          list = memoryStaffStore;
-        }
+        list = dbStaff || [];
       } catch (dbErr: any) {
         console.warn('[Staff DB Query Fallback]: Using memory store:', dbErr?.message || dbErr);
         list = memoryStaffStore;

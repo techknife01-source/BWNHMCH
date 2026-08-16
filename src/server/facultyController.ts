@@ -4,7 +4,11 @@ import { FacultyModel, SEED_FACULTY, IFaculty } from './facultyModel';
 import { googleDriveService } from './googleDriveService';
 
 // In-memory store for fallback and rapid sync
-let memoryFacultyStore: any[] = JSON.parse(JSON.stringify(SEED_FACULTY));
+let memoryFacultyStore: any[] = [];
+
+export function seedMemoryFacultyStore(records: any[]) {
+  memoryFacultyStore = [...records];
+}
 
 // Helper: Ensure authentication header is present for Admin write ops
 export function checkAdminAuthHeader(req: Request): boolean {
@@ -50,34 +54,23 @@ async function reindexDisplayOrders() {
   }
 }
 
-// Helper: Seed initial faculty data idempotently into MongoDB Atlas faculty collection
+// Helper: Load existing faculty records from MongoDB Atlas into in-memory cache (NO AUTO-SEEDING)
 export async function initFacultyDatabase() {
   try {
     if (mongoose.connection.readyState === 1) {
-      const seedIds = SEED_FACULTY.map((s) => s.id);
-      await (FacultyModel as any).deleteMany({ id: { $nin: seedIds } });
-
-      for (const seed of SEED_FACULTY) {
-        const existing = await (FacultyModel as any).findOne({ id: seed.id });
-        if (!existing) {
-          await (FacultyModel as any).create(seed);
-        }
-      }
-
       const dbFaculty = await (FacultyModel as any).find({}).sort({ displayOrder: 1 }).lean();
-      memoryFacultyStore = dbFaculty.map((f: any, idx: number) => ({
-        ...f,
-        id: f.id || (f._id ? String(f._id) : `fac-${idx + 1}`),
-        slNo: idx + 1,
-        displayOrder: f.displayOrder || idx + 1,
-      }));
-      console.log(`[Faculty DB Sync] Idempotent sync complete. Total in MongoDB 'faculty' collection: ${dbFaculty.length}`);
-    } else {
-      memoryFacultyStore = JSON.parse(JSON.stringify(SEED_FACULTY));
+      if (dbFaculty) {
+        memoryFacultyStore = dbFaculty.map((f: any, idx: number) => ({
+          ...f,
+          id: f.id || (f._id ? String(f._id) : `fac-${idx + 1}`),
+          slNo: f.slNo || idx + 1,
+          displayOrder: f.displayOrder || idx + 1,
+        }));
+        console.log(`[Faculty DB Sync] Loaded ${dbFaculty.length} faculty records from MongoDB Atlas into memory store.`);
+      }
     }
-    await reindexDisplayOrders();
   } catch (err: any) {
-    console.warn('[Faculty DB Sync Notice]: Using memory store:', err?.message || err);
+    console.error('[Faculty DB Init Error]:', err?.message || err);
   }
 }
 
@@ -134,11 +127,7 @@ export const handleGetFaculty = async (req: Request, res: Response) => {
     if (mongoose.connection.readyState === 1) {
       try {
         const dbFaculty = await (FacultyModel as any).find({}).sort({ displayOrder: 1 }).lean();
-        if (dbFaculty && dbFaculty.length > 0) {
-          list = dbFaculty;
-        } else {
-          list = memoryFacultyStore;
-        }
+        list = dbFaculty || [];
       } catch (dbErr: any) {
         console.warn('[Faculty DB Query Fallback]: Using memory store:', dbErr?.message || dbErr);
         list = memoryFacultyStore;

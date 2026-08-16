@@ -43,6 +43,7 @@ import {
 } from './src/server/booksController';
 import {
   initStaffDatabase,
+  seedMemoryStaffStore,
   handleGetStaff,
   handleGetSingleStaff,
   handleCreateStaff,
@@ -54,6 +55,7 @@ import {
 } from './src/server/staffController';
 import {
   initFacultyDatabase,
+  seedMemoryFacultyStore,
   handleGetFaculty,
   handleGetSingleFaculty,
   handleCreateFaculty,
@@ -65,6 +67,7 @@ import {
 } from './src/server/facultyController';
 import {
   initDoctorDatabase,
+  seedMemoryDoctorStore,
   handleGetDoctors,
   handleGetSingleDoctor,
   handleCreateDoctor,
@@ -74,6 +77,9 @@ import {
   handleGetDoctorPhoto,
   handleDeleteDoctorPhoto,
 } from './src/server/doctorController';
+import { FacultyModel } from './src/server/facultyModel';
+import { DoctorModel } from './src/server/doctorModel';
+import { StaffModel } from './src/server/staffModel';
 import {
   initGalleryDatabase,
   handleGetGallery,
@@ -412,6 +418,120 @@ staffRoutes.forEach((route) => {
   app.put(`${route}/:id`, handleUpdateStaff);
   app.patch(`${route}/:id`, handleUpdateStaff);
   app.delete(`${route}/:id`, handleDeleteStaff);
+});
+
+// Explicit Admin Database Seed Endpoint (NEVER executed automatically on server startup)
+app.post('/api/v1/admin/seed', async (req: Request, res: Response) => {
+  try {
+    const DEMO_FACULTY = [
+      {
+        id: 'fac-test-001',
+        slNo: 1,
+        empId: 'TEST-FAC-001',
+        name: 'Rajesh Pal',
+        department: 'Homoeopathic Medicine',
+        departmentId: 'med',
+        designation: 'Assistant Professor',
+        category: 'ACADEMIC FACULTY',
+        displayOrder: 1,
+        qualification: 'BHMS, MD (Hom)',
+        specialization: 'Homoeopathic Medicine',
+        email: 'rajesh.pal@bhmc.edu.in',
+        phone: '+91 98000 00001',
+        status: 'ACTIVE',
+      },
+    ];
+
+    const DEMO_DOCTORS = [
+      {
+        id: 'doc-test-001',
+        slNo: 1,
+        empId: 'TEST-FAC-001',
+        name: 'Rajesh Pal',
+        roleCategory: 'MEDICAL_DOCTOR',
+        department: 'Homoeopathic Medicine',
+        departmentId: 'med',
+        designation: 'Medical Officer',
+        category: 'CLINICAL_DOCTOR',
+        displayOrder: 1,
+        qualification: 'BHMS, MD (Hom)',
+        specialization: 'Homoeopathic Medicine',
+        email: 'rajesh.pal@bhmc.edu.in',
+        phone: '+91 98000 00001',
+        status: 'ACTIVE',
+      },
+      {
+        id: 'doc-test-002',
+        slNo: 2,
+        empId: 'TEST-DOC-001',
+        name: 'Sbrata Pal',
+        roleCategory: 'MEDICAL_DOCTOR',
+        department: 'Hospital',
+        departmentId: 'hosp',
+        designation: 'Medical Officer',
+        category: 'CLINICAL_DOCTOR',
+        displayOrder: 2,
+        qualification: 'BHMS',
+        specialization: 'General Medicine',
+        email: 'sbrata.pal@bhmc.edu.in',
+        phone: '+91 98000 00002',
+        status: 'ACTIVE',
+      },
+    ];
+
+    const DEMO_STAFF = [
+      {
+        id: 'staff-test-001',
+        slNo: 1,
+        empId: 'TEST-STF-001',
+        name: 'Dourav Roy',
+        roleCategory: 'OFFICE_STAFF',
+        staffCategory: 'NON_MEDICAL',
+        department: 'Hospital Administration',
+        designation: 'Senior Executive Officer',
+        category: 'STAFF',
+        displayOrder: 1,
+        qualification: 'B.Com, MHA',
+        email: 'dourav.roy@bhmc.edu.in',
+        phone: '+91 98000 00003',
+        status: 'ACTIVE',
+      },
+    ];
+
+    if (mongoose.connection.readyState !== 1) {
+      await connectMongoDB(3, 1000);
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      for (const f of DEMO_FACULTY) {
+        const exists = await (FacultyModel as any).findOne({ id: f.id });
+        if (!exists) await (FacultyModel as any).create(f);
+      }
+      for (const d of DEMO_DOCTORS) {
+        const exists = await (DoctorModel as any).findOne({ id: d.id });
+        if (!exists) await (DoctorModel as any).create(d);
+      }
+      for (const s of DEMO_STAFF) {
+        const exists = await (StaffModel as any).findOne({ id: s.id });
+        if (!exists) await (StaffModel as any).create(s);
+      }
+      await initFacultyDatabase();
+      await initDoctorDatabase();
+      await initStaffDatabase();
+    } else {
+      seedMemoryFacultyStore(DEMO_FACULTY);
+      seedMemoryDoctorStore(DEMO_DOCTORS);
+      seedMemoryStaffStore(DEMO_STAFF);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Explicit database seeding completed successfully.',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message || 'Database seeding failed.' });
+  }
 });
 
 // Book & E-Library Endpoints Across All URL Routes

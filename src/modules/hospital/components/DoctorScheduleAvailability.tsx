@@ -290,7 +290,14 @@ export const DoctorScheduleAvailability: React.FC = () => {
       </div>
 
       {/* Doctor Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {filteredDoctors.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+          <Stethoscope className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">No doctors found</h3>
+          <p className="text-xs text-slate-500">0 Total Doctors. There are no medical consultants registered in this section.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDoctors.map((doc) => (
           <Card key={doc.id} className="p-5 space-y-4 relative overflow-hidden">
             {/* Top Status Header */}
@@ -388,6 +395,7 @@ export const DoctorScheduleAvailability: React.FC = () => {
           </Card>
         ))}
       </div>
+      )}
 
       {/* Add / Edit Doctor Modal */}
       {isAddModalOpen && (

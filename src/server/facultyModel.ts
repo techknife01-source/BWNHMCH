@@ -67,21 +67,4 @@ const FacultySchema = new Schema<IFaculty>(
 
 export const FacultyModel = mongoose.models.Faculty || mongoose.model<IFaculty>('Faculty', FacultySchema, 'faculty');
 
-export const SEED_FACULTY = [
-  {
-    id: 'fac-test-001',
-    slNo: 1,
-    empId: 'TEST-FAC-001',
-    name: 'Rajesh Pal',
-    department: 'Homoeopathic Medicine',
-    departmentId: 'med',
-    designation: 'Assistant Professor',
-    category: 'ACADEMIC FACULTY',
-    displayOrder: 1,
-    qualification: 'BHMS, MD (Hom)',
-    specialization: 'Homoeopathic Medicine',
-    email: 'rajesh.pal@bhmc.edu.in',
-    phone: '+91 98000 00001',
-    status: 'ACTIVE',
-  },
-];
+export const SEED_FACULTY: any[] = [];

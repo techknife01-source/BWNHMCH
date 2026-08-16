@@ -742,7 +742,18 @@ export const HospitalStaffDirectory: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {paginatedStaff.map((staff) => {
+                {filteredStaff.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="p-8 text-center text-slate-500">
+                      <div className="space-y-2">
+                        <Users className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
+                        <p className="font-bold text-slate-700 dark:text-slate-300 text-xs">No staff members found</p>
+                        <p className="text-2xs text-slate-400">0 Total Staff. There are no staff records in this selection.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedStaff.map((staff) => {
                   const isSelected = selectedIds.includes(staff.id);
                   const photoSrc = staff.photoUrl || staffApi.getStaffPhotoUrl(staff.id);
                   return (
@@ -877,7 +888,7 @@ export const HospitalStaffDirectory: React.FC = () => {
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
             </table>
           </div>

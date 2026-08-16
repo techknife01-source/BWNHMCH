@@ -6,6 +6,10 @@ import { googleDriveService } from './googleDriveService';
 // In-memory store for fallback and rapid sync
 let memoryDoctorStore: any[] = [];
 
+export function seedMemoryDoctorStore(records: any[]) {
+  memoryDoctorStore = [...records];
+}
+
 // Helper: Ensure authentication header is present for Admin write ops
 export function checkAdminAuthHeader(req: Request): boolean {
   const authHeader = req.headers.authorization;
