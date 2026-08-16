@@ -13,6 +13,7 @@ export interface InstitutionSettings {
   collegeEmail: string;
   collegePhone: string;
   hospitalPhone: string;
+  additionalPhones?: string[];
   principalName: string;
   principalMobile: string;
   principalEmail: string;
@@ -44,9 +45,10 @@ export const DEFAULT_INSTITUTION_SETTINGS: InstitutionSettings = {
   state: 'West Bengal',
   pincode: '713102',
   formattedAddress: 'NIMBARK BHABAN, Rajganj, P.O. - Nutanganj, Purba Bardhaman, Bardhaman, West Bengal, PIN - 713102',
-  collegeEmail: 'bhmchospital78@gmail.com',
-  collegePhone: '+91-342-2530601',
-  hospitalPhone: '+91-342-2530507',
+  collegeEmail: 'bhmhospital78@gmail.com',
+  collegePhone: '+91 9434238508',
+  hospitalPhone: '+91 7001539036',
+  additionalPhones: ['+91 9434238508', '+91 7001539036', '+91 94333 11889'],
   principalName: 'Prof. (Dr.) Susmita Chatterjee',
   principalMobile: '9434238508',
   principalEmail: 'drsusmita01@gmail.com',
@@ -59,7 +61,7 @@ export const DEFAULT_INSTITUTION_SETTINGS: InstitutionSettings = {
   pdfHeaderTitle: 'BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL',
   pdfHeaderSubtitle: 'Govt. Aided Clinical Teaching Hospital | Estd. 1978 | WBUHS & NCH Recognized',
   pdfHeaderAddress: 'NIMBARK BHABAN, Rajganj, P.O. - Nutanganj, Purba Bardhaman, Bardhaman, W.B. - 713102',
-  pdfHeaderContactLine: 'College Tel: +91-342-2530601 | Hospital Tel: +91-342-2530507 | Email: bhmchospital78@gmail.com',
+  pdfHeaderContactLine: 'Tel: +91 9434238508 / +91 7001539036 / +91 94333 11889 | Email: bhmhospital78@gmail.com',
   pdfFooterNotice: 'This OPD Patient Card is an official medical record. Please bring this card during every follow-up visit.',
   pdfQrVerificationText: 'Scan QR code to verify authentic patient registration & OPD booking details.',
 };

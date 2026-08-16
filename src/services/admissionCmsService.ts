@@ -178,8 +178,8 @@ const INITIAL_SETTINGS: AdmissionSettings = {
   stateQuotaSeats: 42,
   allIndiaQuotaSeats: 8,
   academicSession: '2026-27',
-  helplinePhones: '+91-342-2530601 / +91-342-2530507',
-  helplineEmail: 'bhmchospital78@gmail.com',
+  helplinePhones: '+91 9434238508 / +91 7001539036 / +91 94333 11889',
+  helplineEmail: 'bhmhospital78@gmail.com',
   officeHours: 'Mon - Sat (10:00 AM - 5:00 PM)',
 };
 

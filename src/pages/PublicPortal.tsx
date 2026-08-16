@@ -108,10 +108,10 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
           <div className="flex flex-wrap items-center gap-4 text-3xs md:text-2xs font-bold uppercase tracking-wider">
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#00A651]" /> +91-342-2530601
+              <Phone className="w-3.5 h-3.5 text-[#00A651]" /> +91 9434238508
             </span>
             <span className="flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#00A651]" /> bhmchospital78@gmail.com
+              <Mail className="w-3.5 h-3.5 text-[#00A651]" /> bhmhospital78@gmail.com
             </span>
             <span className="bg-[#00A651] text-white font-black px-2.5 py-0.5 rounded uppercase tracking-widest text-[9px] border border-[#ffffff10]">
               WBUHS Affiliated
@@ -877,7 +877,7 @@ export const PublicPortal: React.FC<PublicPortalProps> = ({
                   <Phone className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-slate-700 dark:text-slate-300 block">Phone Desk</span>
-                    <span className="text-slate-500 dark:text-slate-400">+91-342-2530601 / +91-342-2530507</span>
+                    <span className="text-slate-500 dark:text-slate-400">+91 9434238508 / +91 7001539036 / +91 94333 11889</span>
                   </div>
                 </div>
 

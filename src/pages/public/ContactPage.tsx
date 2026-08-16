@@ -118,7 +118,7 @@ export const ContactPage: React.FC = () => {
             <a href={`mailto:${settings.collegeEmail}`} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline block truncate mt-0.5">
               {settings.collegeEmail}
             </a>
-            <p className="text-2xs text-slate-500 mt-1">Website: www.bhnmch.com</p>
+            <p className="text-2xs text-slate-500 mt-1">Website: {settings.websiteUrl}</p>
           </div>
         </Card>
       </div>

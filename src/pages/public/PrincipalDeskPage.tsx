@@ -6,7 +6,7 @@ export const PrincipalDeskPage: React.FC = () => {
   const [data, setData] = useState<PrincipalDeskData>({
     name: 'Prof. (Dr.) Susmita Chatterjee',
     designation: 'Principal & Ex-Officio Superintendent',
-    photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600',
+    photoUrl: '/images/principal.jpg',
     qualifications: ['DHMS (West Bengal Council of Homoeopathic Medicine)', 'MD (Organon of Medicine)'],
     experienceYears: 28,
     message: `It gives me immense pride and pleasure to welcome you to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Homoeopathy is not merely a system of medicine; it is a gentle, individualistic, and holistic science of healing founded by Dr. Samuel Hahnemann. 

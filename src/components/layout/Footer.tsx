@@ -72,15 +72,15 @@ export const Footer: React.FC = () => {
               <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
               <span>{settings.formattedAddress}</span>
             </div>
-            <div className="flex items-center space-x-2.5 text-xs text-slate-400">
-              <Phone className="h-4 w-4 text-emerald-400 shrink-0" />
-              <span>College: {settings.collegePhone}</span>
+            <div className="flex items-start space-x-2.5 text-xs text-slate-400">
+              <Phone className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="space-y-1 font-medium">
+                <p>+91 9434238508</p>
+                <p>+91 7001539036</p>
+                <p>+91 94333 11889</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-2.5 text-xs text-slate-400">
-              <HeartPulse className="h-4 w-4 text-rose-400 shrink-0" />
-              <span>Hospital: {settings.hospitalPhone}</span>
-            </div>
-            <div className="flex items-center space-x-2.5 text-xs text-slate-400">
+            <div className="flex items-center space-x-2.5 text-xs text-slate-400 pt-1">
               <Mail className="h-4 w-4 text-amber-400 shrink-0" />
               <span>Email: {settings.collegeEmail}</span>
             </div>
