@@ -304,10 +304,10 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
         <div>
           <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-600" />
-            <span>Employee & Faculty Staff Directory ({employees.length})</span>
+            <span>Staff Management Directory ({employees.length})</span>
           </h2>
           <p className="text-xs text-slate-500">
-            Institutional personnel records, teaching faculty, hospital staff & non-teaching administration
+            Medical staff (nurses, lab technicians, pharmacists, radiographers) & non-medical administrative/support personnel
           </p>
         </div>
 
@@ -531,7 +531,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
       <Modal
         isOpen={!!employeeToDelete}
         onClose={() => setEmployeeToDelete(null)}
-        title={employeeToDelete?.employeeType === 'TEACHING' || employeeToDelete?.fullName.toLowerCase().includes('dr.') ? "Delete this doctor?" : "Delete this staff member?"}
+        title="Delete this staff member?"
         size="md"
       >
         {employeeToDelete && (

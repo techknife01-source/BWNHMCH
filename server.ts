@@ -48,10 +48,32 @@ import {
   handleCreateStaff,
   handleUpdateStaff,
   handleDeleteStaff,
+  handleUploadStaffPhoto,
+  handleGetStaffPhoto,
+  handleDeleteStaffPhoto,
+} from './src/server/staffController';
+import {
+  initFacultyDatabase,
+  handleGetFaculty,
+  handleGetSingleFaculty,
+  handleCreateFaculty,
+  handleUpdateFaculty,
+  handleDeleteFaculty,
   handleUploadFacultyPhoto,
   handleGetFacultyPhoto,
   handleDeleteFacultyPhoto,
-} from './src/server/staffController';
+} from './src/server/facultyController';
+import {
+  initDoctorDatabase,
+  handleGetDoctors,
+  handleGetSingleDoctor,
+  handleCreateDoctor,
+  handleUpdateDoctor,
+  handleDeleteDoctor,
+  handleUploadDoctorPhoto,
+  handleGetDoctorPhoto,
+  handleDeleteDoctorPhoto,
+} from './src/server/doctorController';
 import {
   initGalleryDatabase,
   handleGetGallery,
@@ -291,49 +313,96 @@ app.get('/api/v1/actuator/health', (req: Request, res: Response) => {
   });
 });
 
-// Initialize E-Library Books, Staff & Gallery Databases with Google Drive Auto-Sync
+// Initialize E-Library Books, Staff, Doctors, Faculty & Gallery Databases with Google Drive Auto-Sync
 initBooksDatabaseAndMigration().catch((err) => console.warn('[Books Init Warning]:', err));
 initStaffDatabase().catch((err) => console.warn('[Staff Init Warning]:', err));
+initDoctorDatabase().catch((err) => console.warn('[Doctor Init Warning]:', err));
+initFacultyDatabase().catch((err) => console.warn('[Faculty Init Warning]:', err));
 initGalleryDatabase().catch((err) => console.warn('[Gallery Init Warning]:', err));
 
-// Staff, Faculty & Doctor Directory REST Endpoints (Public GET, Protected Admin Write Ops)
-const staffRoutes = [
-  '/staff',
-  '/faculty',
+// 1. Doctors Directory REST Endpoints
+const doctorRoutes = [
   '/doctors',
-  '/api/staff',
-  '/api/faculty',
   '/api/doctors',
-  '/api/v1/staff',
-  '/api/v1/faculty',
   '/api/v1/doctors',
-  '/api/v1/hospital/staff',
   '/api/v1/hospital/doctors',
 ];
 
-// Faculty, Staff & Doctor Photo Endpoints (Google Drive Integration)
+const doctorPhotoRoutes = [
+  '/doctors/:doctorId/photo',
+  '/doctors/:id/photo',
+  '/api/doctors/:doctorId/photo',
+  '/api/v1/doctors/:doctorId/photo',
+  '/api/v1/doctors/:id/photo',
+];
+
+doctorPhotoRoutes.forEach((route) => {
+  app.get(route, handleGetDoctorPhoto);
+  app.post(route, upload.any(), handleUploadDoctorPhoto);
+  app.delete(route, handleDeleteDoctorPhoto);
+});
+
+doctorRoutes.forEach((route) => {
+  app.get(route, handleGetDoctors);
+  app.get(`${route}/:id`, handleGetSingleDoctor);
+  app.post(route, handleCreateDoctor);
+  app.put(`${route}/:id`, handleUpdateDoctor);
+  app.patch(`${route}/:id`, handleUpdateDoctor);
+  app.delete(`${route}/:id`, handleDeleteDoctor);
+});
+
+// 2. Academic Faculty Directory REST Endpoints
+const facultyRoutes = [
+  '/faculty',
+  '/api/faculty',
+  '/api/v1/faculty',
+  '/api/v1/academic/faculty',
+];
+
 const facultyPhotoRoutes = [
   '/faculty/:facultyId/photo',
-  '/staff/:facultyId/photo',
-  '/doctors/:facultyId/photo',
-  '/api/faculty/:facultyId/photo',
-  '/api/staff/:facultyId/photo',
-  '/api/doctors/:facultyId/photo',
-  '/api/v1/faculty/:facultyId/photo',
-  '/api/v1/staff/:facultyId/photo',
-  '/api/v1/doctors/:facultyId/photo',
   '/faculty/:id/photo',
-  '/staff/:id/photo',
-  '/doctors/:id/photo',
+  '/api/faculty/:facultyId/photo',
+  '/api/faculty/:id/photo',
+  '/api/v1/faculty/:facultyId/photo',
   '/api/v1/faculty/:id/photo',
-  '/api/v1/staff/:id/photo',
-  '/api/v1/doctors/:id/photo',
 ];
 
 facultyPhotoRoutes.forEach((route) => {
   app.get(route, handleGetFacultyPhoto);
   app.post(route, upload.any(), handleUploadFacultyPhoto);
   app.delete(route, handleDeleteFacultyPhoto);
+});
+
+facultyRoutes.forEach((route) => {
+  app.get(route, handleGetFaculty);
+  app.get(`${route}/:id`, handleGetSingleFaculty);
+  app.post(route, handleCreateFaculty);
+  app.put(`${route}/:id`, handleUpdateFaculty);
+  app.patch(`${route}/:id`, handleUpdateFaculty);
+  app.delete(`${route}/:id`, handleDeleteFaculty);
+});
+
+// 3. Hospital Staff Directory REST Endpoints (Medical & Non-Medical Staff)
+const staffRoutes = [
+  '/staff',
+  '/api/staff',
+  '/api/v1/staff',
+  '/api/v1/hospital/staff',
+];
+
+const staffPhotoRoutes = [
+  '/staff/:staffId/photo',
+  '/api/staff/:staffId/photo',
+  '/api/v1/staff/:staffId/photo',
+  '/staff/:id/photo',
+  '/api/v1/staff/:id/photo',
+];
+
+staffPhotoRoutes.forEach((route) => {
+  app.get(route, handleGetStaffPhoto);
+  app.post(route, upload.any(), handleUploadStaffPhoto);
+  app.delete(route, handleDeleteStaffPhoto);
 });
 
 staffRoutes.forEach((route) => {

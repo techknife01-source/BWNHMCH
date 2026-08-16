@@ -78,8 +78,13 @@ export const DoctorScheduleAvailability: React.FC = () => {
   const refreshDoctors = async () => {
     try {
       const res = await doctorsApi.getDoctorList();
-      const rawList = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
-      if (rawList && rawList.length > 0) {
+      const rawList = Array.isArray(res)
+        ? res
+        : (Array.isArray(res?.data)
+          ? res.data
+          : (Array.isArray(res?.data?.content) ? res.data.content : null));
+
+      if (Array.isArray(rawList)) {
         const mapped: DoctorMember[] = rawList.map((d: any) => ({
           id: d.id || d._id,
           name: d.name || d.facultyName || 'Doctor',
@@ -101,20 +106,9 @@ export const DoctorScheduleAvailability: React.FC = () => {
           dutyShift: d.dutyShift || '09:00 AM - 02:00 PM',
         }));
         setDoctorList(mapped);
-      } else {
-        const fallback = hospitalCoreService.getDoctors('ALL').map((d: any) => ({
-          ...d,
-          status: 'ACTIVE' as const,
-        }));
-        setDoctorList(fallback as any);
       }
     } catch (err) {
       console.warn('[DoctorScheduleAvailability] API fetch notice:', err);
-      const fallback = hospitalCoreService.getDoctors('ALL').map((d: any) => ({
-        ...d,
-        status: 'ACTIVE' as const,
-      }));
-      setDoctorList(fallback as any);
     }
   };
 
@@ -193,7 +187,7 @@ export const DoctorScheduleAvailability: React.FC = () => {
         toast.success(`Doctor profile for ${formData.name} updated successfully!`);
       } else {
         console.log('[DOCTOR CREATE] CALLING POST:', '/api/v1/doctors');
-        const res = await doctorsApi.createDoctor({ ...formData, roleCategory: 'MEDICAL_STAFF', category: 'ACADEMIC FACULTY' });
+        const res = await doctorsApi.createDoctor({ ...formData, roleCategory: 'MEDICAL_DOCTOR', category: 'CLINICAL_DOCTOR' });
         console.log('[DOCTOR CREATE] POST RESPONSE:', res);
         activeId = (res as any)?.data?.id || (res as any)?.id;
         toast.success(`Doctor record for ${formData.name} created successfully!`);

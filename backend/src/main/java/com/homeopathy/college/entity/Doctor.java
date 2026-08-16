@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "faculty")
-public class Faculty {
+@Document(collection = "doctors")
+public class Doctor {
 
     @Id
     private String id;
@@ -30,6 +30,7 @@ public class Faculty {
     private String specialization;
     private String email;
     private String phone;
+    private String medicalRegistrationNumber;
     private String registrationNumber;
     private String joiningDate;
     private String promotionDate;
@@ -38,7 +39,7 @@ public class Faculty {
     private String status;
     private String photoUrl;
 
-    private FacultyPhoto photo;
+    private DoctorPhoto photo;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -50,7 +51,7 @@ public class Faculty {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class FacultyPhoto {
+    public static class DoctorPhoto {
         private String driveFileId;
         private String fileName;
         private String mimeType;

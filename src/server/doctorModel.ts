@@ -1,17 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IStaff extends Document {
+export interface IDoctor extends Document {
   id: string;
   slNo: number;
   empId: string;
   name: string;
-  roleCategory: 'MEDICAL_STAFF' | 'OFFICE_STAFF' | 'PARAMEDICAL_STAFF' | 'NON_MEDICAL_STAFF';
-  staffCategory: 'MEDICAL' | 'NON_MEDICAL';
+  roleCategory?: string;
   department: string;
+  departmentId?: string;
   designation: string;
-  category: string;
+  category?: string;
   displayOrder: number;
   qualification?: string;
+  specialization?: string;
   contactNumber?: string;
   phone?: string;
   email?: string;
@@ -22,10 +23,10 @@ export interface IStaff extends Document {
     mimeType: string;
   };
   registrationNumber?: string;
+  medicalRegistrationNumber?: string;
   joiningDate?: string;
   promotionDate?: string;
   experienceYears?: string;
-  specialization?: string;
   biography?: string;
   availability?: string;
   dutyShift?: string;
@@ -36,28 +37,20 @@ export interface IStaff extends Document {
   updatedAt?: string;
 }
 
-const StaffSchema = new Schema<IStaff>(
+const DoctorSchema = new Schema<IDoctor>(
   {
     id: { type: String, required: true, unique: true },
     slNo: { type: Number, required: true },
     empId: { type: String, required: true },
     name: { type: String, required: true, trim: true },
-    roleCategory: {
-      type: String,
-      required: true,
-      enum: ['MEDICAL_STAFF', 'OFFICE_STAFF', 'PARAMEDICAL_STAFF', 'NON_MEDICAL_STAFF'],
-      default: 'OFFICE_STAFF',
-    },
-    staffCategory: {
-      type: String,
-      enum: ['MEDICAL', 'NON_MEDICAL'],
-      default: 'NON_MEDICAL',
-    },
+    roleCategory: { type: String, default: 'MEDICAL_DOCTOR' },
     department: { type: String, required: true, trim: true },
+    departmentId: { type: String },
     designation: { type: String, required: true, trim: true },
-    category: { type: String, required: true, trim: true, default: 'STAFF' },
+    category: { type: String, default: 'CLINICAL_DOCTOR' },
     displayOrder: { type: Number, required: true, index: true },
     qualification: { type: String },
+    specialization: { type: String },
     contactNumber: { type: String },
     phone: { type: String },
     email: { type: String },
@@ -68,10 +61,10 @@ const StaffSchema = new Schema<IStaff>(
       mimeType: { type: String },
     },
     registrationNumber: { type: String },
+    medicalRegistrationNumber: { type: String },
     joiningDate: { type: String },
     promotionDate: { type: String },
     experienceYears: { type: String },
-    specialization: { type: String },
     biography: { type: String },
     availability: { type: String, default: 'AVAILABLE' },
     dutyShift: { type: String },
@@ -82,6 +75,6 @@ const StaffSchema = new Schema<IStaff>(
   { timestamps: true, strict: false }
 );
 
-export const StaffModel = mongoose.models.Staff || mongoose.model<IStaff>('Staff', StaffSchema);
+export const DoctorModel = mongoose.models.Doctor || mongoose.model<IDoctor>('Doctor', DoctorSchema);
 
-export const SEED_STAFF: any[] = [];
+export const SEED_DOCTORS: any[] = [];

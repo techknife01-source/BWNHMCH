@@ -27,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/faculty")
+@RequestMapping({"/faculty", "/api/v1/faculty"})
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Faculty Management", description = "Endpoints for managing faculty directory and photo uploads")

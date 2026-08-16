@@ -39,8 +39,11 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+let globalRenderCounter = 0;
+
 export const DepartmentStaffManagementPanel: React.FC = () => {
   const { user } = useAuth();
+  const renderId = React.useRef(++globalRenderCounter).current;
   
   // Authorized roles: Super Admin, Admin, Principal, Vice Principal
   const isAuthorized = isSuperAdmin(user) || isAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
@@ -58,17 +61,28 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
-  const [staffData, setStaffData] = useState(() =>
-    departmentStaffService.getFilteredStaff({
-      search,
-      departmentId: deptFilter,
-      status: statusFilter,
-      sortBy,
-      sortOrder,
-      page,
-      pageSize,
-    })
-  );
+  const [staffData, setStaffData] = useState<{
+    data: DepartmentStaffMember[];
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  }>({
+    data: [],
+    total: 0,
+    page: 1,
+    pageSize: 10,
+    totalPages: 1,
+  });
+
+  console.log('[FACULTY RENDER]', {
+    time: performance.now(),
+    renderId,
+    staffDataCount: staffData?.data?.length,
+    staffDataNames: staffData?.data?.map((x) => x.name),
+    objectId: staffData,
+    dataObjectId: staffData?.data,
+  });
 
   // Selection & Bulk Actions
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -112,17 +126,85 @@ export const DepartmentStaffManagementPanel: React.FC = () => {
   });
 
   const loadData = async () => {
-    const res = await departmentStaffService.getFilteredStaffAsync({
-      search,
-      departmentId: deptFilter,
-      status: statusFilter,
-      sortBy,
-      sortOrder,
-      page,
-      pageSize,
-    });
-    setStaffData(res);
+    try {
+      console.log('[REAL FACULTY DIRECTORY LOAD]', { route: window.location.pathname });
+      console.log('[REAL FACULTY DIRECTORY API]');
+
+      const res = await facultyApi.getFacultyList({
+        search,
+        departmentId: deptFilter,
+        status: statusFilter,
+        sortBy,
+        sortOrder,
+      });
+
+      const rawList = Array.isArray(res)
+        ? res
+        : (Array.isArray(res?.data) ? res.data : []);
+
+      console.log('[REAL FACULTY DIRECTORY API RESULT]', {
+        count: rawList.length,
+        names: rawList.map((x: any) => x.name),
+      });
+
+      let mapped: DepartmentStaffMember[] = rawList.map((fac: any, idx: number) => ({
+        id: fac.id || fac._id || `fac-${idx + 1}`,
+        name: fac.name || fac.facultyName || '',
+        facultyName: fac.name || fac.facultyName || '',
+        departmentId: fac.departmentId || 'med',
+        departmentName: fac.department || fac.departmentName || 'Homoeopathic Medicine',
+        department: fac.department || fac.departmentName || 'Homoeopathic Medicine',
+        designation: fac.designation || 'Faculty',
+        qualification: fac.qualification || '',
+        specialization: fac.specialization || '',
+        email: fac.email || '',
+        phone: fac.phone || '',
+        photoUrl: fac.photo?.driveFileId
+          ? facultyApi.getFacultyPhotoUrl(fac.id, fac.photo.driveFileId)
+          : (fac.photoUrl || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400'),
+        photo: fac.photo,
+        joiningDate: fac.joiningDate || '',
+        promotionDate: fac.promotionDate || '',
+        experienceYears: fac.experienceYears || '',
+        registrationNumber: fac.registrationNumber || '',
+        biography: fac.biography || '',
+        status: (fac.status || 'ACTIVE').toUpperCase() === 'INACTIVE' ? 'Inactive' : 'Active',
+      }));
+
+      if (search && search.trim() !== '') {
+        const q = search.toLowerCase().trim();
+        mapped = mapped.filter(s => s.name.toLowerCase().includes(q) || s.designation.toLowerCase().includes(q) || s.departmentName.toLowerCase().includes(q));
+      }
+      if (deptFilter && deptFilter !== 'ALL' && deptFilter !== 'All') {
+        mapped = mapped.filter(s => s.departmentId === deptFilter);
+      }
+      if (statusFilter && statusFilter !== 'ALL') {
+        mapped = mapped.filter(s => s.status === statusFilter);
+      }
+
+      setStaffData({
+        data: mapped,
+        total: mapped.length,
+        page: 1,
+        pageSize: Math.max(mapped.length, 10),
+        totalPages: 1,
+      });
+    } catch (err) {
+      console.error('[Faculty Directory Direct API Error]:', err);
+    }
   };
+
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      console.log('[FACULTY STORAGE EVENT]', {
+        key: e.key,
+        oldValue: e.oldValue,
+        newValue: e.newValue,
+      });
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     loadData();

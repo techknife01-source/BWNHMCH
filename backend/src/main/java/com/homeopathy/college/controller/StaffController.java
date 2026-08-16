@@ -27,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/staff")
+@RequestMapping({"/staff", "/api/v1/staff"})
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Hospital & Faculty Staff Management", description = "Endpoints for managing hospital staff directory and photo uploads")

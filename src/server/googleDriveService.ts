@@ -169,6 +169,23 @@ export class GoogleDriveService {
     return this.isConfigured && !!this.drive;
   }
 
+  public async uploadFile(
+    fileBuffer: Buffer,
+    fileName: string,
+    mimeType: string = 'application/octet-stream'
+  ): Promise<{ fileId?: string; id?: string; webViewLink?: string; webContentLink?: string; fileSizeFormatted?: string; storedSizeBytes?: number; error?: string }> {
+    const res = await this.uploadPdf(fileBuffer, fileName, mimeType);
+    return {
+      ...res,
+      id: res.fileId,
+    };
+  }
+
+  public async getFileStream(fileId: string, rangeHeader?: string) {
+    const res = await this.getPdfStream(fileId, rangeHeader);
+    return res.stream;
+  }
+
   public async uploadPdf(
     fileBuffer: Buffer,
     fileName: string,

@@ -42,48 +42,15 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
     ],
     facultyList: [
       {
-        id: 'f-org-1',
-        name: 'Dr. Swapan Kundu',
-        designation: 'Professor & H.O.D.',
-        qualification: 'D.H.M.S.; B.H.M.S., PG Dip. Counseling Psychology (C.U.), M.D. (Organon of Medicine) DR B.R.A.U.',
-        specialization: 'Organon of Medicine & Counseling Psychology',
-        email: 'kunduswapan46@gmail.com',
-        phone: '+91 9836166528',
-        registrationNumber: '23330 (Council of Homoeopathic Medicine, W.B.)',
-        joiningDate: '2010-07-02'
-      },
-      {
-        id: 'f-org-2',
-        name: 'Dr. Dhananjaya Chatterjee',
-        designation: 'Professor',
-        qualification: 'DHMS; Dip NIH; MD (Organon of Medicine)',
-        specialization: 'Organon of Medicine & Classical Philosophy',
-        email: 'dr.d.chatt@gmail.com',
-        phone: '+91 9433402533',
-        registrationNumber: '17496 (West Bengal Council of Homoeopathic Medicine)',
-        joiningDate: '2026-02-18'
-      },
-      {
-        id: 'f-org-3',
-        name: 'Dr. Suhisna Das',
+        id: 'fac-test-001',
+        name: 'Rajesh Pal',
         designation: 'Assistant Professor',
-        qualification: 'B.H.M.S. (W.B.U.H.S.); M.D. (Organon of Medicine)',
-        specialization: 'Organon & Homoeopathic Philosophy',
-        email: 'suhisna.das@gmail.com',
-        phone: '+91 8670602660',
-        registrationNumber: '32177 (West Bengal Council of Homoeopathic Medicine)',
-        joiningDate: '2024-05-15'
-      },
-      {
-        id: 'f-org-4',
-        name: 'Susmita Dey',
-        designation: 'Assistant Professor',
-        qualification: 'B.H.M.S.; M.D. (Organon of Medicine)',
-        specialization: 'Organon of Medicine',
-        email: 'susmitadey712@gmail.com',
-        phone: '+91 7602798561',
-        registrationNumber: '33511 (West Bengal Council of Homoeopathic Medicine)',
-        joiningDate: '2026-05-07'
+        qualification: 'BHMS, MD (Hom)',
+        specialization: 'Homoeopathic Medicine',
+        email: 'rajesh.pal@bhmc.edu.in',
+        phone: '+91 98000 00001',
+        registrationNumber: 'TEST-FAC-001',
+        joiningDate: '2024-01-01'
       }
     ],
     gallery: [
@@ -1120,16 +1087,46 @@ export const departmentCmsService = {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+          if (Array.isArray(parsed)) {
+            const hasObsoleteStaff = parsed.some((d: any) =>
+              Array.isArray(d.facultyList) && d.facultyList.some((f: any) =>
+                /amit dhank/i.test(f.name) || /anaesthetist/i.test(f.name) || /arunima laha/i.test(f.name) || /chandra das/i.test(f.name) || /swapan kundu/i.test(f.name)
+              )
+            );
+            if (hasObsoleteStaff) {
+              console.log('[DepartmentCMS] Purged obsolete cached staff records from localStorage.');
+              localStorage.removeItem(STORAGE_KEY);
+            } else if (parsed.length > 0) {
+              return parsed;
+            }
           }
         }
       }
     } catch (e) {
       console.error('Error loading department CMS data from storage:', e);
     }
-    // Fallback to initial default dataset
-    return INITIAL_DEPARTMENT_CMS_DATA;
+    // Fallback to sanitized default dataset containing ONLY Rajesh Pal
+    return INITIAL_DEPARTMENT_CMS_DATA.map((dept) => {
+      if (dept.id === 'org') {
+        return {
+          ...dept,
+          facultyList: [
+            {
+              id: 'fac-test-001',
+              name: 'Rajesh Pal',
+              designation: 'Assistant Professor',
+              qualification: 'BHMS, MD (Hom)',
+              specialization: 'Homoeopathic Medicine',
+              email: 'rajesh.pal@bhmc.edu.in',
+              phone: '+91 98000 00001',
+              registrationNumber: 'TEST-FAC-001',
+              joiningDate: '2024-01-01',
+            },
+          ],
+        };
+      }
+      return { ...dept, facultyList: [] };
+    });
   },
 
   getDepartmentById: (id: string): DepartmentCMSData | undefined => {

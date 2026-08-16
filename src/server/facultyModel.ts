@@ -1,13 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IStaff extends Document {
+export interface IFaculty extends Document {
   id: string;
   slNo: number;
   empId: string;
   name: string;
-  roleCategory: 'MEDICAL_STAFF' | 'OFFICE_STAFF' | 'PARAMEDICAL_STAFF' | 'NON_MEDICAL_STAFF';
-  staffCategory: 'MEDICAL' | 'NON_MEDICAL';
   department: string;
+  departmentId?: string;
   designation: string;
   category: string;
   displayOrder: number;
@@ -27,35 +26,22 @@ export interface IStaff extends Document {
   experienceYears?: string;
   specialization?: string;
   biography?: string;
-  availability?: string;
-  dutyShift?: string;
-  opdCounter?: string;
   status: 'ACTIVE' | 'INACTIVE';
   joiningYear?: number;
   createdAt?: string;
   updatedAt?: string;
 }
 
-const StaffSchema = new Schema<IStaff>(
+const FacultySchema = new Schema<IFaculty>(
   {
     id: { type: String, required: true, unique: true },
     slNo: { type: Number, required: true },
     empId: { type: String, required: true },
     name: { type: String, required: true, trim: true },
-    roleCategory: {
-      type: String,
-      required: true,
-      enum: ['MEDICAL_STAFF', 'OFFICE_STAFF', 'PARAMEDICAL_STAFF', 'NON_MEDICAL_STAFF'],
-      default: 'OFFICE_STAFF',
-    },
-    staffCategory: {
-      type: String,
-      enum: ['MEDICAL', 'NON_MEDICAL'],
-      default: 'NON_MEDICAL',
-    },
     department: { type: String, required: true, trim: true },
+    departmentId: { type: String },
     designation: { type: String, required: true, trim: true },
-    category: { type: String, required: true, trim: true, default: 'STAFF' },
+    category: { type: String, default: 'ACADEMIC FACULTY' },
     displayOrder: { type: Number, required: true, index: true },
     qualification: { type: String },
     contactNumber: { type: String },
@@ -73,15 +59,29 @@ const StaffSchema = new Schema<IStaff>(
     experienceYears: { type: String },
     specialization: { type: String },
     biography: { type: String },
-    availability: { type: String, default: 'AVAILABLE' },
-    dutyShift: { type: String },
-    opdCounter: { type: String },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
     joiningYear: { type: Number },
   },
-  { timestamps: true, strict: false }
+  { timestamps: true, collection: 'faculty', strict: false }
 );
 
-export const StaffModel = mongoose.models.Staff || mongoose.model<IStaff>('Staff', StaffSchema);
+export const FacultyModel = mongoose.models.Faculty || mongoose.model<IFaculty>('Faculty', FacultySchema, 'faculty');
 
-export const SEED_STAFF: any[] = [];
+export const SEED_FACULTY = [
+  {
+    id: 'fac-test-001',
+    slNo: 1,
+    empId: 'TEST-FAC-001',
+    name: 'Rajesh Pal',
+    department: 'Homoeopathic Medicine',
+    departmentId: 'med',
+    designation: 'Assistant Professor',
+    category: 'ACADEMIC FACULTY',
+    displayOrder: 1,
+    qualification: 'BHMS, MD (Hom)',
+    specialization: 'Homoeopathic Medicine',
+    email: 'rajesh.pal@bhmc.edu.in',
+    phone: '+91 98000 00001',
+    status: 'ACTIVE',
+  },
+];

@@ -47,7 +47,7 @@ export const HospitalStaffDirectory: React.FC = () => {
   const isAuthorized = isSuperAdmin(user) || isAdmin(user) || isPrincipal(user) || isVicePrincipal(user);
 
   // State
-  const [staffList, setStaffList] = useState<HospitalStaffMember[]>(() => hospitalStaffService.getAllStaff());
+  const [staffList, setStaffList] = useState<HospitalStaffMember[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRoleCategory, setSelectedRoleCategory] = useState<string>('ALL');
   const [selectedDepartment, setSelectedDepartment] = useState<string>('ALL');

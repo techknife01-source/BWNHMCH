@@ -154,15 +154,18 @@ export class DepartmentStaffService {
         ? res
         : (Array.isArray(res?.data)
           ? res.data
-          : (Array.isArray(res?.data?.content) ? res.data.content : []));
+          : (Array.isArray(res?.data?.content) ? res.data.content : null));
 
-      if (rawList && rawList.length > 0) {
+      if (Array.isArray(rawList)) {
         const mapped: DepartmentStaffMember[] = rawList.map((fac: any) => this.mapSingleFacultyFromApi(fac));
         this.cachedStaff = mapped;
         return mapped;
       }
     } catch (err) {
-      console.warn('[DepartmentStaffService] Backend API fetch notice, falling back to CMS service:', err);
+      console.warn('[DepartmentStaffService] Backend API fetch notice, falling back to cached state:', err);
+    }
+    if (this.cachedStaff !== null) {
+      return this.cachedStaff;
     }
     return this.getAllStaff();
   }
@@ -221,13 +224,21 @@ export class DepartmentStaffService {
     const startIndex = (page - 1) * pageSize;
     const paginated = result.slice(startIndex, startIndex + pageSize);
 
-    return {
+    const retAsync = {
       data: paginated,
       total,
       page,
       pageSize,
       totalPages,
     };
+    console.log('[FACULTY SERVICE ASYNC]', {
+      time: performance.now(),
+      count: retAsync.data.length,
+      total: retAsync.total,
+      names: retAsync.data.map((x) => x.name),
+      source: 'getFilteredStaffAsync',
+    });
+    return retAsync;
   }
 
   public async getFacultyByIdAsync(id: string): Promise<DepartmentStaffMember | null> {
@@ -327,13 +338,21 @@ export class DepartmentStaffService {
     const startIndex = (page - 1) * pageSize;
     const paginated = result.slice(startIndex, startIndex + pageSize);
 
-    return {
+    const retSync = {
       data: paginated,
       total,
       page,
       pageSize,
       totalPages,
     };
+    console.log('[FACULTY SERVICE SYNC]', {
+      time: performance.now(),
+      count: retSync.data.length,
+      total: retSync.total,
+      names: retSync.data.map((x) => x.name),
+      source: 'getFilteredStaff',
+    });
+    return retSync;
   }
 
   public async addStaffAsync(staffData: Partial<DepartmentStaffMember>): Promise<DepartmentStaffMember> {
@@ -414,7 +433,12 @@ export class DepartmentStaffService {
     try {
       const res = await facultyApi.deleteFaculty(id);
       if (res && res.success) {
-        toast.success(`Faculty record deleted from MongoDB Atlas.`);
+        if (this.cachedStaff) {
+          this.cachedStaff = this.cachedStaff.filter((s) => s.id !== id);
+        }
+        this.deleteStaff(id, false);
+        window.dispatchEvent(new Event('bhmch_department_cms_updated'));
+        toast.success(`Faculty record deleted permanently.`);
         return true;
       }
       throw new Error(res?.message || 'Failed to delete faculty record from MongoDB Atlas');
@@ -555,7 +579,7 @@ export class DepartmentStaffService {
     return true;
   }
 
-  public deleteStaff(id: string): boolean {
+  public deleteStaff(id: string, showToast = true): boolean {
     const depts = departmentCmsService.getDepartments();
     for (const d of depts) {
       if (Array.isArray(d.facultyList)) {
@@ -564,12 +588,16 @@ export class DepartmentStaffService {
           const [deleted] = d.facultyList.splice(idx, 1);
           departmentCmsService.saveDepartment(d);
           window.dispatchEvent(new Event('bhmch_department_cms_updated'));
-          toast.success(`Faculty member "${deleted.name}" removed from ${d.name}.`);
+          if (showToast) {
+            toast.success(`Faculty member "${deleted.name}" removed from ${d.name}.`);
+          }
           return true;
         }
       }
     }
-    toast.error('Staff member not found.');
+    if (showToast) {
+      toast.error('Staff member not found.');
+    }
     return false;
   }
 
