@@ -98,7 +98,7 @@ export const AdmissionPage: React.FC = () => {
     },
     {
       q: 'What is the duration and structure of BHMS course?',
-      a: 'The BHMS program is 5.5 years in duration, comprising 4.5 years of academic and clinical training divided across 4 professional exams, followed by 1 year of compulsory rotatory internship at our attached 50-bed hospital.',
+      a: 'The BHMS program is 5.5 years in duration, comprising 4.5 years of academic and clinical training divided across 4 professional exams, followed by 1 year of compulsory rotatory internship at our attached 30-bed hospital.',
     },
     {
       q: 'Are hostel facilities available for male and female students?',

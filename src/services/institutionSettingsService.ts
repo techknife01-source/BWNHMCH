@@ -54,7 +54,7 @@ export const DEFAULT_INSTITUTION_SETTINGS: InstitutionSettings = {
   principalEmail: 'drsusmita01@gmail.com',
   websiteUrl: 'https://bhmch.ac.in',
   
-  footerText: 'Govt. Aided Premier Homoeopathic Medical College & 100-Bedded Hospital in West Bengal. Recognized by National Commission for Homoeopathy (NCH), New Delhi.',
+  footerText: 'Govt. Aided Premier Homoeopathic Medical College & 30-Bedded Hospital in West Bengal. Recognized by National Commission for Homoeopathy (NCH), New Delhi.',
   footerWorkingHours: 'Mon - Sat: 9:00 AM - 5:00 PM',
   footerOpdHours: 'Daily 9:00 AM - 2:00 PM | 24x7 Hospital Emergency',
 

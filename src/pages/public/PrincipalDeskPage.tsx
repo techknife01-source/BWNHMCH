@@ -11,7 +11,7 @@ export const PrincipalDeskPage: React.FC = () => {
     experienceYears: 28,
     message: `It gives me immense pride and pleasure to welcome you to BURDWAN HOMOEOPATHIC MEDICAL COLLEGE & HOSPITAL. Homoeopathy is not merely a system of medicine; it is a gentle, individualistic, and holistic science of healing founded by Dr. Samuel Hahnemann. 
 
-Our institution is committed to nurturing compassionate healthcare leaders who combine rigorous clinical training with deep empathetic care. With our 50-bed attached hospital, advanced research labs, and distinguished faculty members, we ensure every student acquires the highest standard of academic excellence and clinical acumen.
+Our institution is committed to nurturing compassionate healthcare leaders who combine rigorous clinical training with deep empathetic care. With our 30-bed attached hospital, advanced research labs, and distinguished faculty members, we ensure every student acquires the highest standard of academic excellence and clinical acumen.
 
 We invite aspiring scholars to join our vibrant academic community and embrace the noble path of homoeopathic medicine.`,
     vision: `To stand as a global beacon of excellence in Homoeopathic medical education, integrative clinical research, and accessible community healthcare.`,

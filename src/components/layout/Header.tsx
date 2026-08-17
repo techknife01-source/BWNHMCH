@@ -83,7 +83,7 @@ export const Header: React.FC = () => {
               {APP_CONSTANTS.INSTITUTION_NAME}
             </h1>
             <p className="text-[10px] font-bold text-[#00A651] tracking-wide uppercase flex items-center gap-2">
-              <span>Attached 50-Bed Teaching Hospital</span>
+              <span>Attached 30-Bed Teaching Hospital</span>
               <span className="text-slate-400 hidden sm:inline">• Purba Bardhaman, WB</span>
             </p>
           </div>

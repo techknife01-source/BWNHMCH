@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
               <CollegeLogo size="md" />
               <div>
                 <span className="font-extrabold text-white text-sm block leading-tight">{settings.collegeName}</span>
-                <span className="text-[10px] text-emerald-400 font-bold uppercase">100-Bed Attached Teaching Hospital & College</span>
+                <span className="text-[10px] text-emerald-400 font-bold uppercase">30-Bed Attached Teaching Hospital & College</span>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed pr-4">

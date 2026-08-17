@@ -89,7 +89,7 @@ export const ReportsCenterView: React.FC = () => {
           }`}
         >
           <Building2 className="w-4 h-4 text-purple-400" />
-          <span>50-Bed Hospital Clinical Logs</span>
+          <span>30-Bed Hospital Clinical Logs</span>
         </button>
       </div>
 

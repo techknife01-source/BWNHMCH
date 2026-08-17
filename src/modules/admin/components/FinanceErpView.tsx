@@ -381,7 +381,7 @@ export const FinanceErpView: React.FC = () => {
           <div className="space-y-3 text-xs">
             <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl flex justify-between items-center">
               <div>
-                <p className="font-bold text-slate-900 dark:text-white">50-Bed Attached Hospital Consumables & OPD Pharmacy</p>
+                <p className="font-bold text-slate-900 dark:text-white">30-Bed Attached Hospital Consumables & OPD Pharmacy</p>
                 <p className="text-[10px] text-slate-500">Dilutions, tinctures, biochemic salts & clinical equipment</p>
               </div>
               <span className="font-mono font-extrabold text-blue-600">₹45,00,000</span>

@@ -171,7 +171,7 @@ export const AnalyticsDashboardView: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
               <Activity className="w-4 h-4 text-blue-500" />
-              <span>50-Bed IPD Clinical Ward Occupancy Ratio</span>
+              <span>30-Bed IPD Clinical Ward Occupancy Ratio</span>
             </h3>
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl flex justify-between items-center">
