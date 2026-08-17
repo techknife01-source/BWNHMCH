@@ -33,6 +33,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public List<Staff> getAllStaff() {
         List<Staff> list = staffRepository.findAll();
+        list.removeIf(s -> (s.getId() != null && s.getId().startsWith("f-"))
+                || "ACADEMIC FACULTY".equalsIgnoreCase(s.getCategory()));
         list.sort(Comparator.comparing(s -> s.getDisplayOrder() != null ? s.getDisplayOrder() : (s.getSlNo() != null ? s.getSlNo() : 999)));
         return list;
     }

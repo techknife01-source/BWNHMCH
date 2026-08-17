@@ -50,7 +50,13 @@ class HospitalStaffService {
       }
 
       if (Array.isArray(rawList)) {
-        this.staffList = rawList.map((item: any, idx: number) => ({
+        const hospitalStaffOnly = rawList.filter((item: any) => {
+          if (item.id && String(item.id).startsWith('f-')) return false;
+          if (item.category === 'ACADEMIC FACULTY') return false;
+          return true;
+        });
+
+        this.staffList = hospitalStaffOnly.map((item: any, idx: number) => ({
           ...item,
           id: item.id || item._id,
           slNo: item.slNo || idx + 1,
@@ -58,7 +64,8 @@ class HospitalStaffService {
           name: item.name || item.facultyName || 'Staff Member',
           department: item.department || item.departmentName || 'HOSPITAL SECTION',
           designation: item.designation || 'Staff',
-          roleCategory: item.roleCategory || (item.category === 'ACADEMIC FACULTY' ? 'MEDICAL_STAFF' : 'OFFICE_STAFF'),
+          roleCategory: item.roleCategory || 'OFFICE_STAFF',
+          staffCategory: item.staffCategory || (item.roleCategory === 'PARAMEDICAL_STAFF' || item.roleCategory === 'MEDICAL_STAFF' ? 'MEDICAL' : 'NON_MEDICAL'),
           status: (item.status || 'ACTIVE').toUpperCase() === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
         }));
         return this.staffList;

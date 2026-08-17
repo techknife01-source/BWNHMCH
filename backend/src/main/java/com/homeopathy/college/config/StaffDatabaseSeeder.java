@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -22,9 +23,27 @@ public class StaffDatabaseSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("[STAFF_SEEDER] Checking production MongoDB staff collection for official hospital staff records...");
         try {
+            cleanupContaminatedFacultyInStaffCollection();
             seedOfficialStaff();
         } catch (Exception e) {
             log.error("[STAFF_SEEDER] Error during staff database seeding: {}", e.getMessage(), e);
+        }
+    }
+
+    private void cleanupContaminatedFacultyInStaffCollection() {
+        try {
+            List<Staff> contaminated = staffRepository.findAll().stream()
+                .filter(s -> (s.getId() != null && s.getId().startsWith("f-")) || "ACADEMIC FACULTY".equalsIgnoreCase(s.getCategory()))
+                .collect(Collectors.toList());
+            if (!contaminated.isEmpty()) {
+                log.info("[STAFF_SEEDER] Found {} contaminated faculty records in staff collection. Cleaning up...", contaminated.size());
+                for (Staff f : contaminated) {
+                    staffRepository.deleteById(f.getId());
+                }
+                log.info("[STAFF_SEEDER] Cleaned up contaminated faculty records from staff collection.");
+            }
+        } catch (Exception e) {
+            log.warn("[STAFF_SEEDER] Notice during faculty cleanup from staff collection: {}", e.getMessage());
         }
     }
 

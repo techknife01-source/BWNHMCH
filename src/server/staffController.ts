@@ -231,6 +231,9 @@ export const handleGetStaff = async (req: Request, res: Response) => {
       list = SEED_STAFF;
     }
 
+    // Filter out any faculty records if present
+    list = list.filter((s) => s && !String(s.id).startsWith('f-') && s.category !== 'ACADEMIC FACULTY');
+
     list.sort((a, b) => (a?.displayOrder || 0) - (b?.displayOrder || 0));
 
     const { category, department, roleCategory, staffCategory, search, status } = req.query;
