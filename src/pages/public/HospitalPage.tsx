@@ -42,7 +42,6 @@ interface HospitalPageProps {
 interface OpdDeptStat {
   id: string;
   name: string;
-  doctor: string;
   dailyFootfall: number;
   roomNo: string;
   timing: string;
@@ -60,26 +59,26 @@ interface IpdBedOccupancy {
 }
 
 const DEFAULT_OPD_DEPARTMENTS: OpdDeptStat[] = [
-  { id: 'opd-1', name: 'General Medicine', doctor: 'Dr. T. K. Maiti, M.D. (Hom.)', dailyFootfall: 55, roomNo: 'OPD Room 101', timing: 'Mon - Sat (09:00 AM - 02:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-2', name: 'Paediatrics', doctor: 'Dr. S. Chatterjee, M.D. (Hom.)', dailyFootfall: 35, roomNo: 'OPD Room 102', timing: 'Mon - Fri (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-3', name: 'Dermatology', doctor: 'Dr. D. Sen, M.D. (Path.)', dailyFootfall: 28, roomNo: 'OPD Room 103', timing: 'Tue, Thu, Sat (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-4', name: 'Rheumatology', doctor: 'Dr. A. K. Roy, M.D. (Hom.)', dailyFootfall: 20, roomNo: 'OPD Room 104', timing: 'Mon, Wed, Fri (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-5', name: 'Surgery', doctor: 'Dr. S. K. Mitra, M.S. (Surgery)', dailyFootfall: 22, roomNo: 'OPD Room 105', timing: 'Tue, Fri (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-6', name: 'Dental', doctor: 'Dr. R. Bannerjee, M.D.S.', dailyFootfall: 18, roomNo: 'OPD Room 106', timing: 'Mon - Sat (09:30 AM - 01:30 PM)', status: 'ACTIVE' },
-  { id: 'opd-7', name: 'Eye', doctor: 'Dr. P. K. Ghosh, M.S. (Ophthal.)', dailyFootfall: 18, roomNo: 'OPD Room 107', timing: 'Mon, Thu, Sat (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-8', name: 'ENT', doctor: 'Dr. M. Roy, M.S. (E.N.T.)', dailyFootfall: 15, roomNo: 'OPD Room 108', timing: 'Wed, Sat (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-9', name: 'Gynaecology & Obstetrics', doctor: 'Dr. N. Mukhopadhyay, M.D. (O&G)', dailyFootfall: 25, roomNo: 'OPD Room 109', timing: 'Mon - Sat (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-10', name: 'Yoga & Physiotherapy', doctor: 'Dr. P. K. Samanta, M.D., Dip. Yoga', dailyFootfall: 12, roomNo: 'Yoga Studio OPD', timing: 'Mon - Sat (08:00 AM - 12:00 PM)', status: 'ACTIVE' },
-  { id: 'opd-11', name: 'Nutrition & Diet', doctor: 'Dr. S. N. Bhattacharya, M.D. (Hom.)', dailyFootfall: 10, roomNo: 'OPD Room 110', timing: 'Tue, Thu (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-1', name: 'General Medicine', dailyFootfall: 55, roomNo: 'OPD Room 101', timing: 'Mon - Sat (09:00 AM - 02:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-2', name: 'Paediatrics', dailyFootfall: 35, roomNo: 'OPD Room 102', timing: 'Mon - Fri (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-3', name: 'Dermatology', dailyFootfall: 28, roomNo: 'OPD Room 103', timing: 'Tue, Thu, Sat (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-4', name: 'Rheumatology', dailyFootfall: 20, roomNo: 'OPD Room 104', timing: 'Mon, Wed, Fri (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-5', name: 'Surgery', dailyFootfall: 22, roomNo: 'OPD Room 105', timing: 'Tue, Fri (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-6', name: 'Dental', dailyFootfall: 18, roomNo: 'OPD Room 106', timing: 'Mon - Sat (09:30 AM - 01:30 PM)', status: 'ACTIVE' },
+  { id: 'opd-7', name: 'Eye', dailyFootfall: 18, roomNo: 'OPD Room 107', timing: 'Mon, Thu, Sat (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-8', name: 'ENT', dailyFootfall: 15, roomNo: 'OPD Room 108', timing: 'Wed, Sat (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-9', name: 'Gynaecology & Obstetrics', dailyFootfall: 25, roomNo: 'OPD Room 109', timing: 'Mon - Sat (10:00 AM - 02:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-10', name: 'Yoga & Physiotherapy', dailyFootfall: 12, roomNo: 'Yoga Studio OPD', timing: 'Mon - Sat (08:00 AM - 12:00 PM)', status: 'ACTIVE' },
+  { id: 'opd-11', name: 'Nutrition & Diet', dailyFootfall: 10, roomNo: 'OPD Room 110', timing: 'Tue, Thu (10:00 AM - 01:00 PM)', status: 'ACTIVE' },
 ];
 
 const DEFAULT_IPD_OCCUPANCY: IpdBedOccupancy[] = [
-  { id: 'ipd-1', wardName: 'General Medicine Male Ward', category: 'Male', totalBeds: 5, occupiedBeds: 4, wardInCharge: 'Dr. T. K. Maiti / Sister P. Das', lastUpdated: 'Today, 09:00 AM' },
-  { id: 'ipd-2', wardName: 'General Medicine Female Ward', category: 'Female', totalBeds: 5, occupiedBeds: 3, wardInCharge: 'Dr. S. Chatterjee / Sister M. Roy', lastUpdated: 'Today, 09:00 AM' },
-  { id: 'ipd-3', wardName: 'Surgery Male Ward', category: 'Male', totalBeds: 2, occupiedBeds: 1, wardInCharge: 'Dr. S. K. Mitra / Sister S. Ghosh', lastUpdated: 'Today, 08:30 AM' },
-  { id: 'ipd-4', wardName: 'Surgery Female Ward', category: 'Female', totalBeds: 2, occupiedBeds: 2, wardInCharge: 'Dr. S. K. Mitra / Sister A. Sen', lastUpdated: 'Today, 08:30 AM' },
-  { id: 'ipd-5', wardName: 'Paediatric Ward', category: 'Pediatric', totalBeds: 2, occupiedBeds: 1, wardInCharge: 'Dr. S. Chatterjee / Sister R. Dutta', lastUpdated: 'Today, 09:15 AM' },
-  { id: 'ipd-6', wardName: 'Gynaecology & Obstetrics Ward', category: 'Female/Maternity', totalBeds: 4, occupiedBeds: 3, wardInCharge: 'Dr. N. Mukhopadhyay / Sister K. Paul', lastUpdated: 'Today, 09:00 AM' },
+  { id: 'ipd-1', wardName: 'General Medicine Male Ward', category: 'Male', totalBeds: 5, occupiedBeds: 4, wardInCharge: 'Sister P. Das (Nursing Station)', lastUpdated: 'Today, 09:00 AM' },
+  { id: 'ipd-2', wardName: 'General Medicine Female Ward', category: 'Female', totalBeds: 5, occupiedBeds: 3, wardInCharge: 'Sister M. Roy (Nursing Station)', lastUpdated: 'Today, 09:00 AM' },
+  { id: 'ipd-3', wardName: 'Surgery Male Ward', category: 'Male', totalBeds: 2, occupiedBeds: 1, wardInCharge: 'Sister S. Ghosh (Nursing Station)', lastUpdated: 'Today, 08:30 AM' },
+  { id: 'ipd-4', wardName: 'Surgery Female Ward', category: 'Female', totalBeds: 2, occupiedBeds: 2, wardInCharge: 'Sister A. Sen (Nursing Station)', lastUpdated: 'Today, 08:30 AM' },
+  { id: 'ipd-5', wardName: 'Paediatric Ward', category: 'Pediatric', totalBeds: 2, occupiedBeds: 1, wardInCharge: 'Sister R. Dutta (Nursing Station)', lastUpdated: 'Today, 09:15 AM' },
+  { id: 'ipd-6', wardName: 'Gynaecology & Obstetrics Ward', category: 'Female/Maternity', totalBeds: 4, occupiedBeds: 3, wardInCharge: 'Sister K. Paul (Nursing Station)', lastUpdated: 'Today, 09:00 AM' },
 ];
 
 export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }) => {
@@ -175,7 +174,7 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
       gender: patientGender || 'Male',
       phone: patientPhone,
       email: patientEmail || 'patient@example.com',
-      doctorName: selectedDept ? selectedDept.doctor : 'Dr. T. K. Maiti',
+      doctorName: 'Attending OPD Medical Officer',
       department: preferredDept,
       appointmentDate: preferredDate,
       timeSlot: '09:30 AM',
@@ -386,7 +385,6 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
                 <thead>
                   <tr className="bg-[#002147] text-white font-bold uppercase tracking-wider text-[11px]">
                     <th className="p-3.5">OPD Department</th>
-                    <th className="p-3.5">Attending Consultant</th>
                     <th className="p-3.5 text-center">Avg Daily Attendance</th>
                     <th className="p-3.5">Counter / Room</th>
                     <th className="p-3.5">Timings</th>
@@ -399,23 +397,6 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
                     <tr key={dept.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/50 transition">
                       <td className="p-3.5 font-extrabold text-slate-900 dark:text-white">
                         {dept.name}
-                      </td>
-
-                      <td className="p-3.5">
-                        {isAdminEditingOpd ? (
-                          <input
-                            type="text"
-                            value={dept.doctor}
-                            onChange={(e) => {
-                              const updated = [...editingOpdList];
-                              updated[index].doctor = e.target.value;
-                              setEditingOpdList(updated);
-                            }}
-                            className="px-2 py-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded text-xs w-full"
-                          />
-                        ) : (
-                          <span className="font-semibold">{dept.doctor}</span>
-                        )}
                       </td>
 
                       <td className="p-3.5 text-center">
@@ -510,7 +491,6 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
 
                   <div className="space-y-1">
                     <h3 className="font-extrabold text-base text-slate-900 dark:text-white">{opd.name}</h3>
-                    <p className="text-xs text-slate-500">Attending Consultant: <span className="font-bold text-slate-700 dark:text-slate-300">{opd.doctor}</span></p>
                   </div>
 
                   <div className="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
@@ -613,9 +593,9 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
               <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
                 <div className="flex items-center gap-2 text-slate-900 dark:text-white font-black text-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>Doctors Room</span>
+                  <span>Duty Medical Officer Room</span>
                 </div>
-                <p className="text-2xs text-slate-500">Dedicated resident medical officer and visiting consultant duty room for ward rounds.</p>
+                <p className="text-2xs text-slate-500">Dedicated resident medical officer and clinical duty room for ward rounds.</p>
               </div>
 
               <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
@@ -631,7 +611,7 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span>House Staff Room</span>
                 </div>
-                <p className="text-2xs text-slate-500">Duty quarters for intern doctors and house staff officers managing 24x7 bed-side care.</p>
+                <p className="text-2xs text-slate-500">Duty quarters for clinical house staff and nursing officers managing 24x7 bed-side care.</p>
               </div>
             </div>
           </div>
