@@ -70,10 +70,11 @@ class HospitalStaffService {
         }));
         return this.staffList;
       }
-    } catch (err) {
+      throw new Error('API returned invalid staff response structure.');
+    } catch (err: any) {
       console.warn('[HospitalStaffService] API fetch error:', err);
+      throw err;
     }
-    return this.staffList;
   }
 
   async getStaffByIdAsync(id: string): Promise<HospitalStaffMember | undefined> {

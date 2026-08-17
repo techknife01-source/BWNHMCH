@@ -91,9 +91,21 @@ export const HospitalStaffDirectory: React.FC = () => {
     biography: ''
   });
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const refreshStaff = async () => {
-    const list = await hospitalStaffService.fetchStaffAsync();
-    setStaffList(list);
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const list = await hospitalStaffService.fetchStaffAsync();
+      setStaffList(list);
+    } catch (err: any) {
+      console.error('[HospitalStaffDirectory] Failed to fetch staff:', err);
+      setErrorMessage(err?.message || 'Unable to connect to staff service backend.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
