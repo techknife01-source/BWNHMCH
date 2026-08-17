@@ -125,10 +125,6 @@ export const HospitalStaffDirectory: React.FC = () => {
       if ((!isAuthorized || !showAdminControls) && s.status === 'INACTIVE') {
         return false;
       }
-      // Exclude individual doctor/physician entries from Hospital page directory
-      if (s.name.toLowerCase().includes('dr.') || s.name.toLowerCase().startsWith('dr ') || /medical_doctor/i.test(s.roleCategory || '')) {
-        return false;
-      }
       // Status filter
       if (selectedStatus !== 'ALL' && s.status !== selectedStatus) {
         return false;

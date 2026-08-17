@@ -33,10 +33,9 @@ import {
 import { Link } from 'react-router-dom';
 import { OpdTicketModal } from '../../components/opd/OpdTicketModal';
 import { OpdTicketData } from '../../services/opdTicketService';
-import { HospitalStaffDirectory } from '../../modules/hospital/components/HospitalStaffDirectory';
 
 interface HospitalPageProps {
-  defaultTab?: 'opd' | 'ipd' | 'investigations' | 'facilities' | 'staff';
+  defaultTab?: 'opd' | 'ipd' | 'investigations' | 'facilities';
 }
 
 interface OpdDeptStat {
@@ -82,7 +81,7 @@ const DEFAULT_IPD_OCCUPANCY: IpdBedOccupancy[] = [
 ];
 
 export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }) => {
-  const [activeTab, setActiveTab] = useState<'opd' | 'ipd' | 'investigations' | 'facilities' | 'staff'>(defaultTab);
+  const [activeTab, setActiveTab] = useState<'opd' | 'ipd' | 'investigations' | 'facilities'>(defaultTab);
 
   // Sync tab if prop changes
   useEffect(() => {
@@ -316,15 +315,6 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
         >
           <FlaskConical className="w-4 h-4" />
           <span>Hospital Facilities</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('staff')}
-          className={`pb-3 border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-            activeTab === 'staff' ? 'border-[#002147] text-[#002147] dark:border-[#00A651] dark:text-[#00A651]' : 'border-transparent text-slate-400 hover:text-slate-700'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Hospital Staff Directory</span>
         </button>
       </div>
 
@@ -895,11 +885,6 @@ export const HospitalPage: React.FC<HospitalPageProps> = ({ defaultTab = 'opd' }
             </p>
           </Card>
         </div>
-      )}
-
-      {/* 5. HOSPITAL STAFF DIRECTORY */}
-      {activeTab === 'staff' && (
-        <HospitalStaffDirectory />
       )}
 
       {/* OPD Ticket Booking Modal */}

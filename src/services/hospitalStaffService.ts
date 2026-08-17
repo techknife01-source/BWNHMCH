@@ -1,31 +1,5 @@
-import { ENV_CONFIG } from '../config/env.config';
-
-const getFromStorage = <T>(key: string, defaultValue: T): T => {
-  try {
-    const item = localStorage.getItem(key);
-    if (item) {
-      const parsed = JSON.parse(item);
-      if (Array.isArray(parsed) && parsed.some((s: any) => /amit dhank/i.test(s.name) || /anaesthetist/i.test(s.name) || /arunima laha/i.test(s.name) || /chandra das/i.test(s.name))) {
-        console.log(`[HospitalStaffService] Purged obsolete cached staff records from localStorage key ${key}`);
-        localStorage.removeItem(key);
-        return defaultValue;
-      }
-      return parsed;
-    }
-    return defaultValue;
-  } catch (e) {
-    console.error(`Error reading ${key} from storage:`, e);
-    return defaultValue;
-  }
-};
-
-const saveToStorage = <T>(key: string, value: T): void => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error(`Error saving ${key} to storage:`, e);
-  }
-};
+import { staffApi } from './api/staff.api';
+import { adminHrService } from './adminHrService';
 
 export type StaffRoleCategory = 'MEDICAL_STAFF' | 'OFFICE_STAFF' | 'PARAMEDICAL_STAFF' | 'NON_MEDICAL_STAFF';
 
@@ -56,33 +30,33 @@ export interface HospitalStaffMember {
   promotionDate?: string;
 }
 
-const STORAGE_KEY = 'bhmch_hospital_staff_directory_pdf_v2';
-
-export const OFFICIAL_HOSPITAL_STAFF: HospitalStaffMember[] = [];
-
-import { staffApi } from './api/staff.api';
-import { adminHrService } from './adminHrService';
-
 class HospitalStaffService {
   private staffList: HospitalStaffMember[] = [];
 
   async fetchStaffAsync(): Promise<HospitalStaffMember[]> {
     try {
-      const res = await staffApi.getStaffList();
-      const rawList = Array.isArray(res)
-        ? res
-        : (Array.isArray(res?.data)
-          ? res.data
-          : (Array.isArray(res?.data?.content) ? res.data.content : null));
+      const res: any = await staffApi.getStaffList();
+      let rawList: any[] | null = null;
+      if (Array.isArray(res)) {
+        rawList = res;
+      } else if (Array.isArray(res?.data)) {
+        rawList = res.data;
+      } else if (Array.isArray(res?.data?.data)) {
+        rawList = res.data.data;
+      } else if (Array.isArray(res?.data?.content)) {
+        rawList = res.data.content;
+      } else if (Array.isArray(res?.staff)) {
+        rawList = res.staff;
+      }
 
       if (Array.isArray(rawList)) {
         this.staffList = rawList.map((item: any, idx: number) => ({
           ...item,
           id: item.id || item._id,
-          slNo: idx + 1,
+          slNo: item.slNo || idx + 1,
           empId: item.empId || `SL-${String(idx + 1).padStart(2, '0')}`,
           name: item.name || item.facultyName || 'Staff Member',
-          department: item.department || item.departmentName || 'General',
+          department: item.department || item.departmentName || 'HOSPITAL SECTION',
           designation: item.designation || 'Staff',
           roleCategory: item.roleCategory || (item.category === 'ACADEMIC FACULTY' ? 'MEDICAL_STAFF' : 'OFFICE_STAFF'),
           status: (item.status || 'ACTIVE').toUpperCase() === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
@@ -90,7 +64,7 @@ class HospitalStaffService {
         return this.staffList;
       }
     } catch (err) {
-      console.warn('[HospitalStaffService] API fetch notice:', err);
+      console.warn('[HospitalStaffService] API fetch error:', err);
     }
     return this.staffList;
   }
@@ -108,7 +82,7 @@ class HospitalStaffService {
         };
       }
     } catch (err) {
-      console.warn('[HospitalStaffService] getStaffByIdAsync notice:', err);
+      console.warn('[HospitalStaffService] getStaffByIdAsync error:', err);
     }
     return this.staffList.find((s) => s.id === id);
   }
@@ -187,8 +161,9 @@ class HospitalStaffService {
   }
 
   resetToDefault(): void {
-    this.staffList = [...OFFICIAL_HOSPITAL_STAFF];
+    this.fetchStaffAsync();
   }
+
   private safeLogAudit(entry: {
     module: string;
     action: string;

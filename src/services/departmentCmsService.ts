@@ -510,17 +510,6 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
         phone: '+91 8329668180',
         registrationNumber: '33886 (Council of Homoeopathic Medicine. W.B.)',
         joiningDate: '2020-03-11'
-      },
-      {
-        id: 'f-gyn-4',
-        name: 'Dr. Tapan Kumar Bandyopadhyay',
-        designation: 'Guest Professor',
-        qualification: 'M.B.B.S., M.D. (Gyn & Obs.)',
-        specialization: 'Obstetrics & Surgical Gynaecology',
-        email: 'dr.tapan57@gmail.com',
-        phone: '+91 9647960457',
-        registrationNumber: '46081 (W.B.M.C.)',
-        joiningDate: '2022-02-14'
       }
     ],
     gallery: [
@@ -1018,7 +1007,7 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
       bgImageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200'
     },
     description: 'Department of Yoga & Naturopathy provides practical training in Yoga, Asanas, Pranayama, and Naturopathic principles to BHMS scholars, promoting holistic health and mind-body equilibrium in accordance with AYUSH and NCH guidelines.',
-    hod: 'Moumita Maji, Yoga Expert (RYT01124)',
+    hod: 'Dr. Shah Alam, Assistant Professor (BNYS)',
     yearsCovered: 'BHMS All Years & Hospital OPD/IPD Patients',
     methodology: [
       'Practical demonstration of Yogic Asanas and Pranayama techniques',
@@ -1036,17 +1025,6 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
     ],
     facultyList: [
       {
-        id: 'f-yog-1',
-        name: 'Moumita Maji',
-        designation: 'Yoga Instructor / Expert',
-        qualification: 'Yoga Expert (RYT01124)',
-        specialization: 'Therapeutic Yoga & Asanas',
-        email: 'moumita18589@gmail.com',
-        phone: '+91 9614632475',
-        registrationNumber: 'RYT01124 (West Bengal Council of Yoga)',
-        joiningDate: '2025-06-06'
-      },
-      {
         id: 'f-yog-2',
         name: 'Dr. Shah Alam',
         designation: 'Assistant Professor',
@@ -1056,17 +1034,6 @@ export const INITIAL_DEPARTMENT_CMS_DATA: DepartmentCMSData[] = [
         phone: '+91 9834718527',
         registrationNumber: '303 (Central Council for Research in Yoga & Naturopathy)',
         joiningDate: '2025-07-02'
-      },
-      {
-        id: 'f-yog-3',
-        name: 'Dr. Sunil Kumar Shaw',
-        designation: 'Yoga Expert',
-        qualification: 'Diploma in Yoga & Naturopathy',
-        specialization: 'Naturopathy & Yogic Therapy',
-        email: 'sunilyoga12@gmail.com',
-        phone: '+91 8759708724',
-        registrationNumber: 'B00003 (West Bengal Council of Yoga & Naturopathy)',
-        joiningDate: '2014-09-22'
       }
     ],
     gallery: [
@@ -1090,7 +1057,7 @@ export const departmentCmsService = {
           if (Array.isArray(parsed)) {
             const hasObsoleteStaff = parsed.some((d: any) =>
               Array.isArray(d.facultyList) && d.facultyList.some((f: any) =>
-                /amit dhank/i.test(f.name) || /anaesthetist/i.test(f.name) || /arunima laha/i.test(f.name) || /chandra das/i.test(f.name) || /swapan kundu/i.test(f.name)
+                /amit dhank/i.test(f.name) || /tapan kumar/i.test(f.name) || /moumita maji/i.test(f.name) || /sunil kumar shaw/i.test(f.name) || /anup prasad/i.test(f.name) || /puspendu/i.test(f.name) || /shyamashri/i.test(f.name) || /namrata das/i.test(f.name) || /bhubaneswar/i.test(f.name) || /sukdev/i.test(f.name) || /awadhesh/i.test(f.name) || /abhi jana/i.test(f.name) || /dilip basak/i.test(f.name) || /pritrish/i.test(f.name) || /arunima laha/i.test(f.name) || /chandra das/i.test(f.name) || /swapan/i.test(f.name)
               )
             );
             if (hasObsoleteStaff) {

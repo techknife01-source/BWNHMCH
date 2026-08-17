@@ -54,10 +54,82 @@ async function reindexDisplayOrders() {
   }
 }
 
-// Helper: Load existing staff records from MongoDB Atlas into in-memory cache (NO AUTO-SEEDING)
+export async function seedOfficialStaffData() {
+  if (mongoose.connection.readyState !== 1) return;
+  try {
+    const existing = await (StaffModel as any).find({}).lean();
+    const existingMap = new Map<string, any>();
+
+    existing.forEach((doc: any) => {
+      if (doc.empId) existingMap.set(doc.empId.toUpperCase().trim(), doc);
+      if (doc.name) existingMap.set(doc.name.toLowerCase().trim(), doc);
+      if (doc.id) existingMap.set(doc.id, doc);
+    });
+
+    const bulkOps: any[] = [];
+    for (const seedItem of SEED_STAFF) {
+      const normName = seedItem.name.toLowerCase().trim();
+      const normEmpId = seedItem.empId.toUpperCase().trim();
+      const match = existingMap.get(normEmpId) || existingMap.get(normName) || existingMap.get(seedItem.id);
+
+      if (match) {
+        // Idempotent update without duplicating existing MongoDB record
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: match._id },
+            update: {
+              $set: {
+                slNo: seedItem.slNo,
+                empId: seedItem.empId,
+                name: seedItem.name,
+                designation: seedItem.designation,
+                department: seedItem.department,
+                roleCategory: seedItem.roleCategory,
+                staffCategory: seedItem.staffCategory,
+                displayOrder: seedItem.displayOrder,
+                joiningDate: seedItem.joiningDate || match.joiningDate || '',
+                experienceYears: seedItem.experienceYears || match.experienceYears || '',
+                status: match.status || 'ACTIVE',
+              },
+            },
+          },
+        });
+      } else {
+        // Insert missing official staff record into MongoDB
+        bulkOps.push({
+          insertOne: {
+            document: {
+              ...seedItem,
+              category: 'HOSPITAL STAFF',
+            },
+          },
+        });
+      }
+    }
+
+    if (bulkOps.length > 0) {
+      await (StaffModel as any).bulkWrite(bulkOps);
+      console.log(`[Staff Seeder] Idempotent sync of ${bulkOps.length} official staff records completed.`);
+    }
+  } catch (err: any) {
+    console.error('[Staff Seeder Error]:', err?.message || err);
+  }
+}
+
+// Helper: Load existing staff records from MongoDB Atlas into in-memory cache
 export async function initStaffDatabase() {
   try {
+    if (memoryStaffStore.length === 0) {
+      memoryStaffStore = SEED_STAFF.map((s: any, idx: number) => ({
+        ...s,
+        id: s.id || `stf-${String(idx + 1).padStart(3, '0')}`,
+        slNo: s.slNo || idx + 1,
+        displayOrder: s.displayOrder || idx + 1,
+      }));
+    }
+
     if (mongoose.connection.readyState === 1) {
+      await seedOfficialStaffData();
       const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
       if (dbStaff) {
         memoryStaffStore = dbStaff.map((s: any, idx: number) => ({
@@ -133,18 +205,30 @@ export const handleGetStaff = async (req: Request, res: Response) => {
     let list: any[] = [];
     if (mongoose.connection.readyState === 1) {
       try {
-        const dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
-        list = dbStaff || [];
+        let dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
+        if (!dbStaff || dbStaff.length === 0) {
+          await seedOfficialStaffData();
+          dbStaff = await (StaffModel as any).find({}).sort({ displayOrder: 1 }).lean();
+        }
+        list = dbStaff && dbStaff.length > 0 ? dbStaff : memoryStaffStore;
       } catch (dbErr: any) {
         console.warn('[Staff DB Query Fallback]: Using memory store:', dbErr?.message || dbErr);
         list = memoryStaffStore;
       }
     } else {
+      if (memoryStaffStore.length === 0) {
+        memoryStaffStore = SEED_STAFF.map((s: any, idx: number) => ({
+          ...s,
+          id: s.id || `stf-${String(idx + 1).padStart(3, '0')}`,
+          slNo: s.slNo || idx + 1,
+          displayOrder: s.displayOrder || idx + 1,
+        }));
+      }
       list = memoryStaffStore;
     }
 
-    if (!Array.isArray(list)) {
-      list = memoryStaffStore;
+    if (!Array.isArray(list) || list.length === 0) {
+      list = SEED_STAFF;
     }
 
     list.sort((a, b) => (a?.displayOrder || 0) - (b?.displayOrder || 0));
